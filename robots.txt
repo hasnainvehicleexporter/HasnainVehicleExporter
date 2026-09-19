@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hasnainvehicleexporter.github.io/HasnainVehicleExporter/sitemap.xml
