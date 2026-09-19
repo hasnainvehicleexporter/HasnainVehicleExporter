@@ -1,48 +1,48 @@
 /* =========================================================
    HASNAIN VEHICLE EXPORTER
-   Main JavaScript
-   ========================================================= */
+========================================================= */
 
 
 /* =========================
-   MOBILE NAVIGATION
-   ========================= */
+   MOBILE MENU
+========================= */
 
-const menuToggle = document.getElementById("menuToggle");
-const nav = document.getElementById("nav");
+const mobileMenu = document.getElementById("mobileMenu");
+const mainNav = document.getElementById("mainNav");
 
-if (menuToggle && nav) {
+if (mobileMenu && mainNav) {
 
-    menuToggle.addEventListener("click", () => {
+    mobileMenu.addEventListener("click", function () {
 
-        nav.classList.toggle("active");
+        mainNav.classList.toggle("active");
 
-        const isOpen = nav.classList.contains("active");
+        const icon = mobileMenu.querySelector("i");
 
-        menuToggle.setAttribute(
-            "aria-label",
-            isOpen
-                ? "Close navigation menu"
-                : "Open navigation menu"
-        );
+        if (mainNav.classList.contains("active")) {
+
+            icon.classList.remove("fa-bars");
+            icon.classList.add("fa-xmark");
+
+        } else {
+
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
+
+        }
 
     });
 
 
-    /* Close menu after clicking a navigation link */
+    document.querySelectorAll(".main-nav a").forEach(function (link) {
 
-    const navLinks = nav.querySelectorAll("a");
+        link.addEventListener("click", function () {
 
-    navLinks.forEach((link) => {
+            mainNav.classList.remove("active");
 
-        link.addEventListener("click", () => {
+            const icon = mobileMenu.querySelector("i");
 
-            nav.classList.remove("active");
-
-            menuToggle.setAttribute(
-                "aria-label",
-                "Open navigation menu"
-            );
+            icon.classList.remove("fa-xmark");
+            icon.classList.add("fa-bars");
 
         });
 
@@ -52,180 +52,129 @@ if (menuToggle && nav) {
 
 
 /* =========================
-   WHATSAPP FORM
-   ========================= */
+   ACTIVE NAVIGATION
+========================= */
 
-const whatsappForm = document.getElementById("whatsappForm");
+const sections = document.querySelectorAll("section[id]");
+const navLinks = document.querySelectorAll(".main-nav a[href^='#']");
 
-if (whatsappForm) {
+function updateActiveNavigation() {
 
-    whatsappForm.addEventListener("submit", function (event) {
+    let current = "";
 
-        event.preventDefault();
+    sections.forEach(function (section) {
 
+        const sectionTop =
+            section.offsetTop - 150;
 
-        /* Get form values */
-
-        const name =
-            document.getElementById("name").value.trim();
-
-        const country =
-            document.getElementById("country").value.trim();
-
-        const phone =
-            document.getElementById("phone").value.trim();
-
-        const requestType =
-            document.getElementById("requestType").value.trim();
-
-        const details =
-            document.getElementById("details").value.trim();
-
-        const budget =
-            document.getElementById("budget").value.trim();
-
-        const message =
-            document.getElementById("message").value.trim();
-
-
-        /* Basic validation */
-
-        if (
-            !name ||
-            !country ||
-            !phone ||
-            !requestType ||
-            !details ||
-            !message
-        ) {
-
-            alert(
-                "Please complete all required fields before sending your request."
-            );
-
-            return;
+        if (window.scrollY >= sectionTop) {
+            current = section.getAttribute("id");
         }
 
-
-        /* Optional budget */
-
-        const budgetText = budget
-            ? budget
-            : "Not provided";
+    });
 
 
-        /* Create WhatsApp message */
+    navLinks.forEach(function (link) {
 
-        const whatsappMessage =
+        link.classList.remove("active");
 
-`Hello Hasnain Vehicle Exporter,
-
-I would like to make an inquiry.
-
-Name: ${name}
-
-Country: ${country}
-
-My WhatsApp Number: ${phone}
-
-Request Type: ${requestType}
-
-Vehicle / Part Details:
-${details}
-
-Budget:
-${budgetText}
-
-Message:
-${message}
-
-Please provide me with more information.
-
-Thank you.`;
-
-
-        /* Encode message */
-
-        const encodedMessage =
-            encodeURIComponent(whatsappMessage);
-
-
-        /* WhatsApp number */
-
-        const whatsappNumber =
-            "923392207418";
-
-
-        /* WhatsApp URL */
-
-        const whatsappURL =
-            `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
-
-        /* Open WhatsApp */
-
-        window.open(
-            whatsappURL,
-            "_blank",
-            "noopener,noreferrer"
-        );
+        if (
+            link.getAttribute("href") ===
+            "#" + current
+        ) {
+            link.classList.add("active");
+        }
 
     });
 
 }
+
+window.addEventListener(
+    "scroll",
+    updateActiveNavigation
+);
 
 
 /* =========================
-   HEADER SCROLL EFFECT
-   ========================= */
+   HEADER SCROLL
+========================= */
 
-const header = document.querySelector(".header");
+const header =
+    document.getElementById("siteHeader");
 
-if (header) {
+window.addEventListener("scroll", function () {
 
-    window.addEventListener("scroll", () => {
+    if (window.scrollY > 30) {
 
-        if (window.scrollY > 50) {
+        header.style.boxShadow =
+            "0 4px 20px rgba(0,0,0,.25)";
 
-            header.style.background =
-                "rgba(5, 5, 5, 0.98)";
+    } else {
 
-        } else {
+        header.style.boxShadow = "none";
 
-            header.style.background =
-                "rgba(8, 8, 8, 0.94)";
+    }
+
+});
+
+
+/* =========================
+   FAQ
+========================= */
+
+const faqDetails =
+    document.querySelectorAll(".faq-list details");
+
+faqDetails.forEach(function (detail) {
+
+    detail.addEventListener("toggle", function () {
+
+        if (detail.open) {
+
+            faqDetails.forEach(function (other) {
+
+                if (
+                    other !== detail &&
+                    other.open
+                ) {
+                    other.removeAttribute("open");
+                }
+
+            });
 
         }
 
     });
 
-}
+});
 
 
 /* =========================
    CURRENT YEAR
-   ========================= */
+========================= */
 
-const currentYear =
-    document.querySelector(".footer-bottom p");
+const year =
+    document.getElementById("year");
 
-if (currentYear) {
+if (year) {
 
-    currentYear.textContent =
-        `© ${new Date().getFullYear()} Hasnain Vehicle Exporter. All rights reserved.`;
+    year.textContent =
+        new Date().getFullYear();
 
 }
 
 
 /* =========================
    EXTERNAL LINKS
-   ========================= */
+========================= */
 
-document.querySelectorAll('a[target="_blank"]').forEach((link) => {
+document
+    .querySelectorAll('a[target="_blank"]')
+    .forEach(function (link) {
 
-    link.setAttribute(
-        "rel",
-        "noopener noreferrer"
-    );
+        link.setAttribute(
+            "rel",
+            "noopener noreferrer"
+        );
 
-});
+    });
