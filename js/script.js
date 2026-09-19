@@ -1,33 +1,39 @@
 /* =========================================================
    HASNAIN VEHICLE EXPORTER
-   WEBSITE JAVASCRIPT
-========================================================= */
+   Main JavaScript
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
-       MOBILE MENU
-    ===================================================== */
+       MOBILE NAVIGATION
+       ===================================================== */
 
-    const mobileMenu = document.querySelector(".mobile-menu");
-    const mainNav = document.querySelector(".main-nav");
+    const mobileMenu = document.getElementById("mobileMenu");
+    const mainNav = document.getElementById("mainNav");
 
     if (mobileMenu && mainNav) {
 
         mobileMenu.addEventListener("click", function () {
 
-            mainNav.classList.toggle("active");
+            const isOpen = mainNav.classList.toggle("active");
 
-            const isOpen = mainNav.classList.contains("active");
+            mobileMenu.setAttribute(
+                "aria-expanded",
+                isOpen ? "true" : "false"
+            );
 
-            mobileMenu.setAttribute("aria-expanded", isOpen);
+            const icon = mobileMenu.querySelector("i");
 
-            mobileMenu.innerHTML = isOpen ? "&#10005;" : "&#9776;";
+            if (icon) {
+                icon.className = isOpen
+                    ? "fa-solid fa-xmark"
+                    : "fa-solid fa-bars";
+            }
 
         });
 
-
-        /* Close menu when navigation link is clicked */
+        /* Close menu when clicking a navigation link */
 
         const navLinks = mainNav.querySelectorAll("a");
 
@@ -37,9 +43,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 mainNav.classList.remove("active");
 
-                mobileMenu.setAttribute("aria-expanded", "false");
+                mobileMenu.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
 
-                mobileMenu.innerHTML = "&#9776;";
+                const icon = mobileMenu.querySelector("i");
+
+                if (icon) {
+                    icon.className = "fa-solid fa-bars";
+                }
 
             });
 
@@ -49,45 +62,163 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       HEADER SCROLL EFFECT
-    ===================================================== */
+       WHATSAPP REQUEST FORM
+       ===================================================== */
 
-    const header = document.querySelector(".site-header");
+    const whatsappForm =
+        document.getElementById("whatsappForm");
 
-    if (header) {
+    if (whatsappForm) {
 
-        function updateHeader() {
+        whatsappForm.addEventListener(
+            "submit",
+            function (event) {
 
-            if (window.scrollY > 30) {
+                event.preventDefault();
 
-                header.style.boxShadow =
-                    "0 5px 25px rgba(0,0,0,0.35)";
+                const name =
+                    document.getElementById("name").value.trim();
 
-            } else {
+                const country =
+                    document.getElementById("country").value.trim();
 
-                header.style.boxShadow = "none";
+                const phone =
+                    document.getElementById("phone").value.trim();
+
+                const requestType =
+                    document.getElementById("requestType").value.trim();
+
+                const vehicle =
+                    document.getElementById("vehicle").value.trim();
+
+                const budget =
+                    document.getElementById("budget").value.trim();
+
+                const message =
+                    document.getElementById("message").value.trim();
+
+
+                /*
+                 * Basic validation
+                 */
+
+                if (
+                    !name ||
+                    !country ||
+                    !phone ||
+                    !requestType ||
+                    !vehicle ||
+                    !message
+                ) {
+
+                    alert(
+                        "Please complete all required fields before sending your request."
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * Create WhatsApp message
+                 */
+
+                let whatsappMessage =
+                    "Hello Hasnain Vehicle Exporter,\n\n" +
+                    "*NEW VEHICLE / PARTS REQUEST*\n\n" +
+
+                    "*Name:* " +
+                    name +
+                    "\n" +
+
+                    "*Country:* " +
+                    country +
+                    "\n" +
+
+                    "*WhatsApp:* " +
+                    phone +
+                    "\n" +
+
+                    "*Request Type:* " +
+                    requestType +
+                    "\n" +
+
+                    "*Vehicle / Part Details:* " +
+                    vehicle;
+
+
+                if (budget) {
+
+                    whatsappMessage +=
+                        "\n" +
+                        "*Budget:* " +
+                        budget;
+
+                }
+
+
+                whatsappMessage +=
+                    "\n\n" +
+                    "*Message:*\n" +
+                    message +
+
+                    "\n\n" +
+                    "Sent from Hasnain Vehicle Exporter website.";
+
+
+                /*
+                 * Encode message for WhatsApp
+                 */
+
+                const encodedMessage =
+                    encodeURIComponent(
+                        whatsappMessage
+                    );
+
+
+                /*
+                 * WhatsApp number
+                 *
+                 * International format:
+                 * +92 339 2207418
+                 *
+                 * WhatsApp URL:
+                 * 923392207418
+                 */
+
+                const whatsappURL =
+                    "https://wa.me/923392207418?text=" +
+                    encodedMessage;
+
+
+                /*
+                 * Open WhatsApp
+                 */
+
+                window.open(
+                    whatsappURL,
+                    "_blank",
+                    "noopener,noreferrer"
+                );
 
             }
-
-        }
-
-        updateHeader();
-
-        window.addEventListener("scroll", updateHeader, {
-            passive: true
-        });
+        );
 
     }
 
 
     /* =====================================================
-       ACTIVE NAVIGATION
-    ===================================================== */
+       ACTIVE NAVIGATION WHILE SCROLLING
+       ===================================================== */
 
-    const sections = document.querySelectorAll("section[id]");
+    const sections =
+        document.querySelectorAll("section[id]");
 
     const navigationLinks =
-        document.querySelectorAll(".main-nav a[href^='#']");
+        document.querySelectorAll(
+            '.main-nav a[href^="#"]'
+        );
 
 
     function updateActiveNavigation() {
@@ -95,21 +226,26 @@ document.addEventListener("DOMContentLoaded", function () {
         let currentSection = "";
 
         const scrollPosition =
-            window.scrollY + 130;
+            window.scrollY + 150;
 
 
         sections.forEach(function (section) {
 
-            const sectionTop = section.offsetTop;
+            const sectionTop =
+                section.offsetTop;
 
-            const sectionHeight = section.offsetHeight;
+            const sectionHeight =
+                section.offsetHeight;
+
 
             if (
                 scrollPosition >= sectionTop &&
-                scrollPosition < sectionTop + sectionHeight
+                scrollPosition <
+                sectionTop + sectionHeight
             ) {
 
-                currentSection = section.getAttribute("id");
+                currentSection =
+                    section.getAttribute("id");
 
             }
 
@@ -120,11 +256,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             link.classList.remove("active");
 
-            const target =
+            const href =
                 link.getAttribute("href");
 
             if (
-                target === "#" + currentSection
+                href === "#" +
+                currentSection
             ) {
 
                 link.classList.add("active");
@@ -142,71 +279,108 @@ document.addEventListener("DOMContentLoaded", function () {
         { passive: true }
     );
 
+
     updateActiveNavigation();
 
 
     /* =====================================================
+       HEADER SHADOW ON SCROLL
+       ===================================================== */
+
+    const header =
+        document.querySelector(".site-header");
+
+
+    function updateHeader() {
+
+        if (!header) {
+            return;
+        }
+
+
+        if (window.scrollY > 30) {
+
+            header.style.boxShadow =
+                "0 5px 25px rgba(0, 0, 0, 0.35)";
+
+        } else {
+
+            header.style.boxShadow =
+                "none";
+
+        }
+
+    }
+
+
+    window.addEventListener(
+        "scroll",
+        updateHeader,
+        { passive: true }
+    );
+
+
+    updateHeader();
+
+
+    /* =====================================================
        SMOOTH SCROLL
-    ===================================================== */
+       ===================================================== */
 
-    document.querySelectorAll(
-        'a[href^="#"]'
-    ).forEach(function (link) {
+    const anchorLinks =
+        document.querySelectorAll(
+            'a[href^="#"]'
+        );
 
-        link.addEventListener("click", function (event) {
 
-            const targetID =
-                this.getAttribute("href");
+    anchorLinks.forEach(function (link) {
 
-            if (
-                !targetID ||
-                targetID === "#"
-            ) {
+        link.addEventListener(
+            "click",
+            function (event) {
 
-                return;
+                const targetID =
+                    link.getAttribute("href");
+
+
+                if (
+                    !targetID ||
+                    targetID === "#"
+                ) {
+
+                    return;
+
+                }
+
+
+                const target =
+                    document.querySelector(
+                        targetID
+                    );
+
+
+                if (!target) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                target.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
 
             }
-
-
-            const target =
-                document.querySelector(targetID);
-
-            if (!target) {
-
-                return;
-
-            }
-
-
-            event.preventDefault();
-
-
-            const headerHeight =
-                header ? header.offsetHeight : 0;
-
-
-            const targetPosition =
-                target.getBoundingClientRect().top +
-                window.scrollY -
-                headerHeight;
-
-
-            window.scrollTo({
-
-                top: targetPosition,
-
-                behavior: "smooth"
-
-            });
-
-        });
+        );
 
     });
 
 
     /* =====================================================
        FAQ
-    ===================================================== */
+       ===================================================== */
 
     const faqDetails =
         document.querySelectorAll(
@@ -221,9 +395,7 @@ document.addEventListener("DOMContentLoaded", function () {
             function () {
 
                 if (!detail.open) {
-
                     return;
-
                 }
 
 
@@ -235,7 +407,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             otherDetail.open
                         ) {
 
-                            otherDetail.open = false;
+                            otherDetail.removeAttribute(
+                                "open"
+                            );
 
                         }
 
@@ -250,20 +424,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
        SCROLL REVEAL
-    ===================================================== */
+       ===================================================== */
 
     const revealElements =
         document.querySelectorAll(
             ".service-card, " +
             ".about-copy, " +
-            ".about-middle, " +
-            ".about-points, " +
+            ".about-main-image, " +
+            ".about-point, " +
             ".process-step, " +
             ".why-column, " +
             ".africa-column, " +
             ".africa-image, " +
-            ".faq-intro, " +
-            ".faq-list"
+            ".faq-list details"
         );
 
 
@@ -284,7 +457,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ) {
 
                                 entry.target.classList.add(
-                                    "show"
+                                    "is-visible"
                                 );
 
                                 observer.unobserve(
@@ -298,7 +471,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 },
                 {
-                    threshold: 0.12
+                    threshold: 0.10,
+                    rootMargin: "0px 0px -40px 0px"
                 }
             );
 
@@ -321,225 +495,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       WHATSAPP FORM
-    ===================================================== */
+       PROTECT EXTERNAL LINKS
+       ===================================================== */
 
-    const whatsappForm =
+    const externalLinks =
+        document.querySelectorAll(
+            'a[target="_blank"]'
+        );
+
+
+    externalLinks.forEach(function (link) {
+
+        const currentRel =
+            link.getAttribute("rel") || "";
+
+        if (
+            !currentRel.includes("noopener")
+        ) {
+
+            link.setAttribute(
+                "rel",
+                "noopener noreferrer"
+            );
+
+        }
+
+    });
+
+
+    /* =====================================================
+       CURRENT YEAR
+       ===================================================== */
+
+    const currentYear =
         document.querySelector(
-            "#whatsappForm"
+            ".current-year"
         );
 
 
-    if (whatsappForm) {
+    if (currentYear) {
 
-        whatsappForm.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-
-                const name =
-                    document.querySelector(
-                        "#name"
-                    )?.value.trim() || "";
-
-
-                const country =
-                    document.querySelector(
-                        "#country"
-                    )?.value.trim() || "";
-
-
-                const phone =
-                    document.querySelector(
-                        "#whatsapp"
-                    )?.value.trim() || "";
-
-
-                const requestType =
-                    document.querySelector(
-                        "#requestType"
-                    )?.value.trim() || "";
-
-
-                const vehicle =
-                    document.querySelector(
-                        "#vehicle"
-                    )?.value.trim() || "";
-
-
-                const budget =
-                    document.querySelector(
-                        "#budget"
-                    )?.value.trim() || "";
-
-
-                const message =
-                    document.querySelector(
-                        "#message"
-                    )?.value.trim() || "";
-
-
-                let whatsappMessage =
-                    "Hello Hasnain Vehicle Exporter,%0A%0A";
-
-
-                whatsappMessage +=
-                    "*New Website Inquiry*%0A%0A";
-
-
-                whatsappMessage +=
-                    "*Name:* " +
-                    encodeURIComponent(name) +
-                    "%0A";
-
-
-                whatsappMessage +=
-                    "*Country:* " +
-                    encodeURIComponent(country) +
-                    "%0A";
-
-
-                whatsappMessage +=
-                    "*WhatsApp:* " +
-                    encodeURIComponent(phone) +
-                    "%0A";
-
-
-                whatsappMessage +=
-                    "*Request:* " +
-                    encodeURIComponent(requestType) +
-                    "%0A";
-
-
-                whatsappMessage +=
-                    "*Vehicle / Part Details:* " +
-                    encodeURIComponent(vehicle) +
-                    "%0A";
-
-
-                if (budget !== "") {
-
-                    whatsappMessage +=
-                        "*Budget:* " +
-                        encodeURIComponent(budget) +
-                        "%0A";
-
-                } else {
-
-                    whatsappMessage +=
-                        "*Budget:* Not provided%0A";
-
-                }
-
-
-                whatsappMessage +=
-                    "*Message:* " +
-                    encodeURIComponent(message) +
-                    "%0A%0A";
-
-
-                whatsappMessage +=
-                    "Sent from the Hasnain Vehicle Exporter website.";
-
-
-                const whatsappNumber =
-                    "923392207418";
-
-
-                const whatsappURL =
-                    "https://wa.me/" +
-                    whatsappNumber +
-                    "?text=" +
-                    whatsappMessage;
-
-
-                window.open(
-                    whatsappURL,
-                    "_blank",
-                    "noopener,noreferrer"
-                );
-
-            }
-        );
+        currentYear.textContent =
+            new Date().getFullYear();
 
     }
 
 
     /* =====================================================
-       CURRENT YEAR
-    ===================================================== */
+       CONSOLE BRAND MESSAGE
+       ===================================================== */
 
-    const yearElements =
-        document.querySelectorAll(
-            "[data-current-year]"
-        );
-
-
-    yearElements.forEach(
-        function (element) {
-
-            element.textContent =
-                new Date().getFullYear();
-
-        }
+    console.log(
+        "Hasnain Vehicle Exporter — Japan to Africa"
     );
-
-
-    /* =====================================================
-       ESC KEY - CLOSE MOBILE MENU
-    ===================================================== */
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (
-                event.key === "Escape" &&
-                mainNav &&
-                mainNav.classList.contains("active")
-            ) {
-
-                mainNav.classList.remove(
-                    "active"
-                );
-
-                if (mobileMenu) {
-
-                    mobileMenu.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                    mobileMenu.innerHTML =
-                        "&#9776;";
-
-                }
-
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       PREVENT EMPTY BUTTON LINKS
-    ===================================================== */
-
-    document.querySelectorAll(
-        'a[href="#"]'
-    ).forEach(function (link) {
-
-        link.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-            }
-        );
-
-    });
 
 });
