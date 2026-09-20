@@ -1,45 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Vehicle Details | Hasnain Vehicle Exporter</title>
+    <title>
+        Vehicle Details | Hasnain Vehicle Exporter
+    </title>
 
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/vehicles.css">
+    <meta
+        name="description"
+        content="Vehicle details, specifications and country-specific quotation from Hasnain Vehicle Exporter.">
 
-    <script
-        type="module"
-        src="js/vehicle-details.js"
-    ></script>
+    <link
+        rel="stylesheet"
+        href="css/vehicles.css">
+
+    <style>
+
+        .details-page {
+            padding: 65px 0 100px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            gap: 8px;
+            color: #d4af37;
+            margin-bottom: 35px;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .vehicle-details-layout {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        .details-gallery {
+            position: sticky;
+            top: 110px;
+        }
+
+        .main-photo {
+            height: 530px;
+            background: #111;
+            border: 1px solid rgba(255,255,255,.12);
+            overflow: hidden;
+        }
+
+        .main-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-row {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .thumbnail {
+            height: 80px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: #111;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .thumbnail.active {
+            border-color: #d4af37;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .details-ref {
+            color: #d4af37;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .details-title {
+            font-size: clamp(38px,5vw,62px);
+            line-height: 1.05;
+            margin-bottom: 25px;
+        }
+
+        .details-status {
+            display: inline-block;
+            background: #d4af37;
+            color: #000;
+            padding: 7px 13px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        .details-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .detail-spec {
+            padding: 18px;
+            background: #111416;
+            border: 1px solid rgba(255,255,255,.09);
+        }
+
+        .detail-spec label {
+            display: block;
+            color: #d4af37;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-spec span {
+            font-size: 15px;
+            color: #eee;
+        }
+
+        .details-section {
+            margin-top: 35px;
+        }
+
+        .details-section h2 {
+            font-size: 21px;
+            margin-bottom: 12px;
+            color: #d4af37;
+        }
+
+        .details-description {
+            color: #aaa;
+            line-height: 1.8;
+        }
+
+        .country-box {
+            margin-top: 35px;
+            padding: 25px;
+            background:
+                linear-gradient(135deg,#171513,#0c0d0d);
+            border: 1px solid rgba(212,175,55,.3);
+        }
+
+        .country-box h2 {
+            color: white;
+            font-size: 21px;
+            margin-bottom: 8px;
+        }
+
+        .country-box p {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 17px;
+        }
+
+        #quoteCountry {
+            width: 100%;
+            height: 52px;
+            background: #090a0b;
+            border: 1px solid rgba(255,255,255,.15);
+            color: white;
+            padding: 0 15px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        #quoteCountry:focus {
+            border-color: #d4af37;
+        }
+
+        .whatsapp-quote {
+            width: 100%;
+            display: block;
+            text-align: center;
+            background: #25d366;
+            color: white;
+            padding: 14px;
+            font-weight: 800;
+            border: 0;
+        }
+
+        .whatsapp-quote:hover {
+            background: #1ebe5d;
+        }
+
+        .detail-notice {
+            margin-top: 40px;
+            padding: 20px;
+            background: #111416;
+            border-left: 3px solid #d4af37;
+            color: #999;
+            font-size: 13px;
+        }
+
+        @media(max-width:900px) {
+
+            .vehicle-details-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .details-gallery {
+                position: static;
+            }
+
+            .main-photo {
+                height: 430px;
+            }
+
+        }
+
+        @media(max-width:550px) {
+
+            .details-page {
+                padding-top: 35px;
+            }
+
+            .main-photo {
+                height: 300px;
+            }
+
+            .thumbnail {
+                height: 60px;
+            }
+
+            .details-spec-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
 
 </head>
 
 
-<body class="vehicle-details-page">
+<body>
 
 
-<header class="catalog-header">
+<!-- HEADER -->
 
-    <div class="catalog-header-inner">
+<header class="main-header">
 
-        <a href="index.html" class="catalog-logo">
+    <div class="header-inner">
+
+        <a href="index.html" class="brand">
 
             <img
                 src="images/logo.png"
-                alt="Hasnain Vehicle Exporter"
-            >
+                alt="Hasnain Vehicle Exporter">
 
         </a>
 
 
-        <nav class="catalog-nav">
+        <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn">
+
+            ☰
+
+        </button>
+
+
+        <nav
+            class="main-nav"
+            id="mainNav">
 
             <a href="index.html">
                 Home
@@ -47,16 +293,17 @@
 
             <a
                 href="vehicles.html"
-                class="active"
-            >
+                class="active">
+
                 Browse Vehicles
+
             </a>
 
             <a href="index.html#about">
                 About
             </a>
 
-            <a href="index.html#how-it-works">
+            <a href="index.html#process">
                 How It Works
             </a>
 
@@ -68,620 +315,317 @@
                 Contact
             </a>
 
+            <a
+                href="https://wa.me/923392207418"
+                target="_blank"
+                class="nav-whatsapp">
+
+                WhatsApp Us
+
+            </a>
+
         </nav>
-
-
-        <a
-            class="header-whatsapp"
-            href="https://wa.me/923392207418"
-            target="_blank"
-            rel="noopener"
-        >
-            <span>◉</span>
-            WhatsApp Us
-        </a>
-
-
-        <button
-            class="mobile-menu-button"
-            id="mobileMenuButton"
-        >
-            ☰
-        </button>
 
     </div>
 
 </header>
 
 
-<main>
+<!-- DETAILS -->
 
-    <!-- DETAILS HERO -->
+<main class="details-page">
 
-    <section class="details-hero">
+    <div class="container">
 
-        <div class="details-hero-overlay"></div>
+        <a
+            href="vehicles.html"
+            class="back-link">
 
-        <div class="details-container">
+            ← Back to Vehicles
 
-            <a
-                href="vehicles.html"
-                class="details-back"
-            >
-                ← Back to Vehicles
-            </a>
+        </a>
+
+
+        <div id="detailsLoading"
+             class="loading-box">
+
+            <div class="loader"></div>
+
+            <p>
+                Loading vehicle...
+            </p>
 
         </div>
 
-    </section>
 
-
-    <!-- VEHICLE MAIN -->
-
-    <section class="vehicle-details-section">
-
-        <div
-            id="vehicleLoading"
-            class="vehicle-loading"
-        >
-            Loading vehicle...
-        </div>
-
-
-        <div
+        <section
             id="vehicleDetails"
-            class="details-container"
-            hidden
-        >
+            class="vehicle-details-layout"
+            hidden>
 
-            <!-- TOP AREA -->
 
-            <div class="details-top">
+            <!-- GALLERY -->
 
-                <!-- GALLERY -->
+            <div class="details-gallery">
 
-                <div class="vehicle-gallery">
+                <div class="main-photo">
 
-                    <div
-                        id="vehicleMainImage"
-                        class="vehicle-main-image"
-                    ></div>
-
-
-                    <div
-                        id="vehicleGallery"
-                        class="vehicle-gallery-thumbs"
-                    ></div>
-
-                </div>
-
-
-                <!-- SUMMARY -->
-
-                <div class="vehicle-summary">
-
-                    <div class="detail-ref">
-                        REF:
-                        <span id="vehicleReference">
-                            HVE-0000
-                        </span>
-                    </div>
-
-
-                    <div
-                        id="vehicleStatus"
-                        class="detail-status"
-                    >
-                        AVAILABLE
-                    </div>
-
-
-                    <h1 id="vehicleTitle">
-                        Toyota Land Cruiser Prado
-                    </h1>
-
-
-                    <!-- SPECS -->
-
-                    <div class="detail-spec-grid">
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ◫
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    YEAR
-                                </small>
-
-                                <strong id="vehicleYear">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ◇
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    MILEAGE
-                                </small>
-
-                                <strong id="vehicleMileage">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ⚙
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    ENGINE
-                                </small>
-
-                                <strong id="vehicleEngine">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ⛽
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    FUEL
-                                </small>
-
-                                <strong id="vehicleFuel">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ◴
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    TRANSMISSION
-                                </small>
-
-                                <strong id="vehicleTransmission">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="detail-spec">
-
-                            <span class="spec-icon">
-                                ◈
-                            </span>
-
-                            <div>
-
-                                <small>
-                                    DRIVE
-                                </small>
-
-                                <strong id="vehicleDrive">
-                                    -
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- COUNTRY QUOTE NOTICE -->
-
-                    <div class="country-quote-notice">
-
-                        <div class="quote-icon">
-                            ✥
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Country-specific quotation
-                            </h3>
-
-                            <p>
-                                Vehicle and shipping costs vary
-                                by destination country.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- LOWER CONTENT -->
-
-            <div class="details-content-grid">
-
-
-                <!-- DESCRIPTION -->
-
-                <div class="details-main-column">
-
-                    <section class="detail-panel">
-
-                        <h2>
-                            Vehicle Description
-                        </h2>
-
-                        <p id="vehicleDescription">
-                            Vehicle description loading...
-                        </p>
-
-
-                        <h3 class="features-heading">
-                            Key Features
-                        </h3>
-
-
-                        <div
-                            id="vehicleFeatures"
-                            class="vehicle-features"
-                        ></div>
-
-                    </section>
-
-
-                    <!-- SHIPPING INFO -->
-
-                    <section class="shipping-banner">
-
-                        <div class="shipping-image"></div>
-
-                        <div class="shipping-banner-item">
-
-                            <span>
-                                ◉
-                            </span>
-
-                            <div>
-
-                                <strong>
-                                    Exporting to Africa & Caribbean
-                                </strong>
-
-                                <small>
-                                    All countries • All makes • All models
-                                </small>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="shipping-divider"></div>
-
-
-                        <div class="shipping-banner-item">
-
-                            <span>
-                                ◇
-                            </span>
-
-                            <div>
-
-                                <strong>
-                                    Safe & Secure Shipping
-                                </strong>
-
-                                <small>
-                                    From Japan to Your Country
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                </div>
-
-
-                <!-- QUOTE BOX -->
-
-                <aside class="quote-panel">
-
-                    <h2>
-                        ✉ Get Country-Specific Quote
-                    </h2>
-
-                    <p>
-                        Select your destination country
-                        and get a quotation on WhatsApp.
-                    </p>
-
-
-                    <label for="destinationCountry">
-                        Destination Country
-                    </label>
-
-
-                    <select
-                        id="destinationCountry"
-                    >
-
-                        <option value="">
-                            Select your country
-                        </option>
-
-                    </select>
-
-
-                    <button
-                        id="whatsappQuote"
-                        class="whatsapp-quote-button"
-                    >
-
-                        <span>
-                            ◉
-                        </span>
-
-                        Get Quote on WhatsApp
-
-                    </button>
-
-
-                    <p class="quote-note">
-                        We will respond with the best price
-                        and shipping details for your country.
-                    </p>
-
-                </aside>
-
-            </div>
-
-
-            <!-- SIMILAR -->
-
-            <section class="similar-section">
-
-                <div class="section-heading-row">
-
-                    <h2>
-                        Similar Vehicles
-                    </h2>
+                    <img
+                        id="mainVehicleImage"
+                        src=""
+                        alt="Vehicle">
 
                 </div>
 
 
                 <div
-                    id="similarVehicles"
-                    class="similar-grid"
-                ></div>
+                    id="thumbnailRow"
+                    class="thumbnail-row">
+                </div>
 
-            </section>
-
-        </div>
+            </div>
 
 
-        <!-- ERROR -->
+            <!-- INFORMATION -->
+
+            <div class="details-information">
+
+                <div
+                    id="vehicleReference"
+                    class="details-ref">
+                </div>
+
+
+                <h1
+                    id="vehicleTitle"
+                    class="details-title">
+                </h1>
+
+
+                <div
+                    id="vehicleStatus"
+                    class="details-status">
+                </div>
+
+
+                <div
+                    id="specGrid"
+                    class="details-spec-grid">
+                </div>
+
+
+                <section class="details-section">
+
+                    <h2>
+                        Vehicle Description
+                    </h2>
+
+                    <p
+                        id="vehicleDescription"
+                        class="details-description">
+                    </p>
+
+                </section>
+
+
+                <section
+                    id="featuresSection"
+                    class="details-section">
+
+                    <h2>
+                        Key Features
+                    </h2>
+
+                    <p
+                        id="vehicleFeatures"
+                        class="details-description">
+                    </p>
+
+                </section>
+
+
+                <!-- COUNTRY QUOTE -->
+
+                <div class="country-box">
+
+                    <h2>
+                        Get Country-Specific Quote
+                    </h2>
+
+                    <p>
+                        Select your destination country
+                        to request the current vehicle
+                        price and shipping details.
+                    </p>
+
+
+                    <select id="quoteCountry">
+
+                        <option value="">
+                            Select Destination Country
+                        </option>
+
+                    </select>
+
+
+                    <a
+                        id="whatsappQuote"
+                        class="whatsapp-quote"
+                        href="#"
+                        target="_blank">
+
+                        Request Quote on WhatsApp
+
+                    </a>
+
+                </div>
+
+
+                <div class="detail-notice">
+
+                    <strong>
+                        Important:
+                    </strong>
+
+                    Vehicle price and shipping cost may vary
+                    according to destination country.
+                    Contact us for a current country-specific
+                    quotation and availability.
+
+                </div>
+
+            </div>
+
+        </section>
+
 
         <div
-            id="vehicleError"
-            class="vehicle-error"
-            hidden
-        >
+            id="detailsError"
+            class="empty-state"
+            hidden>
+
+            <div class="empty-icon">
+                🚗
+            </div>
 
             <h2>
                 Vehicle Not Found
             </h2>
 
             <p>
-                This vehicle may no longer be available.
+                This vehicle may have been removed or
+                is no longer available.
             </p>
 
-            <a href="vehicles.html">
-                ← Browse Vehicles
+            <a
+                href="vehicles.html"
+                class="gold-btn">
+
+                Browse Vehicles
+
             </a>
 
         </div>
 
-    </section>
+    </div>
 
 </main>
 
 
-<footer class="catalog-footer">
+<!-- FOOTER -->
 
-    <div class="catalog-footer-main">
+<footer class="site-footer">
 
-        <div class="footer-brand">
+    <div class="footer-inner">
+
+        <div>
 
             <img
                 src="images/logo.png"
-                alt="Hasnain Vehicle Exporter"
-            >
+                class="footer-logo"
+                alt="Hasnain Vehicle Exporter">
 
             <p>
-                Quality Japanese Vehicles.
-                Global Reach.
+                Japanese vehicles and auto parts from Japan
+                to customers across Africa and the Caribbean.
             </p>
 
         </div>
 
 
-        <div class="footer-feature">
+        <div>
 
-            <div class="footer-feature-icon">
-                ✓
-            </div>
+            <h3>
+                Quick Links
+            </h3>
 
-            <div>
-                <strong>Trusted Partner</strong>
-                <span>With BE FORWARD Japan</span>
-            </div>
+            <a href="index.html">
+                Home
+            </a>
 
-        </div>
+            <a href="vehicles.html">
+                Browse Vehicles
+            </a>
 
-
-        <div class="footer-feature">
-
-            <div class="footer-feature-icon">
-                ◉
-            </div>
-
-            <div>
-                <strong>Worldwide Shipping</strong>
-                <span>To Africa & Caribbean</span>
-            </div>
+            <a href="index.html#about">
+                About
+            </a>
 
         </div>
 
 
-        <div class="footer-feature">
+        <div>
 
-            <div class="footer-feature-icon">
-                ◆
-            </div>
+            <h3>
+                Contact
+            </h3>
 
-            <div>
-                <strong>Secure & Reliable</strong>
-                <span>Your Vehicle, Our Priority</span>
-            </div>
+            <a
+                href="https://wa.me/923392207418"
+                target="_blank">
 
-        </div>
+                +92 339 2207418
 
+            </a>
 
-        <div class="footer-social">
+            <a
+                href="mailto:hasnainvehicleexporter@gmail.com">
 
-            <strong>Follow Us</strong>
+                hasnainvehicleexporter@gmail.com
 
-            <div class="social-icons">
-
-                <a href="https://www.facebook.com/hasnainvehicleexporter">
-                    f
-                </a>
-
-                <a href="https://www.instagram.com/hasnainvehicleexporter">
-                    ◎
-                </a>
-
-                <a href="https://www.tiktok.com/@hasnainvehicleexporter">
-                    ♪
-                </a>
-
-                <a href="https://www.youtube.com/@HasnainVehicleExporter">
-                    ▶
-                </a>
-
-            </div>
+            </a>
 
         </div>
 
     </div>
 
 
-    <div class="catalog-footer-bottom">
+    <div class="footer-bottom">
 
-        <span>
-            © <span class="current-year"></span>
-            Hasnain Vehicle Exporter.
-            All rights reserved.
-        </span>
-
-        <div>
-
-            <a href="index.html">
-                Privacy Policy
-            </a>
-
-            <span>|</span>
-
-            <a href="index.html">
-                Terms & Conditions
-            </a>
-
-        </div>
+        © <span id="currentYear"></span>
+        Hasnain Vehicle Exporter.
+        All Rights Reserved.
 
     </div>
 
 </footer>
 
 
-<script>
+<a
+    href="https://wa.me/923392207418"
+    target="_blank"
+    class="floating-whatsapp">
 
-const mobileMenuButton =
-    document.getElementById("mobileMenuButton");
+    WA
 
-const catalogNav =
-    document.querySelector(".catalog-nav");
-
-mobileMenuButton?.addEventListener("click", () => {
-
-    catalogNav.classList.toggle("mobile-open");
-
-});
+</a>
 
 
-document.querySelectorAll(".catalog-nav a")
-.forEach(link => {
-
-    link.addEventListener("click", () => {
-
-        catalogNav.classList.remove("mobile-open");
-
-    });
-
-});
-
-
-document.querySelector(".current-year").textContent =
-    new Date().getFullYear();
-
+<script
+    type="module"
+    src="js/vehicle-details.js">
 </script>
 
 </body>
+
 </html>
