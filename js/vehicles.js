@@ -8,17 +8,10 @@ import {
     getDocs
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-import {
-    ALL_COUNTRIES,
-    AFRICA_COUNTRIES,
-    CARIBBEAN_COUNTRIES,
-    COUNTRY_REGION
-} from "./countries.js";
 
-
-/* =========================
+/* =========================================================
    FIREBASE
-========================= */
+   ========================================================= */
 
 const firebaseConfig = {
 
@@ -51,9 +44,105 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-/* =========================
-   DOM
-========================= */
+/* =========================================================
+   AFRICA — 54 COUNTRIES
+   ========================================================= */
+
+const AFRICA = [
+
+    "Algeria",
+    "Angola",
+    "Benin",
+    "Botswana",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cameroon",
+    "Central African Republic",
+    "Chad",
+    "Comoros",
+    "Democratic Republic of the Congo",
+    "Djibouti",
+    "Egypt",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Eswatini",
+    "Ethiopia",
+    "Gabon",
+    "Gambia",
+    "Ghana",
+    "Guinea",
+    "Guinea-Bissau",
+    "Ivory Coast",
+    "Kenya",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Madagascar",
+    "Malawi",
+    "Mali",
+    "Mauritania",
+    "Mauritius",
+    "Morocco",
+    "Mozambique",
+    "Namibia",
+    "Niger",
+    "Nigeria",
+    "Republic of the Congo",
+    "Rwanda",
+    "Sao Tome and Principe",
+    "Senegal",
+    "Seychelles",
+    "Sierra Leone",
+    "Somalia",
+    "South Africa",
+    "South Sudan",
+    "Sudan",
+    "Tanzania",
+    "Togo",
+    "Tunisia",
+    "Uganda",
+    "Zambia",
+    "Zimbabwe"
+
+];
+
+
+/* =========================================================
+   CARIBBEAN — 16 INDEPENDENT COUNTRIES
+   ========================================================= */
+
+const CARIBBEAN = [
+
+    "Antigua and Barbuda",
+    "Bahamas",
+    "Barbados",
+    "Belize",
+    "Cuba",
+    "Dominica",
+    "Dominican Republic",
+    "Grenada",
+    "Guyana",
+    "Haiti",
+    "Jamaica",
+    "Saint Kitts and Nevis",
+    "Saint Lucia",
+    "Saint Vincent and the Grenadines",
+    "Suriname",
+    "Trinidad and Tobago"
+
+];
+
+
+const ALL_COUNTRIES = [
+    ...AFRICA,
+    ...CARIBBEAN
+].sort();
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
 
 const grid =
     document.getElementById("vehicleGrid");
@@ -61,13 +150,10 @@ const grid =
 const count =
     document.getElementById("vehicleCount");
 
-const empty =
-    document.getElementById("vehicleEmpty");
+const emptyState =
+    document.getElementById("emptyState");
 
-const pagination =
-    document.getElementById("vehiclePagination");
-
-const searchInput =
+const search =
     document.getElementById("vehicleSearch");
 
 const statusFilter =
@@ -79,29 +165,19 @@ const regionFilter =
 const countryFilter =
     document.getElementById("countryFilter");
 
-const resetButton =
-    document.getElementById("resetFilters");
+const clearFilters =
+    document.getElementById("clearFilters");
 
-const emptyReset =
-    document.getElementById("emptyReset");
-
-
-/* =========================
-   STATE
-========================= */
-
-let allVehicles = [];
-
-let filteredVehicles = [];
-
-let currentPage = 1;
-
-const ITEMS_PER_PAGE = 8;
+const emptyClear =
+    document.getElementById("emptyClear");
 
 
-/* =========================
+let vehicles = [];
+
+
+/* =========================================================
    COUNTRY FILTER
-========================= */
+   ========================================================= */
 
 function populateCountries() {
 
@@ -111,14 +187,7 @@ function populateCountries() {
         </option>
     `;
 
-
-    const africaGroup =
-        document.createElement("optgroup");
-
-    africaGroup.label = "Africa";
-
-
-    AFRICA_COUNTRIES.forEach(country => {
+    ALL_COUNTRIES.forEach(country => {
 
         const option =
             document.createElement("option");
@@ -127,249 +196,133 @@ function populateCountries() {
 
         option.textContent = country;
 
-        africaGroup.appendChild(option);
+        countryFilter.appendChild(option);
 
     });
-
-
-    countryFilter.appendChild(
-        africaGroup
-    );
-
-
-    const caribbeanGroup =
-        document.createElement("optgroup");
-
-    caribbeanGroup.label = "Caribbean";
-
-
-    CARIBBEAN_COUNTRIES.forEach(country => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = country;
-
-        option.textContent = country;
-
-        caribbeanGroup.appendChild(option);
-
-    });
-
-
-    countryFilter.appendChild(
-        caribbeanGroup
-    );
 
 }
 
 
-populateCountries();
-
-
-/* =========================
+/* =========================================================
    HELPERS
-========================= */
+   ========================================================= */
 
-function valueOf(vehicle, ...fields) {
+function firstValue(obj, keys, fallback = "") {
 
-    for (const field of fields) {
-
-        const value = vehicle[field];
+    for (const key of keys) {
 
         if (
-            value !== undefined &&
-            value !== null &&
-            value !== ""
+            obj[key] !== undefined &&
+            obj[key] !== null &&
+            obj[key] !== ""
         ) {
 
-            return value;
+            return obj[key];
 
         }
 
     }
 
-    return "";
-
-}
-
-
-function clean(value) {
-
-    return String(value || "")
-        .trim();
-
-}
-
-
-function lower(value) {
-
-    return clean(value)
-        .toLowerCase();
-
-}
-
-
-function escapeHTML(value) {
-
-    return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-}
-
-
-function formatMileage(value) {
-
-    if (!value) return "-";
-
-    const number =
-        Number(
-            String(value)
-                .replaceAll(",", "")
-                .replace(/[^\d.]/g, "")
-        );
-
-    if (!Number.isNaN(number)) {
-
-        return number.toLocaleString();
-
-    }
-
-    return value;
-
-}
-
-
-function getVehicleName(vehicle) {
-
-    const make =
-        valueOf(
-            vehicle,
-            "make",
-            "brand",
-            "manufacturer"
-        );
-
-    const model =
-        valueOf(
-            vehicle,
-            "model",
-            "name",
-            "title"
-        );
-
-    if (make && model) {
-
-        return `${make} ${model}`;
-
-    }
-
-    return model || make || "Japanese Vehicle";
-
-}
-
-
-function getStatus(vehicle) {
-
-    return clean(
-        valueOf(
-            vehicle,
-            "status",
-            "availability"
-        ) || "Available"
-    );
-
-}
-
-
-function getRegion(vehicle) {
-
-    const region =
-        clean(
-            valueOf(
-                vehicle,
-                "region",
-                "market"
-            )
-        );
-
-    return region || "Africa";
+    return fallback;
 
 }
 
 
 function getImages(vehicle) {
 
-    const images =
-        valueOf(
+    let images =
+        firstValue(
             vehicle,
-            "images",
-            "imageUrls",
-            "photos",
-            "photoUrls"
+            [
+                "images",
+                "imageUrls",
+                "photos",
+                "gallery"
+            ],
+            []
         );
 
 
-    if (Array.isArray(images)) {
+    if (!Array.isArray(images)) {
 
-        return images.filter(Boolean);
-
-    }
-
-
-    if (typeof images === "string") {
-
-        return images
-            .split(",")
-            .map(item => item.trim())
-            .filter(Boolean);
+        images = images
+            ? [images]
+            : [];
 
     }
 
 
-    return [];
+    return images.filter(Boolean);
 
 }
 
 
-function getFirstImage(vehicle) {
+function getReference(vehicle) {
+
+    return firstValue(
+        vehicle,
+        [
+            "referenceNumber",
+            "ref",
+            "reference",
+            "hveRef"
+        ],
+        "HVE-0000"
+    );
+
+}
+
+
+function getName(vehicle) {
+
+    const make =
+        firstValue(
+            vehicle,
+            ["make", "brand"],
+            ""
+        );
+
+    const model =
+        firstValue(
+            vehicle,
+            ["model", "vehicleModel"],
+            ""
+        );
+
+
+    return `${make} ${model}`.trim()
+        || "Japanese Vehicle";
+
+}
+
+
+function normalizeStatus(status) {
+
+    return String(status || "Available")
+        .trim()
+        .toLowerCase();
+
+}
+
+
+function getImage(vehicle) {
 
     const images =
         getImages(vehicle);
 
-    if (images.length) {
-
-        return images[0];
-
-    }
-
-
-    /*
-     * Online fallback image.
-     * This is only used if the vehicle has
-     * no uploaded Cloudinary photo.
-     */
-
-    return "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=85";
+    return images[0]
+        || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85";
 
 }
 
 
-/* =========================
-   LOAD VEHICLES
-========================= */
+/* =========================================================
+   LOAD FIRESTORE
+   ========================================================= */
 
 async function loadVehicles() {
 
     try {
-
-        count.textContent =
-            "Loading vehicles...";
-
 
         const snapshot =
             await getDocs(
@@ -377,7 +330,7 @@ async function loadVehicles() {
             );
 
 
-        allVehicles =
+        vehicles =
             snapshot.docs.map(doc => ({
 
                 id: doc.id,
@@ -387,50 +340,24 @@ async function loadVehicles() {
             }));
 
 
-        /*
-         * Newest entries first.
-         */
-
-        allVehicles.sort((a, b) => {
-
-            const aTime =
-                a.createdAt?.seconds ||
-                0;
-
-            const bTime =
-                b.createdAt?.seconds ||
-                0;
-
-            return bTime - aTime;
-
-        });
-
-
-        applyFilters();
+        renderVehicles();
 
     }
 
     catch (error) {
 
-        console.error(
-            "Vehicle loading error:",
-            error
-        );
-
-
-        count.textContent =
-            "Unable to load vehicles.";
+        console.error(error);
 
         grid.innerHTML = `
 
-            <div class="vehicle-load-error">
+            <div class="loading-box">
 
-                <h3>
-                    Vehicles could not be loaded
-                </h3>
+                <h2>
+                    Unable to Load Vehicles
+                </h2>
 
                 <p>
-                    Please refresh the page and try again.
+                    Please refresh the page.
                 </p>
 
             </div>
@@ -442,517 +369,396 @@ async function loadVehicles() {
 }
 
 
-/* =========================
+/* =========================================================
    FILTER
-========================= */
+   ========================================================= */
 
-function applyFilters() {
+function filterVehicles() {
 
-    const search =
-        lower(searchInput.value);
+    const term =
+        search.value
+            .trim()
+            .toLowerCase();
+
 
     const selectedStatus =
-        lower(statusFilter.value);
+        statusFilter.value.toLowerCase();
+
 
     const selectedRegion =
-        lower(regionFilter.value);
+        regionFilter.value;
+
 
     const selectedCountry =
         countryFilter.value;
 
 
-    filteredVehicles =
-        allVehicles.filter(vehicle => {
+    return vehicles.filter(vehicle => {
+
+        const name =
+            getName(vehicle)
+                .toLowerCase();
 
 
-            const name =
-                getVehicleName(vehicle);
+        const reference =
+            getReference(vehicle)
+                .toLowerCase();
 
 
-            const reference =
-                valueOf(
+        const year =
+            String(
+                firstValue(
                     vehicle,
-                    "ref",
-                    "referenceNumber",
-                    "reference",
-                    "stockNumber"
-                );
+                    ["year"],
+                    ""
+                )
+            ).toLowerCase();
 
 
-            const description =
-                valueOf(
+        const country =
+            String(
+                firstValue(
                     vehicle,
-                    "description"
-                );
-
-
-            const status =
-                lower(getStatus(vehicle));
-
-
-            const region =
-                lower(getRegion(vehicle));
-
-
-            const country =
-                clean(
-                    valueOf(
-                        vehicle,
-                        "country",
-                        "destinationCountry",
-                        "destination"
-                    )
-                );
-
-
-            /*
-             * SEARCH
-             */
-
-            const matchesSearch =
-                !search ||
-
-                lower(name)
-                    .includes(search) ||
-
-                lower(reference)
-                    .includes(search) ||
-
-                lower(description)
-                    .includes(search);
-
-
-            /*
-             * STATUS
-             */
-
-            const matchesStatus =
-                selectedStatus === "all" ||
-
-                status === selectedStatus;
-
-
-            /*
-             * REGION
-             */
-
-            const matchesRegion =
-                selectedRegion === "all" ||
-
-                region === selectedRegion;
-
-
-            /*
-             * COUNTRY
-             *
-             * Important:
-             * A vehicle published without a
-             * destination remains visible under
-             * All Countries.
-             */
-
-            let matchesCountry = true;
-
-
-            if (
-                selectedCountry !== "all"
-            ) {
-
-                matchesCountry =
-                    country === selectedCountry ||
-
-                    region ===
-                    lower(
-                        COUNTRY_REGION[
-                            selectedCountry
-                        ]
-                    );
-
-            }
-
-
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesRegion &&
-                matchesCountry
+                    ["country", "destinationCountry"],
+                    ""
+                )
             );
 
-        });
 
-
-    currentPage = 1;
-
-    renderVehicles();
-
-}
-
-
-/* =========================
-   CARD
-========================= */
-
-function createVehicleCard(vehicle) {
-
-    const name =
-        getVehicleName(vehicle);
-
-
-    const reference =
-        valueOf(
-            vehicle,
-            "ref",
-            "referenceNumber",
-            "reference",
-            "stockNumber"
-        ) || "HVE-0000";
-
-
-    const year =
-        valueOf(
-            vehicle,
-            "year",
-            "modelYear"
-        ) || "-";
-
-
-    const mileage =
-        formatMileage(
-            valueOf(
-                vehicle,
-                "mileage",
-                "km",
-                "kilometers"
-            )
-        );
-
-
-    const engine =
-        valueOf(
-            vehicle,
-            "engine",
-            "engineSize",
-            "displacement"
-        ) || "-";
-
-
-    const fuel =
-        valueOf(
-            vehicle,
-            "fuel",
-            "fuelType"
-        ) || "-";
-
-
-    const status =
-        getStatus(vehicle);
-
-
-    const image =
-        getFirstImage(vehicle);
-
-
-    const sold =
-        lower(status) === "sold";
-
-
-    const safeImage =
-        escapeHTML(image);
-
-
-    const card =
-        document.createElement("article");
-
-    card.className =
-        "vehicle-card";
-
-
-    card.innerHTML = `
-
-        <div class="vehicle-card-image">
-
-            <img
-                src="${safeImage}"
-                alt="${escapeHTML(name)}"
-                loading="lazy"
-                onerror="
-                    this.src='https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=85'
-                "
-            >
-
-
-            <span class="vehicle-ref">
-                REF: ${escapeHTML(reference)}
-            </span>
-
-
-            <span
-                class="vehicle-status ${
-                    sold ? "sold" : "available"
-                }"
-            >
-                ${escapeHTML(status).toUpperCase()}
-            </span>
-
-        </div>
-
-
-        <div class="vehicle-card-body">
-
-            <h3>
-                ${escapeHTML(name)}
-            </h3>
-
-
-            <div class="vehicle-mini-specs">
-
-                <span>
-                    ◫ ${escapeHTML(year)}
-                </span>
-
-                <span>
-                    ◇ ${escapeHTML(mileage)} km
-                </span>
-
-                <span>
-                    ⚙ ${escapeHTML(engine)}
-                </span>
-
-                <span>
-                    ⛽ ${escapeHTML(fuel)}
-                </span>
-
-            </div>
-
-
-            <div class="vehicle-card-quote">
-                Country-specific quotation
-            </div>
-
-
-            <a
-                class="vehicle-details-button"
-                href="vehicle-details.html?id=${encodeURIComponent(vehicle.id)}"
-            >
-
-                View Details
-                <span>→</span>
-
-            </a>
-
-        </div>
-
-    `;
-
-
-    return card;
-
-}
-
-
-/* =========================
-   RENDER
-========================= */
-
-function renderVehicles() {
-
-    grid.innerHTML = "";
-
-    pagination.innerHTML = "";
-
-
-    const total =
-        filteredVehicles.length;
-
-
-    count.textContent =
-        `Showing ${total} vehicle${total === 1 ? "" : "s"}`;
-
-
-    if (!total) {
-
-        empty.hidden = false;
-
-        return;
-
-    }
-
-
-    empty.hidden = true;
-
-
-    const totalPages =
-        Math.ceil(
-            total / ITEMS_PER_PAGE
-        );
-
-
-    if (
-        currentPage >
-        totalPages
-    ) {
-
-        currentPage = totalPages;
-
-    }
-
-
-    const start =
-        (currentPage - 1) *
-        ITEMS_PER_PAGE;
-
-
-    const end =
-        start + ITEMS_PER_PAGE;
-
-
-    const pageVehicles =
-        filteredVehicles.slice(
-            start,
-            end
-        );
-
-
-    pageVehicles.forEach(vehicle => {
-
-        grid.appendChild(
-            createVehicleCard(vehicle)
+        const region =
+            String(
+                firstValue(
+                    vehicle,
+                    ["region", "market"],
+                    ""
+                )
+            );
+
+
+        const status =
+            normalizeStatus(
+                firstValue(
+                    vehicle,
+                    ["status"],
+                    "Available"
+                )
+            );
+
+
+        const searchMatch =
+            !term
+            ||
+            name.includes(term)
+            ||
+            reference.includes(term)
+            ||
+            year.includes(term)
+            ||
+            country.toLowerCase()
+                .includes(term)
+            ||
+            region.toLowerCase()
+                .includes(term);
+
+
+        const statusMatch =
+            selectedStatus === "all"
+            ||
+            status === selectedStatus;
+
+
+        const regionMatch =
+            selectedRegion === "all"
+            ||
+            region.toLowerCase()
+                === selectedRegion.toLowerCase();
+
+
+        const countryMatch =
+            selectedCountry === "all"
+            ||
+            country === selectedCountry;
+
+
+        return (
+            searchMatch &&
+            statusMatch &&
+            regionMatch &&
+            countryMatch
         );
 
     });
 
-
-    renderPagination(
-        totalPages
-    );
-
 }
 
 
-/* =========================
-   PAGINATION
-========================= */
+/* =========================================================
+   RENDER
+   ========================================================= */
 
-function renderPagination(totalPages) {
+function renderVehicles() {
 
-    if (totalPages <= 1) {
+    const filtered =
+        filterVehicles();
+
+
+    count.textContent =
+        filtered.length;
+
+
+    if (!filtered.length) {
+
+        grid.innerHTML = "";
+
+        emptyState.hidden = false;
 
         return;
 
     }
 
 
-    const previous =
-        document.createElement("button");
-
-    previous.innerHTML =
-        "‹";
-
-    previous.disabled =
-        currentPage === 1;
-
-    previous.addEventListener(
-        "click",
-        () => {
-
-            currentPage--;
-
-            renderVehicles();
-
-            window.scrollTo({
-                top: 400,
-                behavior: "smooth"
-            });
-
-        }
-    );
+    emptyState.hidden = true;
 
 
-    pagination.appendChild(previous);
-
-
-    for (
-        let page = 1;
-        page <= totalPages;
-        page++
-    ) {
-
-        const button =
-            document.createElement("button");
-
-        button.textContent =
-            page;
-
-
-        if (
-            page === currentPage
-        ) {
-
-            button.classList.add("active");
-
-        }
-
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                currentPage = page;
-
-                renderVehicles();
-
-                window.scrollTo({
-                    top: 400,
-                    behavior: "smooth"
-                });
-
-            }
-        );
-
-
-        pagination.appendChild(button);
-
-    }
-
-
-    const next =
-        document.createElement("button");
-
-    next.innerHTML =
-        "›";
-
-    next.disabled =
-        currentPage === totalPages;
-
-    next.addEventListener(
-        "click",
-        () => {
-
-            currentPage++;
-
-            renderVehicles();
-
-            window.scrollTo({
-                top: 400,
-                behavior: "smooth"
-            });
-
-        }
-    );
-
-
-    pagination.appendChild(next);
+    grid.innerHTML =
+        filtered
+            .map(createCard)
+            .join("");
 
 }
 
 
-/* =========================
-   RESET
-========================= */
+/* =========================================================
+   CARD
+   ========================================================= */
+
+function createCard(vehicle) {
+
+    const name =
+        getName(vehicle);
+
+
+    const reference =
+        getReference(vehicle);
+
+
+    const image =
+        getImage(vehicle);
+
+
+    const year =
+        firstValue(
+            vehicle,
+            ["year"],
+            "—"
+        );
+
+
+    const mileage =
+        firstValue(
+            vehicle,
+            ["mileage"],
+            "—"
+        );
+
+
+    const engine =
+        firstValue(
+            vehicle,
+            ["engine"],
+            "—"
+        );
+
+
+    const fuel =
+        firstValue(
+            vehicle,
+            ["fuel"],
+            "—"
+        );
+
+
+    const transmission =
+        firstValue(
+            vehicle,
+            ["transmission"],
+            "—"
+        );
+
+
+    const status =
+        normalizeStatus(
+            firstValue(
+                vehicle,
+                ["status"],
+                "Available"
+            )
+        );
+
+
+    const statusClass =
+        status === "sold"
+            ? "status-sold"
+            : status.includes("transit")
+                ? "status-transit"
+                : "status-available";
+
+
+    const statusText =
+        status
+            .replace(/\b\w/g, l => l.toUpperCase());
+
+
+    const sold =
+        status === "sold";
+
+
+    return `
+
+        <article class="vehicle-card">
+
+            <div class="vehicle-image">
+
+                <img
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(name)}"
+                    loading="lazy"
+                    onerror="
+                        this.src='https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85';
+                    ">
+
+                <span class="vehicle-ref">
+                    ${escapeHtml(reference)}
+                </span>
+
+                <span class="vehicle-status ${statusClass}">
+                    ${escapeHtml(statusText)}
+                </span>
+
+                ${
+                    sold
+                    ? `<span class="sold-watermark">
+                        SOLD
+                       </span>`
+                    : ""
+                }
+
+            </div>
+
+
+            <div class="vehicle-content">
+
+                <h2>
+                    ${escapeHtml(name)}
+                </h2>
+
+                <p class="vehicle-subtitle">
+                    Japanese Vehicle
+                </p>
+
+
+                <div class="vehicle-specs">
+
+                    <div class="vehicle-spec">
+                        <label>Year</label>
+                        <span>${escapeHtml(year)}</span>
+                    </div>
+
+                    <div class="vehicle-spec">
+                        <label>Mileage</label>
+                        <span>${escapeHtml(mileage)}</span>
+                    </div>
+
+                    <div class="vehicle-spec">
+                        <label>Engine</label>
+                        <span>${escapeHtml(engine)}</span>
+                    </div>
+
+                    <div class="vehicle-spec">
+                        <label>Fuel</label>
+                        <span>${escapeHtml(fuel)}</span>
+                    </div>
+
+                    <div class="vehicle-spec">
+                        <label>Transmission</label>
+                        <span>${escapeHtml(transmission)}</span>
+                    </div>
+
+                </div>
+
+
+                <div class="vehicle-price">
+
+                    <strong>
+                        Price: Request Country-Specific Quote
+                    </strong>
+
+                    Destination country affects
+                    shipping and final quotation.
+
+                </div>
+
+
+                <a
+                    class="view-vehicle-btn"
+                    href="vehicle-details.html?id=${encodeURIComponent(vehicle.id)}">
+
+                    View Vehicle Details
+
+                </a>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+/* =========================================================
+   ESCAPE
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+[
+    search,
+    statusFilter,
+    regionFilter,
+    countryFilter
+].forEach(element => {
+
+    element.addEventListener(
+        "input",
+        renderVehicles
+    );
+
+    element.addEventListener(
+        "change",
+        renderVehicles
+    );
+
+});
+
 
 function resetFilters() {
 
-    searchInput.value = "";
+    search.value = "";
 
     statusFilter.value = "all";
 
@@ -960,65 +766,78 @@ function resetFilters() {
 
     countryFilter.value = "all";
 
-    currentPage = 1;
-
-    applyFilters();
+    renderVehicles();
 
 }
 
 
-resetButton.addEventListener(
+clearFilters.addEventListener(
     "click",
     resetFilters
 );
 
 
-emptyReset.addEventListener(
+emptyClear.addEventListener(
     "click",
     resetFilters
 );
 
 
-/* =========================
-   EVENTS
-========================= */
+/* =========================================================
+   MOBILE NAV
+   ========================================================= */
 
-searchInput.addEventListener(
-    "input",
-    applyFilters
-);
+const menuBtn =
+    document.getElementById(
+        "mobileMenuBtn"
+    );
 
-statusFilter.addEventListener(
-    "change",
-    applyFilters
-);
+const mainNav =
+    document.getElementById(
+        "mainNav"
+    );
 
-regionFilter.addEventListener(
-    "change",
+
+menuBtn.addEventListener(
+    "click",
     () => {
 
-        /*
-         * When selecting a region,
-         * reset country so the user can
-         * select from the full country list.
-         */
-
-        countryFilter.value = "all";
-
-        applyFilters();
+        mainNav.classList.toggle(
+            "open"
+        );
 
     }
 );
 
 
-countryFilter.addEventListener(
-    "change",
-    applyFilters
-);
+mainNav
+    .querySelectorAll("a")
+    .forEach(link => {
+
+        link.addEventListener(
+            "click",
+            () => {
+
+                mainNav.classList.remove(
+                    "open"
+                );
+
+            }
+        );
+
+    });
 
 
-/* =========================
-   START
-========================= */
+/* YEAR */
+
+document.getElementById(
+    "currentYear"
+).textContent =
+    new Date().getFullYear();
+
+
+/* START */
+
+populateCountries();
 
 loadVehicles();
