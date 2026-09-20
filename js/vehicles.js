@@ -1,3 +1,9 @@
+/* =========================================================
+   HASNAIN VEHICLE EXPORTER
+   BROWSE VEHICLES JAVASCRIPT
+   Firebase + Firestore
+   ========================================================= */
+
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
@@ -10,13 +16,12 @@ import {
 
 
 /* =========================================================
-   FIREBASE
+   FIREBASE CONFIG
    ========================================================= */
 
 const firebaseConfig = {
 
-    apiKey:
-        "AIzaSyC_O0pbiXw4T4JqEyn-9iHacP2xNLqUvGY",
+    apiKey: "AIzaSyC_O0pbiX4T4JqEyn-9iHacP2xNLqUvGY",
 
     authDomain:
         "hasnainvehicleexporter9048.firebaseapp.com",
@@ -35,9 +40,12 @@ const firebaseConfig = {
 
     measurementId:
         "G-78SPE8THNW"
-
 };
 
+
+/* =========================================================
+   INITIALIZE FIREBASE
+   ========================================================= */
 
 const app = initializeApp(firebaseConfig);
 
@@ -45,10 +53,39 @@ const db = getFirestore(app);
 
 
 /* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const vehicleGrid =
+    document.getElementById("vehicleGrid");
+
+const resultsCount =
+    document.getElementById("resultsCount");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const statusFilter =
+    document.getElementById("statusFilter");
+
+const regionFilter =
+    document.getElementById("regionFilter");
+
+const countryFilter =
+    document.getElementById("countryFilter");
+
+const sortSelect =
+    document.getElementById("sortSelect");
+
+const clearFilters =
+    document.getElementById("clearFilters");
+
+
+/* =========================================================
    AFRICA — 54 COUNTRIES
    ========================================================= */
 
-const AFRICA = [
+const AFRICA_COUNTRIES = [
 
     "Algeria",
     "Angola",
@@ -62,6 +99,8 @@ const AFRICA = [
     "Chad",
     "Comoros",
     "Democratic Republic of the Congo",
+    "Republic of the Congo",
+    "Cote d'Ivoire",
     "Djibouti",
     "Egypt",
     "Equatorial Guinea",
@@ -73,7 +112,6 @@ const AFRICA = [
     "Ghana",
     "Guinea",
     "Guinea-Bissau",
-    "Ivory Coast",
     "Kenya",
     "Lesotho",
     "Liberia",
@@ -88,7 +126,6 @@ const AFRICA = [
     "Namibia",
     "Niger",
     "Nigeria",
-    "Republic of the Congo",
     "Rwanda",
     "Sao Tome and Principe",
     "Senegal",
@@ -109,10 +146,10 @@ const AFRICA = [
 
 
 /* =========================================================
-   CARIBBEAN — 16 INDEPENDENT COUNTRIES
+   CARIBBEAN — INDEPENDENT COUNTRIES
    ========================================================= */
 
-const CARIBBEAN = [
+const CARIBBEAN_COUNTRIES = [
 
     "Antigua and Barbuda",
     "Bahamas",
@@ -134,72 +171,106 @@ const CARIBBEAN = [
 ];
 
 
+/* =========================================================
+   ALL COUNTRIES
+   ========================================================= */
+
 const ALL_COUNTRIES = [
-    ...AFRICA,
-    ...CARIBBEAN
+    ...AFRICA_COUNTRIES,
+    ...CARIBBEAN_COUNTRIES
 ].sort();
 
 
 /* =========================================================
-   ELEMENTS
+   FALLBACK VEHICLE IMAGE
    ========================================================= */
 
-const grid =
-    document.getElementById("vehicleGrid");
-
-const count =
-    document.getElementById("vehicleCount");
-
-const emptyState =
-    document.getElementById("emptyState");
-
-const search =
-    document.getElementById("vehicleSearch");
-
-const statusFilter =
-    document.getElementById("statusFilter");
-
-const regionFilter =
-    document.getElementById("regionFilter");
-
-const countryFilter =
-    document.getElementById("countryFilter");
-
-const clearFilters =
-    document.getElementById("clearFilters");
-
-const emptyClear =
-    document.getElementById("emptyClear");
+const FALLBACK_IMAGE =
+    "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85";
 
 
-let vehicles = [];
+/* =========================================================
+   VEHICLE DATA
+   ========================================================= */
+
+let allVehicles = [];
 
 
 /* =========================================================
    COUNTRY FILTER
    ========================================================= */
 
-function populateCountries() {
+function populateCountryFilter() {
 
-    countryFilter.innerHTML = `
-        <option value="all">
-            All Countries
-        </option>
-    `;
+    if (!countryFilter) {
+        return;
+    }
 
-    ALL_COUNTRIES.forEach(country => {
+    countryFilter.innerHTML = "";
 
-        const option =
-            document.createElement("option");
+    const allOption =
+        document.createElement("option");
 
-        option.value = country;
+    allOption.value = "";
 
-        option.textContent = country;
+    allOption.textContent =
+        "All Countries";
 
-        countryFilter.appendChild(option);
+    countryFilter.appendChild(allOption);
 
-    });
 
+    const africaGroup =
+        document.createElement("optgroup");
+
+    africaGroup.label =
+        "Africa";
+
+
+    AFRICA_COUNTRIES
+        .slice()
+        .sort()
+        .forEach(country => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = country;
+
+            option.textContent = country;
+
+            africaGroup.appendChild(option);
+
+        });
+
+
+    countryFilter.appendChild(africaGroup);
+
+
+    const caribbeanGroup =
+        document.createElement("optgroup");
+
+    caribbeanGroup.label =
+        "Caribbean";
+
+
+    CARIBBEAN_COUNTRIES
+        .slice()
+        .sort()
+        .forEach(country => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = country;
+
+            option.textContent = country;
+
+            caribbeanGroup.appendChild(option);
+
+        });
+
+
+    countryFilter.appendChild(caribbeanGroup);
 }
 
 
@@ -207,122 +278,900 @@ function populateCountries() {
    HELPERS
    ========================================================= */
 
-function firstValue(obj, keys, fallback = "") {
+function getValue(vehicle, fields) {
 
-    for (const key of keys) {
+    for (const field of fields) {
 
         if (
-            obj[key] !== undefined &&
-            obj[key] !== null &&
-            obj[key] !== ""
+            vehicle[field] !== undefined &&
+            vehicle[field] !== null &&
+            vehicle[field] !== ""
         ) {
+            return vehicle[field];
+        }
 
-            return obj[key];
+    }
+
+    return "";
+}
+
+
+/* =========================================================
+   IMAGE EXTRACTION
+   ========================================================= */
+
+function getVehicleImages(vehicle) {
+
+    let images =
+        getValue(vehicle, [
+            "images",
+            "imageUrls",
+            "photos"
+        ]);
+
+
+    /* Single image field */
+
+    if (!images) {
+
+        const singleImage =
+            getValue(vehicle, [
+                "image",
+                "photo",
+                "imageUrl",
+                "photoUrl"
+            ]);
+
+        if (singleImage) {
+            images = [singleImage];
+        }
+
+    }
+
+
+    /* Convert to array */
+
+    if (!Array.isArray(images)) {
+
+        if (typeof images === "string") {
+
+            images = images
+                .split(",")
+                .map(item => item.trim())
+                .filter(Boolean);
+
+        } else {
+
+            images = [];
 
         }
 
     }
 
-    return fallback;
 
-}
+    /* Handle objects such as:
+       {url: "..."}
+       {secure_url: "..."}
+    */
+
+    images = images
+        .map(image => {
+
+            if (typeof image === "string") {
+                return image;
+            }
+
+            if (image && typeof image === "object") {
+
+                return (
+                    image.url ||
+                    image.secure_url ||
+                    image.src ||
+                    ""
+                );
+
+            }
+
+            return "";
+
+        })
+        .filter(Boolean);
 
 
-function getImages(vehicle) {
-
-    let images =
-        firstValue(
-            vehicle,
-            [
-                "images",
-                "imageUrls",
-                "photos",
-                "gallery"
-            ],
-            []
-        );
-
-
-    if (!Array.isArray(images)) {
-
-        images = images
-            ? [images]
-            : [];
-
+    if (images.length === 0) {
+        images.push(FALLBACK_IMAGE);
     }
 
 
-    return images.filter(Boolean);
-
-}
-
-
-function getReference(vehicle) {
-
-    return firstValue(
-        vehicle,
-        [
-            "referenceNumber",
-            "ref",
-            "reference",
-            "hveRef"
-        ],
-        "HVE-0000"
-    );
-
-}
-
-
-function getName(vehicle) {
-
-    const make =
-        firstValue(
-            vehicle,
-            ["make", "brand"],
-            ""
-        );
-
-    const model =
-        firstValue(
-            vehicle,
-            ["model", "vehicleModel"],
-            ""
-        );
-
-
-    return `${make} ${model}`.trim()
-        || "Japanese Vehicle";
-
-}
-
-
-function normalizeStatus(status) {
-
-    return String(status || "Available")
-        .trim()
-        .toLowerCase();
-
-}
-
-
-function getImage(vehicle) {
-
-    const images =
-        getImages(vehicle);
-
-    return images[0]
-        || "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85";
-
+    return images;
 }
 
 
 /* =========================================================
-   LOAD FIRESTORE
+   IMAGE ERROR FALLBACK
+   ========================================================= */
+
+function imageError(img) {
+
+    if (
+        img.dataset.fallbackUsed === "true"
+    ) {
+        return;
+    }
+
+    img.dataset.fallbackUsed = "true";
+
+    img.src = FALLBACK_IMAGE;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+function normalizeStatus(status) {
+
+    if (!status) {
+        return "Available";
+    }
+
+    const value =
+        String(status)
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        value === "sold"
+    ) {
+        return "Sold";
+    }
+
+
+    if (
+        value === "available"
+    ) {
+        return "Available";
+    }
+
+
+    if (
+        value.includes("transit")
+    ) {
+        return "In Transit";
+    }
+
+
+    if (
+        value.includes("arrival")
+    ) {
+        return "Port Arrival";
+    }
+
+
+    if (
+        value.includes("departure")
+    ) {
+        return "Port Departure";
+    }
+
+
+    if (
+        value.includes("purchased")
+    ) {
+        return "Purchased";
+    }
+
+
+    if (
+        value.includes("delivered")
+    ) {
+        return "Delivered";
+    }
+
+
+    return String(status);
+}
+
+
+/* =========================================================
+   STATUS CLASS
+   ========================================================= */
+
+function getStatusClass(status) {
+
+    const value =
+        status.toLowerCase();
+
+
+    if (value === "sold") {
+        return "sold";
+    }
+
+
+    if (value === "available") {
+        return "available";
+    }
+
+
+    if (
+        value.includes("transit") ||
+        value.includes("arrival") ||
+        value.includes("departure")
+    ) {
+        return "transit";
+    }
+
+
+    return "";
+}
+
+
+/* =========================================================
+   REGION
+   ========================================================= */
+
+function getRegion(vehicle) {
+
+    const region =
+        getValue(vehicle, [
+            "region",
+            "market"
+        ]);
+
+
+    if (region) {
+        return String(region);
+    }
+
+
+    const country =
+        getValue(vehicle, [
+            "country",
+            "destination"
+        ]);
+
+
+    if (
+        AFRICA_COUNTRIES.includes(country)
+    ) {
+        return "Africa";
+    }
+
+
+    if (
+        CARIBBEAN_COUNTRIES.includes(country)
+    ) {
+        return "Caribbean";
+    }
+
+
+    return "";
+}
+
+
+/* =========================================================
+   VEHICLE REFERENCE
+   ========================================================= */
+
+function getReference(vehicle) {
+
+    return getValue(vehicle, [
+        "ref",
+        "referenceNumber",
+        "reference",
+        "hveRef"
+    ]) || "HVE-0000";
+}
+
+
+/* =========================================================
+   VEHICLE NAME
+   ========================================================= */
+
+function getVehicleName(vehicle) {
+
+    const make =
+        getValue(vehicle, [
+            "make",
+            "brand"
+        ]);
+
+
+    const model =
+        getValue(vehicle, [
+            "model"
+        ]);
+
+
+    return (
+        `${make} ${model}`
+            .trim()
+            || "Japanese Vehicle"
+    );
+}
+
+
+/* =========================================================
+   VEHICLE CARD
+   ========================================================= */
+
+function createVehicleCard(vehicle) {
+
+    const ref =
+        getReference(vehicle);
+
+
+    const make =
+        getValue(vehicle, [
+            "make",
+            "brand"
+        ]) || "Vehicle";
+
+
+    const model =
+        getValue(vehicle, [
+            "model"
+        ]) || "";
+
+
+    const year =
+        getValue(vehicle, [
+            "year"
+        ]) || "—";
+
+
+    const mileage =
+        getValue(vehicle, [
+            "mileage"
+        ]) || "—";
+
+
+    const engine =
+        getValue(vehicle, [
+            "engine"
+        ]) || "—";
+
+
+    const fuel =
+        getValue(vehicle, [
+            "fuel"
+        ]) || "—";
+
+
+    const transmission =
+        getValue(vehicle, [
+            "transmission"
+        ]) || "—";
+
+
+    const drive =
+        getValue(vehicle, [
+            "drive"
+        ]) || "—";
+
+
+    const status =
+        normalizeStatus(
+            getValue(vehicle, [
+                "status"
+            ])
+        );
+
+
+    const statusClass =
+        getStatusClass(status);
+
+
+    const region =
+        getRegion(vehicle);
+
+
+    const images =
+        getVehicleImages(vehicle);
+
+
+    const image =
+        images[0];
+
+
+    const documentId =
+        vehicle.id;
+
+
+    const card =
+        document.createElement("article");
+
+
+    card.className =
+        "vehicle-card";
+
+
+    const soldWatermark =
+        status === "Sold"
+            ? `
+                <div class="sold-watermark">
+                    SOLD
+                </div>
+              `
+            : "";
+
+
+    card.innerHTML = `
+
+        <div class="vehicle-card-image">
+
+            <img
+                src="${escapeAttribute(image)}"
+                alt="${escapeAttribute(make + " " + model)}"
+                loading="lazy"
+                onerror="imageError(this)"
+            >
+
+            <span
+                class="vehicle-status ${statusClass}"
+            >
+                ${escapeHTML(status)}
+            </span>
+
+
+            ${
+                region
+                    ? `
+                        <span class="vehicle-market">
+                            ${escapeHTML(region)}
+                        </span>
+                      `
+                    : ""
+            }
+
+
+            ${soldWatermark}
+
+        </div>
+
+
+        <div class="vehicle-card-content">
+
+
+            <div class="vehicle-reference">
+
+                ${escapeHTML(ref)}
+
+            </div>
+
+
+            <h3>
+                ${escapeHTML(make)}
+                ${escapeHTML(model)}
+            </h3>
+
+
+            <div class="vehicle-card-year">
+
+                ${escapeHTML(String(year))}
+
+            </div>
+
+
+            <div class="vehicle-specs">
+
+
+                <div class="vehicle-spec">
+
+                    <strong>
+                        KM:
+                    </strong>
+
+                    ${escapeHTML(String(mileage))}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <strong>
+                        Engine:
+                    </strong>
+
+                    ${escapeHTML(String(engine))}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <strong>
+                        Fuel:
+                    </strong>
+
+                    ${escapeHTML(String(fuel))}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <strong>
+                        Gear:
+                    </strong>
+
+                    ${escapeHTML(String(transmission))}
+
+                </div>
+
+
+            </div>
+
+
+            <div class="vehicle-price">
+
+                <span class="vehicle-price-label">
+                    Price
+                </span>
+
+                <span class="vehicle-price-value">
+                    Request Country-Specific Quote
+                </span>
+
+            </div>
+
+
+            <div class="vehicle-card-actions">
+
+                <a
+                    href="vehicle-details.html?id=${encodeURIComponent(documentId)}"
+                    class="btn"
+                >
+                    View Details
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    return card;
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHTML(value);
+}
+
+
+/* =========================================================
+   FILTER VEHICLES
+   ========================================================= */
+
+function filterVehicles() {
+
+    const search =
+        (
+            searchInput?.value || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    const status =
+        statusFilter?.value || "";
+
+
+    const region =
+        regionFilter?.value || "";
+
+
+    const country =
+        countryFilter?.value || "";
+
+
+    let filtered =
+        allVehicles.filter(vehicle => {
+
+
+            const make =
+                getValue(vehicle, [
+                    "make",
+                    "brand"
+                ]);
+
+
+            const model =
+                getValue(vehicle, [
+                    "model"
+                ]);
+
+
+            const year =
+                getValue(vehicle, [
+                    "year"
+                ]);
+
+
+            const ref =
+                getReference(vehicle);
+
+
+            const vehicleStatus =
+                normalizeStatus(
+                    getValue(vehicle, [
+                        "status"
+                    ])
+                );
+
+
+            const vehicleRegion =
+                getRegion(vehicle);
+
+
+            const vehicleCountry =
+                getValue(vehicle, [
+                    "country",
+                    "destination"
+                ]);
+
+
+            const searchable =
+                [
+                    make,
+                    model,
+                    year,
+                    ref,
+                    vehicleStatus,
+                    vehicleRegion,
+                    vehicleCountry
+                ]
+                    .join(" ")
+                    .toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                searchable.includes(search);
+
+
+            const matchesStatus =
+                !status ||
+                vehicleStatus === status;
+
+
+            const matchesRegion =
+                !region ||
+                vehicleRegion === region;
+
+
+            const matchesCountry =
+                !country ||
+                vehicleCountry === country;
+
+
+            return (
+                matchesSearch &&
+                matchesStatus &&
+                matchesRegion &&
+                matchesCountry
+            );
+
+        });
+
+
+    sortVehicles(filtered);
+
+
+    renderVehicles(filtered);
+}
+
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+function sortVehicles(vehicles) {
+
+    const sort =
+        sortSelect?.value || "newest";
+
+
+    if (sort === "year-desc") {
+
+        vehicles.sort((a, b) => {
+
+            return Number(
+                getValue(b, ["year"]) || 0
+            ) -
+            Number(
+                getValue(a, ["year"]) || 0
+            );
+
+        });
+
+        return;
+    }
+
+
+    if (sort === "year-asc") {
+
+        vehicles.sort((a, b) => {
+
+            return Number(
+                getValue(a, ["year"]) || 0
+            ) -
+            Number(
+                getValue(b, ["year"]) || 0
+            );
+
+        });
+
+        return;
+    }
+
+
+    if (sort === "name-asc") {
+
+        vehicles.sort((a, b) => {
+
+            return getVehicleName(a)
+                .localeCompare(
+                    getVehicleName(b)
+                );
+
+        });
+
+        return;
+    }
+
+
+    if (sort === "name-desc") {
+
+        vehicles.sort((a, b) => {
+
+            return getVehicleName(b)
+                .localeCompare(
+                    getVehicleName(a)
+                );
+
+        });
+
+        return;
+    }
+
+
+    /* Newest / default */
+
+    vehicles.sort((a, b) => {
+
+        const aTime =
+            a.createdAt?.seconds ||
+            a.createdAt ||
+            0;
+
+
+        const bTime =
+            b.createdAt?.seconds ||
+            b.createdAt ||
+            0;
+
+
+        return Number(bTime) -
+            Number(aTime);
+
+    });
+}
+
+
+/* =========================================================
+   RENDER VEHICLES
+   ========================================================= */
+
+function renderVehicles(vehicles) {
+
+    if (!vehicleGrid) {
+        return;
+    }
+
+
+    vehicleGrid.innerHTML = "";
+
+
+    if (resultsCount) {
+
+        resultsCount.innerHTML = `
+
+            <strong>
+                ${vehicles.length}
+            </strong>
+
+            ${
+                vehicles.length === 1
+                    ? " vehicle available"
+                    : " vehicles available"
+            }
+
+        `;
+
+    }
+
+
+    if (vehicles.length === 0) {
+
+        vehicleGrid.innerHTML = `
+
+            <div class="no-results">
+
+                <h3>
+                    No Vehicles Found
+                </h3>
+
+                <p>
+                    Try changing your search or filters.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    vehicles.forEach(vehicle => {
+
+        fragment.appendChild(
+            createVehicleCard(vehicle)
+        );
+
+    });
+
+
+    vehicleGrid.appendChild(fragment);
+}
+
+
+/* =========================================================
+   LOAD VEHICLES FROM FIRESTORE
    ========================================================= */
 
 async function loadVehicles() {
 
     try {
+
+        if (vehicleGrid) {
+
+            vehicleGrid.innerHTML = `
+
+                <div class="loading">
+
+                    Loading vehicles...
+
+                </div>
+
+            `;
+
+        }
+
 
         const snapshot =
             await getDocs(
@@ -330,514 +1179,175 @@ async function loadVehicles() {
             );
 
 
-        vehicles =
-            snapshot.docs.map(doc => ({
-
-                id: doc.id,
-
-                ...doc.data()
-
-            }));
+        allVehicles = [];
 
 
-        renderVehicles();
+        snapshot.forEach(docSnapshot => {
 
-    }
+            allVehicles.push({
 
-    catch (error) {
+                id: docSnapshot.id,
 
-        console.error(error);
+                ...docSnapshot.data()
 
-        grid.innerHTML = `
+            });
 
-            <div class="loading-box">
-
-                <h2>
-                    Unable to Load Vehicles
-                </h2>
-
-                <p>
-                    Please refresh the page.
-                </p>
-
-            </div>
-
-        `;
-
-    }
-
-}
+        });
 
 
-/* =========================================================
-   FILTER
-   ========================================================= */
-
-function filterVehicles() {
-
-    const term =
-        search.value
-            .trim()
-            .toLowerCase();
-
-
-    const selectedStatus =
-        statusFilter.value.toLowerCase();
-
-
-    const selectedRegion =
-        regionFilter.value;
-
-
-    const selectedCountry =
-        countryFilter.value;
-
-
-    return vehicles.filter(vehicle => {
-
-        const name =
-            getName(vehicle)
-                .toLowerCase();
-
-
-        const reference =
-            getReference(vehicle)
-                .toLowerCase();
-
-
-        const year =
-            String(
-                firstValue(
-                    vehicle,
-                    ["year"],
-                    ""
-                )
-            ).toLowerCase();
-
-
-        const country =
-            String(
-                firstValue(
-                    vehicle,
-                    ["country", "destinationCountry"],
-                    ""
-                )
-            );
-
-
-        const region =
-            String(
-                firstValue(
-                    vehicle,
-                    ["region", "market"],
-                    ""
-                )
-            );
-
-
-        const status =
-            normalizeStatus(
-                firstValue(
-                    vehicle,
-                    ["status"],
-                    "Available"
-                )
-            );
-
-
-        const searchMatch =
-            !term
-            ||
-            name.includes(term)
-            ||
-            reference.includes(term)
-            ||
-            year.includes(term)
-            ||
-            country.toLowerCase()
-                .includes(term)
-            ||
-            region.toLowerCase()
-                .includes(term);
-
-
-        const statusMatch =
-            selectedStatus === "all"
-            ||
-            status === selectedStatus;
-
-
-        const regionMatch =
-            selectedRegion === "all"
-            ||
-            region.toLowerCase()
-                === selectedRegion.toLowerCase();
-
-
-        const countryMatch =
-            selectedCountry === "all"
-            ||
-            country === selectedCountry;
-
-
-        return (
-            searchMatch &&
-            statusMatch &&
-            regionMatch &&
-            countryMatch
+        console.log(
+            "Hasnain Vehicle Exporter:",
+            allVehicles.length,
+            "vehicle(s) loaded."
         );
 
-    });
 
-}
-
-
-/* =========================================================
-   RENDER
-   ========================================================= */
-
-function renderVehicles() {
-
-    const filtered =
         filterVehicles();
 
 
-    count.textContent =
-        filtered.length;
+    } catch (error) {
+
+        console.error(
+            "Vehicle loading error:",
+            error
+        );
 
 
-    if (!filtered.length) {
+        if (resultsCount) {
 
-        grid.innerHTML = "";
+            resultsCount.innerHTML =
+                "Unable to load vehicles";
 
-        emptyState.hidden = false;
+        }
 
-        return;
+
+        if (vehicleGrid) {
+
+            vehicleGrid.innerHTML = `
+
+                <div class="no-results">
+
+                    <h3>
+                        Unable to Load Vehicles
+                    </h3>
+
+                    <p>
+                        Please refresh the page and try again.
+                    </p>
+
+                    <p
+                        style="
+                            margin-top:12px;
+                            color:#666;
+                            font-size:11px;
+                        "
+                    >
+                        ${escapeHTML(error.message || "Unknown error")}
+                    </p>
+
+                </div>
+
+            `;
+
+        }
 
     }
 
-
-    emptyState.hidden = true;
-
-
-    grid.innerHTML =
-        filtered
-            .map(createCard)
-            .join("");
-
 }
 
 
 /* =========================================================
-   CARD
+   EVENT LISTENERS
    ========================================================= */
 
-function createCard(vehicle) {
+if (searchInput) {
 
-    const name =
-        getName(vehicle);
-
-
-    const reference =
-        getReference(vehicle);
-
-
-    const image =
-        getImage(vehicle);
-
-
-    const year =
-        firstValue(
-            vehicle,
-            ["year"],
-            "—"
-        );
-
-
-    const mileage =
-        firstValue(
-            vehicle,
-            ["mileage"],
-            "—"
-        );
-
-
-    const engine =
-        firstValue(
-            vehicle,
-            ["engine"],
-            "—"
-        );
-
-
-    const fuel =
-        firstValue(
-            vehicle,
-            ["fuel"],
-            "—"
-        );
-
-
-    const transmission =
-        firstValue(
-            vehicle,
-            ["transmission"],
-            "—"
-        );
-
-
-    const status =
-        normalizeStatus(
-            firstValue(
-                vehicle,
-                ["status"],
-                "Available"
-            )
-        );
-
-
-    const statusClass =
-        status === "sold"
-            ? "status-sold"
-            : status.includes("transit")
-                ? "status-transit"
-                : "status-available";
-
-
-    const statusText =
-        status
-            .replace(/\b\w/g, l => l.toUpperCase());
-
-
-    const sold =
-        status === "sold";
-
-
-    return `
-
-        <article class="vehicle-card">
-
-            <div class="vehicle-image">
-
-                <img
-                    src="${escapeHtml(image)}"
-                    alt="${escapeHtml(name)}"
-                    loading="lazy"
-                    onerror="
-                        this.src='https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85';
-                    ">
-
-                <span class="vehicle-ref">
-                    ${escapeHtml(reference)}
-                </span>
-
-                <span class="vehicle-status ${statusClass}">
-                    ${escapeHtml(statusText)}
-                </span>
-
-                ${
-                    sold
-                    ? `<span class="sold-watermark">
-                        SOLD
-                       </span>`
-                    : ""
-                }
-
-            </div>
-
-
-            <div class="vehicle-content">
-
-                <h2>
-                    ${escapeHtml(name)}
-                </h2>
-
-                <p class="vehicle-subtitle">
-                    Japanese Vehicle
-                </p>
-
-
-                <div class="vehicle-specs">
-
-                    <div class="vehicle-spec">
-                        <label>Year</label>
-                        <span>${escapeHtml(year)}</span>
-                    </div>
-
-                    <div class="vehicle-spec">
-                        <label>Mileage</label>
-                        <span>${escapeHtml(mileage)}</span>
-                    </div>
-
-                    <div class="vehicle-spec">
-                        <label>Engine</label>
-                        <span>${escapeHtml(engine)}</span>
-                    </div>
-
-                    <div class="vehicle-spec">
-                        <label>Fuel</label>
-                        <span>${escapeHtml(fuel)}</span>
-                    </div>
-
-                    <div class="vehicle-spec">
-                        <label>Transmission</label>
-                        <span>${escapeHtml(transmission)}</span>
-                    </div>
-
-                </div>
-
-
-                <div class="vehicle-price">
-
-                    <strong>
-                        Price: Request Country-Specific Quote
-                    </strong>
-
-                    Destination country affects
-                    shipping and final quotation.
-
-                </div>
-
-
-                <a
-                    class="view-vehicle-btn"
-                    href="vehicle-details.html?id=${encodeURIComponent(vehicle.id)}">
-
-                    View Vehicle Details
-
-                </a>
-
-            </div>
-
-        </article>
-
-    `;
-
-}
-
-
-/* =========================================================
-   ESCAPE
-   ========================================================= */
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* =========================================================
-   EVENTS
-   ========================================================= */
-
-[
-    search,
-    statusFilter,
-    regionFilter,
-    countryFilter
-].forEach(element => {
-
-    element.addEventListener(
+    searchInput.addEventListener(
         "input",
-        renderVehicles
+        filterVehicles
     );
-
-    element.addEventListener(
-        "change",
-        renderVehicles
-    );
-
-});
-
-
-function resetFilters() {
-
-    search.value = "";
-
-    statusFilter.value = "all";
-
-    regionFilter.value = "all";
-
-    countryFilter.value = "all";
-
-    renderVehicles();
 
 }
 
 
-clearFilters.addEventListener(
-    "click",
-    resetFilters
-);
+if (statusFilter) {
+
+    statusFilter.addEventListener(
+        "change",
+        filterVehicles
+    );
+
+}
 
 
-emptyClear.addEventListener(
-    "click",
-    resetFilters
-);
+if (regionFilter) {
+
+    regionFilter.addEventListener(
+        "change",
+        filterVehicles
+    );
+
+}
+
+
+if (countryFilter) {
+
+    countryFilter.addEventListener(
+        "change",
+        filterVehicles
+    );
+
+}
+
+
+if (sortSelect) {
+
+    sortSelect.addEventListener(
+        "change",
+        filterVehicles
+    );
+
+}
+
+
+if (clearFilters) {
+
+    clearFilters.addEventListener(
+        "click",
+        function () {
+
+            if (searchInput) {
+                searchInput.value = "";
+            }
+
+            if (statusFilter) {
+                statusFilter.value = "";
+            }
+
+            if (regionFilter) {
+                regionFilter.value = "";
+            }
+
+            if (countryFilter) {
+                countryFilter.value = "";
+            }
+
+            if (sortSelect) {
+                sortSelect.value = "newest";
+            }
+
+            filterVehicles();
+
+        }
+    );
+
+}
 
 
 /* =========================================================
-   MOBILE NAV
+   START
    ========================================================= */
 
-const menuBtn =
-    document.getElementById(
-        "mobileMenuBtn"
-    );
-
-const mainNav =
-    document.getElementById(
-        "mainNav"
-    );
-
-
-menuBtn.addEventListener(
-    "click",
-    () => {
-
-        mainNav.classList.toggle(
-            "open"
-        );
-
-    }
-);
-
-
-mainNav
-    .querySelectorAll("a")
-    .forEach(link => {
-
-        link.addEventListener(
-            "click",
-            () => {
-
-                mainNav.classList.remove(
-                    "open"
-                );
-
-            }
-        );
-
-    });
-
-
-/* YEAR */
-
-document.getElementById(
-    "currentYear"
-).textContent =
-    new Date().getFullYear();
-
-
-/* START */
-
-populateCountries();
+populateCountryFilter();
 
 loadVehicles();
