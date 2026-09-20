@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -8,18 +10,25 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Browse Vehicles | Hasnain Vehicle Exporter</title>
+    <title>
+        Browse Japanese Vehicles | Hasnain Vehicle Exporter
+    </title>
 
     <meta
         name="description"
-        content="Browse Japanese vehicles available through Hasnain Vehicle Exporter. Get country-specific quotations for Africa and Caribbean destinations."
+        content="Browse quality Japanese vehicles available through Hasnain Vehicle Exporter. Get country-specific vehicle prices and shipping information."
     >
 
-    <!-- BROWSE VEHICLES CSS ONLY -->
-    <link rel="stylesheet" href="css/vehicles.css">
+    <link
+        rel="stylesheet"
+        href="css/vehicles.css"
+    >
+
 </head>
 
+
 <body>
+
 
 <!-- =====================================================
      HEADER
@@ -27,9 +36,15 @@
 
 <header class="site-header">
 
-    <div class="container">
+    <div class="header-container">
 
-        <a href="index.html" class="brand" aria-label="Hasnain Vehicle Exporter">
+
+        <!-- LOGO -->
+
+        <a
+            href="index.html"
+            class="brand"
+        >
 
             <img
                 src="images/logo.png"
@@ -40,9 +55,16 @@
         </a>
 
 
-        <nav class="nav-links" id="mainNav">
+        <!-- NAVIGATION -->
 
-            <a href="index.html">Home</a>
+        <nav
+            class="main-nav"
+            id="mainNav"
+        >
+
+            <a href="index.html">
+                Home
+            </a>
 
             <a
                 href="vehicles.html"
@@ -70,29 +92,38 @@
         </nav>
 
 
+        <!-- WHATSAPP -->
+
         <a
-            href="https://wa.me/923392207418"
+            class="header-whatsapp"
+            href="https://wa.me/923392207418?text=Hello%20Hasnain%20Vehicle%20Exporter%2C%20I%20am%20looking%20for%20a%20vehicle%20from%20Japan."
             target="_blank"
             rel="noopener"
-            class="header-whatsapp"
         >
             WhatsApp Us
         </a>
 
 
+        <!-- MOBILE MENU -->
+
         <button
-            type="button"
             class="menu-toggle"
             id="menuToggle"
-            aria-label="Open menu"
+            aria-label="Open navigation menu"
             aria-expanded="false"
         >
-            ☰
+
+            <span></span>
+            <span></span>
+            <span></span>
+
         </button>
+
 
     </div>
 
 </header>
+
 
 
 <!-- =====================================================
@@ -101,9 +132,35 @@
 
 <section class="vehicles-hero">
 
+
+    <!-- BACKGROUND IMAGE -->
+
+    <div class="hero-image">
+
+        <img
+            src="https://voldt.co.uk/cdn/shop/collections/voldt-website-bmw-m760e.jpg?v=1768395713"
+            alt="Vehicle ready for international export"
+        >
+
+    </div>
+
+
+    <!-- DARK OVERLAY -->
+
+    <div class="hero-overlay"></div>
+
+
+    <!-- GOLD GLOW -->
+
+    <div class="hero-glow"></div>
+
+
     <div class="container">
 
         <div class="hero-content">
+
+
+            <!-- BREADCRUMB -->
 
             <div class="breadcrumb">
 
@@ -111,7 +168,9 @@
                     Home
                 </a>
 
-                <span>›</span>
+                <span>
+                    ›
+                </span>
 
                 <span>
                     Browse Vehicles
@@ -120,329 +179,269 @@
             </div>
 
 
+            <!-- EYEBROW -->
+
             <div class="hero-eyebrow">
+
+                <span class="eyebrow-line"></span>
+
                 Japanese Vehicles
+
             </div>
 
 
+            <!-- TITLE -->
+
             <h1>
-                Browse <span>Vehicles</span>
+
+                Browse
+                <span>Vehicles</span>
+
             </h1>
 
 
+            <!-- DESCRIPTION -->
+
             <p>
+
                 Explore quality vehicles available from Japan.
                 Contact us for a country-specific quotation.
+
             </p>
+
+
+            <!-- BUTTONS -->
+
+            <div class="hero-actions">
+
+
+                <a
+                    href="#vehicles"
+                    class="hero-btn hero-btn-primary"
+                >
+                    View Vehicles
+                </a>
+
+
+                <a
+                    href="https://wa.me/923392207418?text=Hello%20Hasnain%20Vehicle%20Exporter%2C%20I%20am%20looking%20for%20a%20vehicle%20from%20Japan."
+                    target="_blank"
+                    rel="noopener"
+                    class="hero-btn hero-btn-secondary"
+                >
+                    WhatsApp Us
+                </a>
+
+
+            </div>
+
 
         </div>
 
     </div>
 
 </section>
+
 
 
 <!-- =====================================================
      VEHICLES SECTION
      ===================================================== -->
 
-<main>
+<section
+    class="vehicles-section"
+    id="vehicles"
+>
 
-<section class="vehicles-section">
 
     <div class="container">
 
 
-        <!-- SECTION HEADING -->
+        <!-- SECTION HEADER -->
 
         <div class="section-heading">
 
-            <div>
+            <div class="section-eyebrow">
 
-                <h2>
-                    Available <span>Vehicles</span>
-                </h2>
+                <span></span>
 
-                <p>
-                    Browse Japanese vehicles and request a
-                    country-specific quotation for your destination.
-                </p>
+                Available Vehicles
 
             </div>
+
+
+            <h2>
+
+                Find Your
+                <strong>Vehicle</strong>
+
+            </h2>
+
+
+            <p>
+
+                Browse vehicles available from Japan.
+                Prices and shipping costs vary by destination country.
+
+            </p>
 
         </div>
 
 
-        <!-- =================================================
-             FILTERS
-             ================================================= -->
 
-        <div class="vehicle-filters">
+        <!-- FILTER BAR -->
+
+        <div class="vehicle-controls">
 
 
-            <!-- SEARCH -->
-
-            <div class="vehicle-search">
+            <div class="search-box">
 
                 <input
-                    type="search"
-                    id="searchInput"
-                    placeholder="Search vehicles, model, reference, year..."
+                    type="text"
+                    id="vehicleSearch"
+                    placeholder="Search vehicle..."
                     autocomplete="off"
                 >
 
             </div>
 
 
-            <!-- FILTER GRID -->
+            <div class="filter-box">
 
-            <div class="filters-grid">
+                <select id="regionFilter">
 
+                    <option value="all">
+                        All Regions
+                    </option>
 
-                <!-- STATUS -->
+                    <option value="Africa">
+                        Africa
+                    </option>
 
-                <div class="filter-group">
+                    <option value="Caribbean">
+                        Caribbean
+                    </option>
 
-                    <label for="statusFilter">
-                        Vehicle Status
-                    </label>
-
-                    <select id="statusFilter">
-
-                        <option value="">
-                            All Vehicles
-                        </option>
-
-                        <option value="Available">
-                            Available
-                        </option>
-
-                        <option value="Purchased">
-                            Purchased
-                        </option>
-
-                        <option value="Port Departure">
-                            Port Departure
-                        </option>
-
-                        <option value="In Transit">
-                            In Transit
-                        </option>
-
-                        <option value="Port Arrival">
-                            Port Arrival
-                        </option>
-
-                        <option value="Delivered">
-                            Delivered
-                        </option>
-
-                        <option value="Sold">
-                            Sold
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- MARKET -->
-
-                <div class="filter-group">
-
-                    <label for="regionFilter">
-                        Market
-                    </label>
-
-                    <select id="regionFilter">
-
-                        <option value="">
-                            All Markets
-                        </option>
-
-                        <option value="Africa">
-                            Africa
-                        </option>
-
-                        <option value="Caribbean">
-                            Caribbean
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- COUNTRY -->
-
-                <div class="filter-group">
-
-                    <label for="countryFilter">
-                        Country
-                    </label>
-
-                    <select id="countryFilter">
-
-                        <option value="">
-                            All Countries
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- SORT -->
-
-                <div class="filter-group">
-
-                    <label for="sortSelect">
-                        Sort Vehicles
-                    </label>
-
-                    <select id="sortSelect">
-
-                        <option value="newest">
-                            Newest First
-                        </option>
-
-                        <option value="year-desc">
-                            Year: Newest
-                        </option>
-
-                        <option value="year-asc">
-                            Year: Oldest
-                        </option>
-
-                        <option value="name-asc">
-                            Name: A-Z
-                        </option>
-
-                        <option value="name-desc">
-                            Name: Z-A
-                        </option>
-
-                    </select>
-
-                </div>
+                </select>
 
             </div>
+
+
+            <div class="filter-box">
+
+                <select id="statusFilter">
+
+                    <option value="all">
+                        All Vehicles
+                    </option>
+
+                    <option value="Available">
+                        Available
+                    </option>
+
+                    <option value="Sold">
+                        Sold
+                    </option>
+
+                </select>
+
+            </div>
+
 
         </div>
 
 
-        <!-- =================================================
-             RESULTS BAR
-             ================================================= -->
 
-        <div class="results-bar">
+        <!-- LOADING -->
 
-            <div
-                class="results-count"
-                id="resultsCount"
-            >
-                Loading vehicles...
-            </div>
+        <div
+            class="vehicles-message"
+            id="loadingMessage"
+        >
 
-
-            <button
-                type="button"
-                id="clearFilters"
-                class="btn-outline"
-                style="
-                    min-height:38px;
-                    padding:0 16px;
-                    border:1px solid rgba(201,162,39,.7);
-                    border-radius:4px;
-                    background:transparent;
-                    color:#e3c45b;
-                    cursor:pointer;
-                    font-size:11px;
-                    font-weight:800;
-                    text-transform:uppercase;
-                    letter-spacing:.7px;
-                "
-            >
-                Clear Filters
-            </button>
+            Loading vehicles...
 
         </div>
 
 
-        <!-- =================================================
-             VEHICLE GRID
-             ================================================= -->
+
+        <!-- VEHICLE GRID -->
 
         <div
             class="vehicle-grid"
             id="vehicleGrid"
+        ></div>
+
+
+
+        <!-- NO RESULTS -->
+
+        <div
+            class="vehicles-message hidden"
+            id="noVehicles"
         >
 
-            <div class="loading">
-
-                Loading vehicles...
-
-            </div>
+            No vehicles found.
 
         </div>
 
-
-        <!-- =================================================
-             NOTICE
-             ================================================= -->
-
-        <div class="country-notice">
-
-            <strong>
-                Country-specific pricing:
-            </strong>
-
-            Vehicle prices and shipping costs may vary depending
-            on the destination country. Contact us for a current
-            country-specific quotation and vehicle availability.
-
-        </div>
 
     </div>
 
 </section>
+
 
 
 <!-- =====================================================
-     CTA
+     COUNTRY QUOTE BANNER
      ===================================================== -->
 
-<section class="vehicles-cta">
+<section class="quote-banner">
 
-    <div class="container">
 
-        <div class="cta-content">
+    <div class="container quote-container">
+
+
+        <div>
+
+            <div class="quote-label">
+                COUNTRY-SPECIFIC QUOTATIONS
+            </div>
+
 
             <h2>
-                Can't Find Your <span>Vehicle?</span>
+
+                Looking for a vehicle from Japan?
+
             </h2>
 
+
             <p>
-                Tell us what you are looking for. We can help source
-                Japanese vehicles according to your requirements.
+
+                Tell us your destination country and we will
+                provide the current vehicle and shipping quotation.
+
             </p>
 
-            <a
-                href="https://wa.me/923392207418?text=Hello%20Hasnain%20Vehicle%20Exporter,%20I%20am%20looking%20for%20a%20vehicle.%20Please%20help%20me%20find%20one."
-                target="_blank"
-                rel="noopener"
-                class="cta-button"
-            >
-                Request Vehicle
-            </a>
-
         </div>
+
+
+        <a
+            href="https://wa.me/923392207418?text=Hello%20Hasnain%20Vehicle%20Exporter%2C%20I%20would%20like%20a%20country-specific%20vehicle%20quotation."
+            target="_blank"
+            rel="noopener"
+            class="quote-button"
+        >
+
+            Get a Quote
+
+        </a>
+
 
     </div>
 
 </section>
 
-</main>
 
 
 <!-- =====================================================
@@ -451,113 +450,106 @@
 
 <footer class="site-footer">
 
-    <div class="container">
 
-        <div class="footer-grid">
-
-
-            <div class="footer-brand">
-
-                <img
-                    src="images/logo.png"
-                    alt="Hasnain Vehicle Exporter"
-                >
-
-                <p>
-                    Japanese vehicles and auto parts sourced from
-                    Japan for customers across Africa and the
-                    Caribbean.
-                </p>
-
-            </div>
+    <div class="container footer-container">
 
 
-            <div>
-
-                <h4>
-                    Quick Links
-                </h4>
-
-                <ul>
-
-                    <li>
-                        <a href="index.html">
-                            Home
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="vehicles.html">
-                            Browse Vehicles
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="index.html#about">
-                            About
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="index.html#contact">
-                            Contact
-                        </a>
-                    </li>
-
-                </ul>
-
-            </div>
+        <div class="footer-brand">
 
 
-            <div>
+            <img
+                src="images/logo.png"
+                alt="Hasnain Vehicle Exporter"
+            >
 
-                <h4>
-                    Contact
-                </h4>
 
-                <ul>
+            <p>
 
-                    <li>
-                        <a href="https://wa.me/923392207418">
-                            WhatsApp
-                        </a>
-                    </li>
+                Japanese vehicles and auto parts
+                from Japan to customers across
+                Africa and the Caribbean.
 
-                    <li>
-                        <a href="mailto:hasnainvehicleexporter@gmail.com">
-                            Email
-                        </a>
-                    </li>
+            </p>
 
-                    <li>
-                        Africa & Caribbean
-                    </li>
+        </div>
 
-                </ul>
 
-            </div>
+
+        <div class="footer-links">
+
+
+            <h3>
+                Quick Links
+            </h3>
+
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="vehicles.html">
+                Browse Vehicles
+            </a>
+
+            <a href="index.html#about">
+                About
+            </a>
+
+            <a href="index.html#contact">
+                Contact
+            </a>
 
 
         </div>
 
 
-        <div class="footer-bottom">
 
-            <div>
-                © <span id="currentYear"></span>
-                Hasnain Vehicle Exporter.
-                All rights reserved.
-            </div>
+        <div class="footer-contact">
 
-            <div>
-                Japanese Vehicles & Auto Parts
-            </div>
+
+            <h3>
+                Contact
+            </h3>
+
+
+            <a href="mailto:hasnainvehicleexporter@gmail.com">
+                hasnainvehicleexporter@gmail.com
+            </a>
+
+
+            <a href="https://wa.me/923392207418">
+                +92 339 2207418
+            </a>
+
 
         </div>
+
 
     </div>
 
+
+
+    <div class="footer-bottom">
+
+
+        <div class="container">
+
+            <p>
+
+                © <span id="currentYear"></span>
+                Hasnain Vehicle Exporter.
+                All Rights Reserved.
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+
 </footer>
+
 
 
 <!-- =====================================================
@@ -565,84 +557,28 @@
      ===================================================== -->
 
 <a
-    href="https://wa.me/923392207418"
+    class="floating-whatsapp"
+    href="https://wa.me/923392207418?text=Hello%20Hasnain%20Vehicle%20Exporter%2C%20I%20am%20interested%20in%20a%20vehicle%20from%20Japan."
     target="_blank"
     rel="noopener"
-    class="whatsapp-float"
     aria-label="Contact Hasnain Vehicle Exporter on WhatsApp"
 >
-    ☎
+
+    <span>✆</span>
+
 </a>
+
 
 
 <!-- =====================================================
      JAVASCRIPT
      ===================================================== -->
 
-<script type="module" src="js/vehicles.js"></script>
+<script
+    type="module"
+    src="js/vehicles.js"
+></script>
 
-
-<!-- MOBILE MENU -->
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const menuToggle =
-        document.getElementById("menuToggle");
-
-    const mainNav =
-        document.getElementById("mainNav");
-
-
-    if (menuToggle && mainNav) {
-
-        menuToggle.addEventListener("click", function () {
-
-            const isOpen =
-                mainNav.classList.toggle("active");
-
-            menuToggle.setAttribute(
-                "aria-expanded",
-                isOpen ? "true" : "false"
-            );
-
-            menuToggle.textContent =
-                isOpen ? "✕" : "☰";
-
-        });
-
-
-        mainNav.querySelectorAll("a").forEach(function (link) {
-
-            link.addEventListener("click", function () {
-
-                mainNav.classList.remove("active");
-
-                menuToggle.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-                menuToggle.textContent = "☰";
-
-            });
-
-        });
-
-    }
-
-
-    const year =
-        document.getElementById("currentYear");
-
-    if (year) {
-        year.textContent =
-            new Date().getFullYear();
-    }
-
-});
-
-</script>
 
 </body>
 </html>
