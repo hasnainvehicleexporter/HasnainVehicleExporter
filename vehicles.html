@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Browse Vehicles | Hasnain Vehicle Exporter</title>
+
+    <meta name="description"
+          content="Browse Japanese vehicles available for export through Hasnain Vehicle Exporter. Contact us for country-specific vehicle and shipping quotations.">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/vehicles.css">
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="container nav-container">
+
+        <a href="index.html" class="brand">
+            <img src="images/logo.png"
+                 alt="Hasnain Vehicle Exporter"
+                 class="site-logo">
+        </a>
+
+        <nav class="main-nav">
+            <a href="index.html#home">Home</a>
+            <a href="vehicles.html" class="active">Browse Vehicles</a>
+            <a href="index.html#about">About</a>
+            <a href="index.html#process">How It Works</a>
+            <a href="index.html#faq">FAQ</a>
+            <a href="index.html#contact">Contact</a>
+        </nav>
+
+        <button class="menu-toggle"
+                type="button"
+                aria-label="Open menu">
+            ☰
+        </button>
+
+    </div>
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+    <section class="vehicles-hero">
+
+        <div class="container">
+
+            <span class="section-label">
+                JAPANESE VEHICLES
+            </span>
+
+            <h1>
+                Browse Vehicles
+            </h1>
+
+            <p>
+                Explore vehicles available from Japan.
+                Contact us for a country-specific quotation.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- VEHICLE CATALOG -->
+    <section class="vehicle-catalog">
+
+        <div class="container">
+
+            <!-- FILTER BAR -->
+            <div class="catalog-toolbar">
+
+                <div class="search-box">
+                    <input
+                        type="search"
+                        id="vehicleSearch"
+                        placeholder="Search vehicles..."
+                        aria-label="Search vehicles">
+                </div>
+
+                <select id="statusFilter">
+                    <option value="all">All Vehicles</option>
+                    <option value="Available">Available</option>
+                    <option value="Sold">Sold</option>
+                </select>
+
+                <select id="regionFilter">
+                    <option value="all">All Markets</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Caribbean">Caribbean</option>
+                </select>
+
+            </div>
+
+
+            <!-- STATUS -->
+            <div class="catalog-status" id="catalogStatus">
+                Loading vehicles...
+            </div>
+
+
+            <!-- VEHICLE GRID -->
+            <div
+                class="vehicle-grid"
+                id="vehicleGrid">
+            </div>
+
+
+            <!-- EMPTY STATE -->
+            <div
+                class="empty-state"
+                id="emptyState"
+                hidden>
+
+                <h2>No vehicles found</h2>
+
+                <p>
+                    Please try another search or filter.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <p>
+            © <span id="currentYear"></span>
+            Hasnain Vehicle Exporter.
+            All rights reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+
+<script type="module" src="js/vehicles.js"></script>
+
+</body>
+</html>
