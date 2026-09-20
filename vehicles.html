@@ -4,62 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Browse Vehicles | Hasnain Vehicle Exporter</title>
-
-    <meta name="description"
-          content="Browse Japanese vehicles available for export through Hasnain Vehicle Exporter. Contact us for country-specific vehicle and shipping quotations.">
+    <title>Browse Japanese Vehicles | Hasnain Vehicle Exporter</title>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/vehicles.css">
+
+    <script type="module" src="js/vehicles.js"></script>
 </head>
 
-<body>
+<body class="vehicles-page">
 
-<header class="site-header">
-    <div class="container nav-container">
+<header class="catalog-header">
 
-        <a href="index.html" class="brand">
-            <img src="images/logo.png"
-                 alt="Hasnain Vehicle Exporter"
-                 class="site-logo">
+    <div class="catalog-header-inner">
+
+        <a href="index.html" class="catalog-logo">
+            <img src="images/logo.png" alt="Hasnain Vehicle Exporter">
         </a>
 
-        <nav class="main-nav">
-            <a href="index.html#home">Home</a>
-            <a href="vehicles.html" class="active">Browse Vehicles</a>
+        <nav class="catalog-nav">
+
+            <a href="index.html">Home</a>
+
+            <a href="vehicles.html" class="active">
+                Browse Vehicles
+            </a>
+
             <a href="index.html#about">About</a>
-            <a href="index.html#process">How It Works</a>
+
+            <a href="index.html#how-it-works">How It Works</a>
+
             <a href="index.html#faq">FAQ</a>
+
             <a href="index.html#contact">Contact</a>
+
         </nav>
 
-        <button class="menu-toggle"
-                type="button"
-                aria-label="Open menu">
+        <a
+            class="header-whatsapp"
+            href="https://wa.me/923392207418"
+            target="_blank"
+            rel="noopener"
+        >
+            <span>◉</span>
+            WhatsApp Us
+        </a>
+
+        <button class="mobile-menu-button" id="mobileMenuButton">
             ☰
         </button>
 
     </div>
+
 </header>
 
 
 <main>
 
     <!-- HERO -->
+
     <section class="vehicles-hero">
 
-        <div class="container">
+        <div class="vehicles-hero-overlay"></div>
 
-            <span class="section-label">
+        <div class="vehicles-hero-content">
+
+            <a href="index.html" class="back-home">
+                ← Home
+            </a>
+
+            <div class="hero-small-label">
                 JAPANESE VEHICLES
-            </span>
+            </div>
 
             <h1>
-                Browse Vehicles
+                Browse <span>Vehicles</span>
             </h1>
 
             <p>
-                Explore vehicles available from Japan.
+                Explore quality vehicles available from Japan.
                 Contact us for a country-specific quotation.
             </p>
 
@@ -68,63 +91,151 @@
     </section>
 
 
-    <!-- VEHICLE CATALOG -->
-    <section class="vehicle-catalog">
+    <!-- CATALOG -->
 
-        <div class="container">
+    <section class="vehicle-catalog-section">
+
+        <div class="catalog-container">
 
             <!-- FILTER BAR -->
-            <div class="catalog-toolbar">
 
-                <div class="search-box">
+            <div class="vehicle-filter-bar">
+
+                <div class="vehicle-search">
+
+                    <span>⌕</span>
+
                     <input
                         type="search"
                         id="vehicleSearch"
                         placeholder="Search vehicles..."
-                        aria-label="Search vehicles">
+                        autocomplete="off"
+                    >
+
                 </div>
 
+
                 <select id="statusFilter">
-                    <option value="all">All Vehicles</option>
-                    <option value="Available">Available</option>
-                    <option value="Sold">Sold</option>
+
+                    <option value="all">
+                        All Vehicles
+                    </option>
+
+                    <option value="available">
+                        Available
+                    </option>
+
+                    <option value="sold">
+                        Sold
+                    </option>
+
+                    <option value="in transit">
+                        In Transit
+                    </option>
+
+                    <option value="port arrival">
+                        Port Arrival
+                    </option>
+
+                    <option value="delivered">
+                        Delivered
+                    </option>
+
                 </select>
 
+
                 <select id="regionFilter">
-                    <option value="all">All Markets</option>
-                    <option value="Africa">Africa</option>
-                    <option value="Caribbean">Caribbean</option>
+
+                    <option value="all">
+                        All Markets
+                    </option>
+
+                    <option value="Africa">
+                        Africa
+                    </option>
+
+                    <option value="Caribbean">
+                        Caribbean
+                    </option>
+
                 </select>
+
+
+                <select id="countryFilter">
+
+                    <option value="all">
+                        All Countries
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="button"
+                    id="resetFilters"
+                    class="reset-filter-button"
+                >
+                    ↻ Reset Filters
+                </button>
 
             </div>
 
 
-            <!-- STATUS -->
-            <div class="catalog-status" id="catalogStatus">
-                Loading vehicles...
+            <!-- RESULT COUNT -->
+
+            <div class="catalog-result-row">
+
+                <span id="vehicleCount">
+                    Loading vehicles...
+                </span>
+
             </div>
 
 
             <!-- VEHICLE GRID -->
+
             <div
+                id="vehicleGrid"
                 class="vehicle-grid"
-                id="vehicleGrid">
-            </div>
+            ></div>
 
 
-            <!-- EMPTY STATE -->
+            <!-- EMPTY -->
+
             <div
-                class="empty-state"
-                id="emptyState"
-                hidden>
+                id="vehicleEmpty"
+                class="vehicle-empty"
+                hidden
+            >
 
-                <h2>No vehicles found</h2>
+                <div class="empty-icon">
+                    🚗
+                </div>
+
+                <h3>
+                    No vehicles found
+                </h3>
 
                 <p>
-                    Please try another search or filter.
+                    Try changing your search or filters.
                 </p>
 
+                <button
+                    type="button"
+                    id="emptyReset"
+                >
+                    Reset Filters
+                </button>
+
             </div>
+
+
+            <!-- PAGINATION -->
+
+            <div
+                id="vehiclePagination"
+                class="vehicle-pagination"
+            ></div>
 
         </div>
 
@@ -133,22 +244,170 @@
 </main>
 
 
-<footer class="site-footer">
+<!-- FOOTER -->
 
-    <div class="container">
+<footer class="catalog-footer">
 
-        <p>
-            © <span id="currentYear"></span>
+    <div class="catalog-footer-main">
+
+        <div class="footer-brand">
+
+            <img
+                src="images/logo.png"
+                alt="Hasnain Vehicle Exporter"
+            >
+
+            <p>
+                Quality Japanese Vehicles.
+                Global Reach.
+            </p>
+
+        </div>
+
+
+        <div class="footer-feature">
+
+            <div class="footer-feature-icon">
+                ✓
+            </div>
+
+            <div>
+                <strong>Trusted Partner</strong>
+                <span>With BE FORWARD Japan</span>
+            </div>
+
+        </div>
+
+
+        <div class="footer-feature">
+
+            <div class="footer-feature-icon">
+                ◉
+            </div>
+
+            <div>
+                <strong>Worldwide Shipping</strong>
+                <span>To Africa & Caribbean</span>
+            </div>
+
+        </div>
+
+
+        <div class="footer-feature">
+
+            <div class="footer-feature-icon">
+                ◆
+            </div>
+
+            <div>
+                <strong>Secure & Reliable</strong>
+                <span>Your Vehicle, Our Priority</span>
+            </div>
+
+        </div>
+
+
+        <div class="footer-social">
+
+            <strong>Follow Us</strong>
+
+            <div class="social-icons">
+
+                <a
+                    href="https://www.facebook.com/hasnainvehicleexporter"
+                    target="_blank"
+                >
+                    f
+                </a>
+
+                <a
+                    href="https://www.instagram.com/hasnainvehicleexporter"
+                    target="_blank"
+                >
+                    ◎
+                </a>
+
+                <a
+                    href="https://www.tiktok.com/@hasnainvehicleexporter"
+                    target="_blank"
+                >
+                    ♪
+                </a>
+
+                <a
+                    href="https://www.youtube.com/@HasnainVehicleExporter"
+                    target="_blank"
+                >
+                    ▶
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="catalog-footer-bottom">
+
+        <span>
+            © <span class="current-year"></span>
             Hasnain Vehicle Exporter.
             All rights reserved.
-        </p>
+        </span>
+
+        <div>
+
+            <a href="index.html">
+                Privacy Policy
+            </a>
+
+            <span>|</span>
+
+            <a href="index.html">
+                Terms & Conditions
+            </a>
+
+        </div>
 
     </div>
 
 </footer>
 
 
-<script type="module" src="js/vehicles.js"></script>
+<!-- MOBILE NAV SCRIPT -->
+
+<script>
+
+const mobileMenuButton =
+    document.getElementById("mobileMenuButton");
+
+const catalogNav =
+    document.querySelector(".catalog-nav");
+
+mobileMenuButton?.addEventListener("click", () => {
+
+    catalogNav.classList.toggle("mobile-open");
+
+});
+
+
+document.querySelectorAll(".catalog-nav a")
+.forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        catalogNav.classList.remove("mobile-open");
+
+    });
+
+});
+
+
+document.querySelector(".current-year").textContent =
+    new Date().getFullYear();
+
+</script>
 
 </body>
 </html>
