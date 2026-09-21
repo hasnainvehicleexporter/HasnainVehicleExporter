@@ -4,21 +4,24 @@
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
 import {
     getAuth,
     setPersistence,
     browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
 import {
     getFirestore
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-// ------------------------------------------------------------
-// Firebase Project
-// ------------------------------------------------------------
+
+// ============================================================
+// FIREBASE PROJECT CONFIGURATION
+// ============================================================
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC_O0pbiX4T4JqEyn-9iHacP2xNLqUvGY",
+    apiKey: "AIzaSyC_O0pbiwX4T4JqEyn-9iHacP2xNLqUvGY",
     authDomain: "hasnainvehicleexporter9048.firebaseapp.com",
     projectId: "hasnainvehicleexporter9048",
     storageBucket: "hasnainvehicleexporter9048.firebasestorage.app",
@@ -27,36 +30,53 @@ const firebaseConfig = {
     measurementId: "G-78SPE8THNW"
 };
 
-// ------------------------------------------------------------
-// Initialize Firebase
-// ------------------------------------------------------------
+
+// ============================================================
+// INITIALIZE FIREBASE
+// ============================================================
 
 const app = initializeApp(firebaseConfig);
 
+
+// ============================================================
+// FIREBASE SERVICES
+// ============================================================
+
 export const auth = getAuth(app);
+
 export const db = getFirestore(app);
 
-// Keep admin login active after page refresh
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.error("Firebase persistence error:", error);
-});
 
-// ------------------------------------------------------------
-// Authorized Administrators
-// ------------------------------------------------------------
+// ============================================================
+// KEEP ADMIN LOGGED IN
+// ============================================================
 
-export const ADMIN_EMAILS = [
-    "hasnainvehicleexporter@gmail.com",
-    "rh531790@gmail.com"
-];
+setPersistence(auth, browserLocalPersistence)
+    .catch((error) => {
+        console.error(
+            "Firebase authentication persistence error:",
+            error
+        );
+    });
 
-// ------------------------------------------------------------
-// Cloudinary
-// ------------------------------------------------------------
 
-export const CLOUDINARY_CLOUD_NAME = "xa9mgdhb";
+// ============================================================
+// ONLY AUTHORIZED ADMIN
+// ============================================================
 
-export const CLOUDINARY_UPLOAD_PRESET = "hve_vehicle_images";
+export const ADMIN_EMAIL =
+    "hasnainvehicleexporter@gmail.com";
+
+
+// ============================================================
+// CLOUDINARY
+// ============================================================
+
+export const CLOUDINARY_CLOUD_NAME =
+    "xa9mgdhb";
+
+export const CLOUDINARY_UPLOAD_PRESET =
+    "hve_vehicle_images";
 
 export const CLOUDINARY_UPLOAD_URL =
     `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
