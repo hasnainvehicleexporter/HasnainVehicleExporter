@@ -1,2296 +1,2518 @@
-// ============================================================
-// HASNAIN VEHICLE EXPORTER
-// ADMIN DASHBOARD
-// Supports multiple authorized admin accounts
-// ============================================================
+/* ============================================================
+   HASNAIN VEHICLE EXPORTER
+   ADMIN DASHBOARD JAVASCRIPT
+
+   Firebase Authentication
+   Firestore
+   Cloudinary
+   Vehicle CRUD
+   HVE References
+   Search / Filters
+   Tracking
+============================================================ */
 
 import {
-  firebaseConfig,
-  ADMIN_EMAILS,
-  CLOUDINARY_CLOUD_NAME,
-  CLOUDINARY_UPLOAD_PRESET,
-  CLOUDINARY_UPLOAD_URL
+    auth,
+    db,
+    ADMIN_EMAILS,
+    CLOUDINARY_UPLOAD_URL,
+    CLOUDINARY_UPLOAD_PRESET
 } from "./firebase-config.js";
 
 import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  limit,
-  serverTimestamp
+    collection,
+    getDocs,
+    getDoc,
+    addDoc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    query,
+    orderBy,
+    limit,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 
-// ============================================================
-// FIREBASE INITIALIZATION
-// ============================================================
+/* ============================================================
+   CONFIGURATION
+============================================================ */
 
-const app = initializeApp(firebaseConfig);
+const VEHICLES_COLLECTION = "vehicles";
 
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-const vehiclesCollection = collection(db, "vehicles");
+const FALLBACK_IMAGE =
+    "https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1200&q=80";
 
 
-// ============================================================
-// GLOBAL STATE
-// ============================================================
+/* ============================================================
+   COUNTRY DATA
+============================================================ */
 
-let currentUser = null;
+const AFRICA_COUNTRIES = [
+    "Algeria",
+    "Angola",
+    "Benin",
+    "Botswana",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cameroon",
+    "Central African Republic",
+    "Chad",
+    "Comoros",
+    "Democratic Republic of the Congo",
+    "Republic of the Congo",
+    "Côte d'Ivoire",
+    "Djibouti",
+    "Egypt",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Eswatini",
+    "Ethiopia",
+    "Gabon",
+    "Gambia",
+    "Ghana",
+    "Guinea",
+    "Guinea-Bissau",
+    "Kenya",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Madagascar",
+    "Malawi",
+    "Mali",
+    "Mauritania",
+    "Mauritius",
+    "Morocco",
+    "Mozambique",
+    "Namibia",
+    "Niger",
+    "Nigeria",
+    "Rwanda",
+    "São Tomé and Príncipe",
+    "Senegal",
+    "Seychelles",
+    "Sierra Leone",
+    "Somalia",
+    "South Africa",
+    "South Sudan",
+    "Sudan",
+    "Tanzania",
+    "Togo",
+    "Tunisia",
+    "Uganda",
+    "Zambia",
+    "Zimbabwe"
+];
 
-let vehicles = [];
+const CARIBBEAN_COUNTRIES = [
+    "Antigua and Barbuda",
+    "Bahamas",
+    "Barbados",
+    "Belize",
+    "Cuba",
+    "Dominica",
+    "Dominican Republic",
+    "Grenada",
+    "Guyana",
+    "Haiti",
+    "Jamaica",
+    "Saint Kitts and Nevis",
+    "Saint Lucia",
+    "Saint Vincent and the Grenadines",
+    "Suriname",
+    "Trinidad and Tobago"
+];
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let allVehicles = [];
+
+let selectedImages = [];
+
+let existingImages = [];
 
 let editingVehicleId = null;
 
-let currentImages = [];
 
+/* ============================================================
+   DOM HELPERS
+============================================================ */
 
-// ============================================================
-// ADMIN EMAIL CHECK
-// ============================================================
+const $ = (id) => document.getElementById(id);
 
-function isAuthorizedAdmin(user) {
-  if (!user || !user.email) {
-    return false;
-  }
+function show(element) {
+    if (element) {
+        element.classList.remove("hidden");
+    }
+}
 
-  const email = user.email.trim().toLowerCase();
+function hide(element) {
+    if (element) {
+        element.classList.add("hidden");
+    }
+}
 
-  return ADMIN_EMAILS
-    .map(item => item.toLowerCase())
-    .includes(email);
+function value(id) {
+    const element = $(id);
+    return element ? element.value.trim() : "";
+}
+
+function setValue(id, val) {
+    const element = $(id);
+
+    if (element) {
+        element.value = val ?? "";
+    }
 }
 
 
-// ============================================================
-// AUTHENTICATION
-// ============================================================
+/* ============================================================
+   AUTHORIZATION
+============================================================ */
+
+function isAuthorizedAdmin(user) {
+
+    if (!user || !user.email) {
+        return false;
+    }
+
+    const email = user.email.trim().toLowerCase();
+
+    return ADMIN_EMAILS
+        .map(item => item.toLowerCase())
+        .includes(email);
+}
+
+
+/* ============================================================
+   LOGIN
+============================================================ */
+
+const loginForm = $("loginForm");
+
+if (loginForm) {
+
+    loginForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        const email = value("email").toLowerCase();
+
+        const password = $("password")?.value || "";
+
+        const loginButton = $("loginButton");
+
+        const loginButtonText = $("loginButtonText");
+
+        const loginSpinner = $("loginSpinner");
+
+        const loginError = $("loginError");
+
+        hide(loginError);
+
+        if (!email || !password) {
+
+            showLoginError(
+                "Please enter your email address and password."
+            );
+
+            return;
+        }
+
+        loginButton.disabled = true;
+
+        if (loginButtonText) {
+            loginButtonText.textContent = "Signing In...";
+        }
+
+        show(loginSpinner);
+
+        try {
+
+            const credentials =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+            const user = credentials.user;
+
+            if (!isAuthorizedAdmin(user)) {
+
+                await signOut(auth);
+
+                throw new Error(
+                    "This account is not authorized for the HVE dashboard."
+                );
+            }
+
+        } catch (error) {
+
+            console.error("Login error:", error);
+
+            showLoginError(
+                getFirebaseErrorMessage(error)
+            );
+
+        } finally {
+
+            loginButton.disabled = false;
+
+            if (loginButtonText) {
+                loginButtonText.textContent = "Sign In";
+            }
+
+            hide(loginSpinner);
+        }
+
+    });
+
+}
+
+
+/* ============================================================
+   PASSWORD VISIBILITY
+============================================================ */
+
+const togglePassword = $("togglePassword");
+
+if (togglePassword) {
+
+    togglePassword.addEventListener("click", () => {
+
+        const password = $("password");
+
+        if (!password) return;
+
+        if (password.type === "password") {
+
+            password.type = "text";
+
+            togglePassword.textContent = "Hide";
+
+        } else {
+
+            password.type = "password";
+
+            togglePassword.textContent = "Show";
+        }
+
+    });
+
+}
+
+
+/* ============================================================
+   FIREBASE AUTH STATE
+============================================================ */
 
 onAuthStateChanged(auth, async (user) => {
 
-  currentUser = user || null;
+    if (!user) {
 
-  if (!user) {
-    showLoginScreen();
-    return;
-  }
+        show($("loginScreen"));
+        hide($("dashboard"));
 
-  if (!isAuthorizedAdmin(user)) {
+        return;
+    }
 
-    alert(
-      "This account is not authorized for the HVE dashboard."
-    );
+    if (!isAuthorizedAdmin(user)) {
 
-    await signOut(auth);
+        await signOut(auth);
 
-    showLoginScreen();
+        showLoginError(
+            "This account is not authorized for the HVE dashboard."
+        );
 
-    return;
-  }
+        return;
+    }
 
-  showDashboard();
+    hide($("loginScreen"));
+    show($("dashboard"));
 
-  updateLoggedInEmail(user.email);
+    const adminEmail = $("adminEmail");
 
-  await loadVehicles();
+    if (adminEmail) {
+        adminEmail.textContent = user.email;
+    }
 
-  updateDashboardCounts();
+    await initializeDashboard();
 
 });
 
 
-// ============================================================
-// LOGIN
-// ============================================================
+/* ============================================================
+   FIREBASE ERROR MESSAGES
+============================================================ */
 
-async function loginUser(email, password) {
+function getFirebaseErrorMessage(error) {
 
-  try {
+    const code = error?.code || "";
 
-    const cleanEmail = email.trim().toLowerCase();
+    switch (code) {
 
-    if (!cleanEmail || !password) {
+        case "auth/invalid-credential":
+            return "Invalid email or password.";
 
-      alert("Please enter your email and password.");
+        case "auth/invalid-login-credentials":
+            return "Invalid email or password.";
 
-      return;
+        case "auth/wrong-password":
+            return "Incorrect password.";
+
+        case "auth/user-not-found":
+            return "No Firebase account exists with this email.";
+
+        case "auth/invalid-email":
+            return "Please enter a valid email address.";
+
+        case "auth/user-disabled":
+            return "This Firebase account has been disabled.";
+
+        case "auth/too-many-requests":
+            return "Too many login attempts. Please wait and try again.";
+
+        case "auth/unauthorized-domain":
+            return "This website domain is not authorized in Firebase Authentication.";
+
+        case "auth/network-request-failed":
+            return "Network error. Check your internet connection.";
+
+        case "auth/configuration-not-found":
+            return "Firebase Authentication is not configured correctly.";
+
+        default:
+            return error?.message ||
+                "Login failed. Please check Firebase settings.";
+    }
+}
+
+
+function showLoginError(message) {
+
+    const loginError = $("loginError");
+
+    if (!loginError) return;
+
+    loginError.textContent = message;
+
+    show(loginError);
+}
+
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+const logoutButton = $("logoutButton");
+
+if (logoutButton) {
+
+    logoutButton.addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+        } catch (error) {
+
+            console.error("Logout error:", error);
+
+            showToast(
+                "Could not sign out.",
+                "error"
+            );
+        }
+
+    });
+
+}
+
+
+/* ============================================================
+   DASHBOARD INITIALIZATION
+============================================================ */
+
+async function initializeDashboard() {
+
+    populateCountrySelector();
+
+    setupNavigation();
+
+    setupVehicleForm();
+
+    setupVehicleFilters();
+
+    setupMobileMenu();
+
+    await loadVehicles();
+
+}
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+function setupNavigation() {
+
+    const navItems =
+        document.querySelectorAll(".nav-item");
+
+    navItems.forEach((button) => {
+
+        button.addEventListener("click", () => {
+
+            const section =
+                button.dataset.section;
+
+            openSection(section);
+
+        });
+
+    });
+
+
+    document
+        .querySelectorAll("[data-open-section]")
+        .forEach((button) => {
+
+            button.addEventListener("click", () => {
+
+                openSection(
+                    button.dataset.openSection
+                );
+
+            });
+
+        });
+
+}
+
+
+function openSection(sectionName) {
+
+    document
+        .querySelectorAll(".dashboard-section")
+        .forEach(section => {
+
+            section.classList.remove(
+                "active-section"
+            );
+
+        });
+
+
+    const target =
+        $(`section-${sectionName}`);
+
+    if (target) {
+
+        target.classList.add(
+            "active-section"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.section === sectionName
+            );
+
+        });
+
+
+    const pageTitle = $("pageTitle");
+
+    if (pageTitle) {
+
+        const titles = {
+
+            overview: "Dashboard",
+
+            vehicles: "All Vehicles",
+
+            addVehicle: editingVehicleId
+                ? "Edit Vehicle"
+                : "Add Vehicle",
+
+            tracking: "Vehicle Tracking"
+
+        };
+
+        pageTitle.textContent =
+            titles[sectionName] || "Dashboard";
+    }
+
+
+    if (sectionName === "tracking") {
+
+        renderTracking();
+
+    }
+
+    closeMobileMenu();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ============================================================
+   MOBILE MENU
+============================================================ */
+
+function setupMobileMenu() {
+
+    const button =
+        $("mobileMenuButton");
+
+    const sidebar =
+        $("sidebar");
+
+    if (!button || !sidebar) return;
+
+    button.addEventListener("click", () => {
+
+        sidebar.classList.toggle(
+            "mobile-open"
+        );
+
+    });
+
+}
+
+
+function closeMobileMenu() {
+
+    const sidebar =
+        $("sidebar");
+
+    if (sidebar) {
+
+        sidebar.classList.remove(
+            "mobile-open"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   COUNTRY SELECTOR
+============================================================ */
+
+function populateCountrySelector(
+    selectedCountry = ""
+) {
+
+    const countrySelect =
+        $("country");
+
+    if (!countrySelect) return;
+
+    countrySelect.innerHTML = "";
+
+    const emptyOption =
+        document.createElement("option");
+
+    emptyOption.value = "";
+
+    emptyOption.textContent =
+        "No Destination Yet";
+
+    countrySelect.appendChild(
+        emptyOption
+    );
+
+
+    const africaGroup =
+        document.createElement("optgroup");
+
+    africaGroup.label =
+        "Africa";
+
+    AFRICA_COUNTRIES.forEach(country => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = country;
+
+        option.textContent = country;
+
+        africaGroup.appendChild(option);
+
+    });
+
+    countrySelect.appendChild(
+        africaGroup
+    );
+
+
+    const caribbeanGroup =
+        document.createElement("optgroup");
+
+    caribbeanGroup.label =
+        "Caribbean";
+
+    CARIBBEAN_COUNTRIES.forEach(country => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = country;
+
+        option.textContent = country;
+
+        caribbeanGroup.appendChild(option);
+
+    });
+
+    countrySelect.appendChild(
+        caribbeanGroup
+    );
+
+
+    if (selectedCountry) {
+
+        countrySelect.value =
+            selectedCountry;
+
+    }
+
+}
+
+
+/* ============================================================
+   LOAD VEHICLES
+============================================================ */
+
+async function loadVehicles() {
+
+    const vehicleList =
+        $("vehicleList");
+
+    if (vehicleList) {
+
+        vehicleList.innerHTML = `
+            <div class="loading-state">
+                Loading vehicles...
+            </div>
+        `;
+
+    }
+
+    try {
+
+        const vehiclesRef =
+            collection(
+                db,
+                VEHICLES_COLLECTION
+            );
+
+        const snapshot =
+            await getDocs(vehiclesRef);
+
+        allVehicles = [];
+
+        snapshot.forEach(item => {
+
+            allVehicles.push({
+                id: item.id,
+                ...item.data()
+            });
+
+        });
+
+
+        sortVehicles();
+
+        renderStatistics();
+
+        renderVehicleList();
+
+        renderRecentVehicles();
+
+        renderTracking();
+
+    } catch (error) {
+
+        console.error(
+            "Firestore load error:",
+            error
+        );
+
+        if (vehicleList) {
+
+            vehicleList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">!</div>
+                    <h3>Could not load vehicles</h3>
+                    <p>${escapeHtml(error.message)}</p>
+                </div>
+            `;
+
+        }
+
+        showToast(
+            "Could not load vehicles from Firebase.",
+            "error"
+        );
+    }
+
+}
+
+
+function sortVehicles() {
+
+    allVehicles.sort((a, b) => {
+
+        const aTime =
+            getTimestampMillis(
+                a.updatedAt ||
+                a.createdAt
+            );
+
+        const bTime =
+            getTimestampMillis(
+                b.updatedAt ||
+                b.createdAt
+            );
+
+        return bTime - aTime;
+
+    });
+
+}
+
+
+/* ============================================================
+   STATISTICS
+============================================================ */
+
+function renderStatistics() {
+
+    const total =
+        allVehicles.length;
+
+    const available =
+        allVehicles.filter(
+            item => item.status === "Available"
+        ).length;
+
+    const transit =
+        allVehicles.filter(
+            item =>
+                item.status === "In Transit"
+        ).length;
+
+    const delivered =
+        allVehicles.filter(
+            item =>
+                item.status === "Delivered"
+        ).length;
+
+
+    setText(
+        "statTotal",
+        total
+    );
+
+    setText(
+        "statAvailable",
+        available
+    );
+
+    setText(
+        "statTransit",
+        transit
+    );
+
+    setText(
+        "statDelivered",
+        delivered
+    );
+
+}
+
+
+function setText(id, text) {
+
+    const element = $(id);
+
+    if (element) {
+        element.textContent = text;
+    }
+
+}
+
+
+/* ============================================================
+   RECENT VEHICLES
+============================================================ */
+
+function renderRecentVehicles() {
+
+    const container =
+        $("recentVehicles");
+
+    if (!container) return;
+
+    const vehicles =
+        allVehicles.slice(0, 6);
+
+    if (!vehicles.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🚘</div>
+                <h3>No vehicles yet</h3>
+                <p>
+                    Add your first vehicle to your inventory.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        vehicles.map(vehicle => {
+
+            const title =
+                getVehicleTitle(vehicle);
+
+            const image =
+                getFirstImage(vehicle);
+
+            return `
+                <div class="recent-row">
+
+                    <img
+                        class="recent-image"
+                        src="${escapeAttribute(image)}"
+                        alt="${escapeAttribute(title)}"
+                        onerror="this.src='${FALLBACK_IMAGE}'"
+                    >
+
+                    <div class="recent-info">
+
+                        <strong>
+                            ${escapeHtml(title)}
+                        </strong>
+
+                        <span>
+                            ${escapeHtml(
+                                vehicle.ref ||
+                                vehicle.referenceNumber ||
+                                "No reference"
+                            )}
+                        </span>
+
+                    </div>
+
+                    ${statusBadge(vehicle.status)}
+
+                </div>
+            `;
+
+        }).join("");
+
+}
+
+
+/* ============================================================
+   VEHICLE LIST
+============================================================ */
+
+function renderVehicleList() {
+
+    const container =
+        $("vehicleList");
+
+    if (!container) return;
+
+    const search =
+        value("vehicleSearch")
+            .toLowerCase();
+
+    const status =
+        value("statusFilter");
+
+    const region =
+        value("regionFilter");
+
+
+    let vehicles =
+        allVehicles.filter(vehicle => {
+
+            const title =
+                getVehicleTitle(vehicle)
+                    .toLowerCase();
+
+            const ref =
+                String(
+                    vehicle.ref ||
+                    vehicle.referenceNumber ||
+                    ""
+                ).toLowerCase();
+
+            const country =
+                String(
+                    vehicle.country ||
+                    vehicle.destinationCountry ||
+                    ""
+                ).toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                title.includes(search) ||
+                ref.includes(search) ||
+                country.includes(search);
+
+
+            const matchesStatus =
+                status === "all" ||
+                vehicle.status === status;
+
+
+            const matchesRegion =
+                region === "all" ||
+                vehicle.region === region;
+
+
+            return (
+                matchesSearch &&
+                matchesStatus &&
+                matchesRegion
+            );
+
+        });
+
+
+    if (!vehicles.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    🚘
+                </div>
+
+                <h3>
+                    No vehicles found
+                </h3>
+
+                <p>
+                    Try changing your search or filters.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        vehicles.map(vehicle =>
+            vehicleAdminRow(vehicle)
+        ).join("");
+
+
+    attachVehicleActions();
+
+}
+
+
+function vehicleAdminRow(vehicle) {
+
+    const title =
+        getVehicleTitle(vehicle);
+
+    const image =
+        getFirstImage(vehicle);
+
+    const ref =
+        vehicle.ref ||
+        vehicle.referenceNumber ||
+        "No Reference";
+
+    const country =
+        vehicle.country ||
+        vehicle.destinationCountry ||
+        "No destination";
+
+
+    return `
+        <div
+            class="vehicle-admin-row"
+            data-id="${escapeAttribute(vehicle.id)}"
+        >
+
+            <img
+                class="admin-vehicle-image"
+                src="${escapeAttribute(image)}"
+                alt="${escapeAttribute(title)}"
+                onerror="this.src='${FALLBACK_IMAGE}'"
+            >
+
+
+            <div class="admin-vehicle-name">
+
+                <strong>
+                    ${escapeHtml(title)}
+                </strong>
+
+                <span>
+                    ${escapeHtml(country)}
+                </span>
+
+            </div>
+
+
+            <div class="vehicle-ref">
+                ${escapeHtml(ref)}
+            </div>
+
+
+            <div>
+                ${statusBadge(vehicle.status)}
+            </div>
+
+
+            <div class="vehicle-location">
+                ${escapeHtml(
+                    vehicle.region || "—"
+                )}
+            </div>
+
+
+            <div class="vehicle-actions">
+
+                <button
+                    type="button"
+                    class="icon-button edit-vehicle"
+                    data-id="${escapeAttribute(vehicle.id)}"
+                    title="Edit"
+                >
+                    ✎
+                </button>
+
+                <button
+                    type="button"
+                    class="icon-button delete delete-vehicle"
+                    data-id="${escapeAttribute(vehicle.id)}"
+                    title="Delete"
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+function attachVehicleActions() {
+
+    document
+        .querySelectorAll(".edit-vehicle")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => editVehicle(button.dataset.id)
+            );
+
+        });
+
+
+    document
+        .querySelectorAll(".delete-vehicle")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => deleteVehicle(button.dataset.id)
+            );
+
+        });
+
+}
+
+
+/* ============================================================
+   SEARCH / FILTERS
+============================================================ */
+
+function setupVehicleFilters() {
+
+    const search =
+        $("vehicleSearch");
+
+    const status =
+        $("statusFilter");
+
+    const region =
+        $("regionFilter");
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            renderVehicleList
+        );
+
+    }
+
+    if (status) {
+
+        status.addEventListener(
+            "change",
+            renderVehicleList
+        );
+
+    }
+
+    if (region) {
+
+        region.addEventListener(
+            "change",
+            renderVehicleList
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   VEHICLE FORM
+============================================================ */
+
+function setupVehicleForm() {
+
+    const form =
+        $("vehicleForm");
+
+    if (!form) return;
+
+
+    form.addEventListener(
+        "submit",
+        saveVehicle
+    );
+
+
+    const imageInput =
+        $("vehicleImages");
+
+    if (imageInput) {
+
+        imageInput.addEventListener(
+            "change",
+            handleImageSelection
+        );
+
+    }
+
+
+    const cancel =
+        $("cancelVehicleButton");
+
+    if (cancel) {
+
+        cancel.addEventListener(
+            "click",
+            () => {
+
+                resetVehicleForm();
+
+                openSection("vehicles");
+
+            }
+        );
+
+    }
+
+
+    const region =
+        $("region");
+
+    if (region) {
+
+        region.addEventListener(
+            "change",
+            () => {
+
+                const currentCountry =
+                    value("country");
+
+                populateCountrySelector(
+                    currentCountry
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   IMAGE SELECTION
+============================================================ */
+
+function handleImageSelection(event) {
+
+    const files =
+        Array.from(
+            event.target.files || []
+        );
+
+    selectedImages = files;
+
+    renderImagePreview();
+
+}
+
+
+function renderImagePreview() {
+
+    const container =
+        $("imagePreview");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+
+    existingImages.forEach(
+        (image, index) => {
+
+            container.insertAdjacentHTML(
+                "beforeend",
+                `
+                <div class="preview-image">
+
+                    <img
+                        src="${escapeAttribute(image)}"
+                        alt="Vehicle photo"
+                    >
+
+                    <button
+                        type="button"
+                        class="preview-remove"
+                        data-existing-index="${index}"
+                        title="Remove photo"
+                    >
+                        ×
+                    </button>
+
+                </div>
+                `
+            );
+
+        }
+    );
+
+
+    selectedImages.forEach(
+        (file, index) => {
+
+            const url =
+                URL.createObjectURL(file);
+
+            container.insertAdjacentHTML(
+                "beforeend",
+                `
+                <div class="preview-image">
+
+                    <img
+                        src="${url}"
+                        alt="${escapeAttribute(file.name)}"
+                    >
+
+                    <button
+                        type="button"
+                        class="preview-remove"
+                        data-selected-index="${index}"
+                        title="Remove photo"
+                    >
+                        ×
+                    </button>
+
+                </div>
+                `
+            );
+
+        }
+    );
+
+
+    container
+        .querySelectorAll(
+            "[data-existing-index]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const index =
+                        Number(
+                            button.dataset.existingIndex
+                        );
+
+                    existingImages.splice(
+                        index,
+                        1
+                    );
+
+                    renderImagePreview();
+
+                }
+            );
+
+        });
+
+
+    container
+        .querySelectorAll(
+            "[data-selected-index]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const index =
+                        Number(
+                            button.dataset.selectedIndex
+                        );
+
+                    selectedImages.splice(
+                        index,
+                        1
+                    );
+
+                    renderImagePreview();
+
+                }
+            );
+
+        });
+
+}
+
+
+/* ============================================================
+   SAVE VEHICLE
+============================================================ */
+
+async function saveVehicle(event) {
+
+    event.preventDefault();
+
+
+    const saveButton =
+        $("saveVehicleButton");
+
+    const message =
+        $("vehicleFormMessage");
+
+
+    hide(message);
+
+
+    const make =
+        value("make");
+
+    const model =
+        value("model");
+
+    const year =
+        value("year");
+
+
+    if (!make || !model || !year) {
+
+        showFormMessage(
+            "Please complete Make, Model and Year.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    saveButton.disabled = true;
+
+    saveButton.textContent =
+        "Saving...";
+
+
+    try {
+
+        const user =
+            auth.currentUser;
+
+
+        if (!isAuthorizedAdmin(user)) {
+
+            throw new Error(
+                "You are not authorized to modify vehicles."
+            );
+
+        }
+
+
+        const vehicleData = {
+
+            make,
+
+            model,
+
+            year: Number(year),
+
+            mileage:
+                value("mileage"),
+
+            engine:
+                value("engine"),
+
+            fuel:
+                value("fuel"),
+
+            transmission:
+                value("transmission"),
+
+            drive:
+                value("drive"),
+
+            status:
+                value("status") ||
+                "Available",
+
+            region:
+                value("region"),
+
+            country:
+                value("country"),
+
+            destinationCountry:
+                value("country"),
+
+            description:
+                value("description"),
+
+            features:
+                parseFeatures(
+                    value("features")
+                ),
+
+            images:
+                [...existingImages],
+
+            updatedAt:
+                serverTimestamp()
+
+        };
+
+
+        if (!editingVehicleId) {
+
+            vehicleData.ref =
+                await generateNextReference();
+
+            vehicleData.createdAt =
+                serverTimestamp();
+
+            vehicleData.createdBy =
+                user.email;
+
+            vehicleData.priceText =
+                "Request Country-Specific Quote";
+
+            vehicleData.trackingStatus =
+                vehicleData.status;
+
+
+            if (selectedImages.length) {
+
+                const uploaded =
+                    await uploadImages(
+                        selectedImages
+                    );
+
+                vehicleData.images =
+                    uploaded;
+
+            }
+
+
+            await addDoc(
+                collection(
+                    db,
+                    VEHICLES_COLLECTION
+                ),
+                vehicleData
+            );
+
+
+            showFormMessage(
+                `Vehicle ${vehicleData.ref} added successfully.`,
+                "success"
+            );
+
+
+        } else {
+
+            if (selectedImages.length) {
+
+                const uploaded =
+                    await uploadImages(
+                        selectedImages
+                    );
+
+                vehicleData.images =
+                    [
+                        ...existingImages,
+                        ...uploaded
+                    ];
+
+            }
+
+
+            await updateDoc(
+                doc(
+                    db,
+                    VEHICLES_COLLECTION,
+                    editingVehicleId
+                ),
+                vehicleData
+            );
+
+
+            showFormMessage(
+                "Vehicle updated successfully.",
+                "success"
+            );
+
+        }
+
+
+        await loadVehicles();
+
+
+        setTimeout(() => {
+
+            resetVehicleForm();
+
+            openSection("vehicles");
+
+        }, 900);
+
+
+    } catch (error) {
+
+        console.error(
+            "Save vehicle error:",
+            error
+        );
+
+        showFormMessage(
+            error.message ||
+            "Could not save vehicle.",
+            "error"
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+
+        saveButton.textContent =
+            editingVehicleId
+                ? "Update Vehicle"
+                : "Save Vehicle";
+
+    }
+
+}
+
+
+/* ============================================================
+   GENERATE HVE REFERENCE
+============================================================ */
+
+async function generateNextReference() {
+
+    const numbers =
+        allVehicles
+            .map(vehicle => {
+
+                const ref =
+                    String(
+                        vehicle.ref ||
+                        vehicle.referenceNumber ||
+                        ""
+                    );
+
+                const match =
+                    ref.match(
+                        /HVE-(\d+)/i
+                    );
+
+                return match
+                    ? Number(match[1])
+                    : 0;
+
+            })
+            .filter(number =>
+                Number.isFinite(number)
+            );
+
+
+    const next =
+        numbers.length
+            ? Math.max(...numbers) + 1
+            : 1;
+
+
+    return `HVE-${String(next).padStart(4, "0")}`;
+
+}
+
+
+/* ============================================================
+   CLOUDINARY UPLOAD
+============================================================ */
+
+async function uploadImages(files) {
+
+    const uploadedUrls = [];
+
+
+    for (const file of files) {
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "file",
+            file
+        );
+
+        formData.append(
+            "upload_preset",
+            CLOUDINARY_UPLOAD_PRESET
+        );
+
+
+        const response =
+            await fetch(
+                CLOUDINARY_UPLOAD_URL,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Cloudinary image upload failed."
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        if (!result.secure_url) {
+
+            throw new Error(
+                "Cloudinary did not return an image URL."
+            );
+
+        }
+
+
+        uploadedUrls.push(
+            result.secure_url
+        );
+
+    }
+
+
+    return uploadedUrls;
+
+}
+
+
+/* ============================================================
+   EDIT VEHICLE
+============================================================ */
+
+async function editVehicle(vehicleId) {
+
+    const vehicle =
+        allVehicles.find(
+            item => item.id === vehicleId
+        );
+
+
+    if (!vehicle) {
+
+        showToast(
+            "Vehicle not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    editingVehicleId =
+        vehicleId;
+
+
+    setValue(
+        "editingVehicleId",
+        vehicleId
+    );
+
+
+    setValue(
+        "make",
+        vehicle.make ||
+        vehicle.brand ||
+        ""
+    );
+
+
+    setValue(
+        "model",
+        vehicle.model ||
+        ""
+    );
+
+
+    setValue(
+        "year",
+        vehicle.year ||
+        ""
+    );
+
+
+    setValue(
+        "mileage",
+        vehicle.mileage ||
+        ""
+    );
+
+
+    setValue(
+        "engine",
+        vehicle.engine ||
+        ""
+    );
+
+
+    setValue(
+        "fuel",
+        vehicle.fuel ||
+        ""
+    );
+
+
+    setValue(
+        "transmission",
+        vehicle.transmission ||
+        ""
+    );
+
+
+    setValue(
+        "drive",
+        vehicle.drive ||
+        ""
+    );
+
+
+    setValue(
+        "reference",
+        vehicle.ref ||
+        vehicle.referenceNumber ||
+        ""
+    );
+
+
+    setValue(
+        "status",
+        vehicle.status ||
+        "Available"
+    );
+
+
+    setValue(
+        "region",
+        vehicle.region ||
+        ""
+    );
+
+
+    populateCountrySelector(
+        vehicle.country ||
+        vehicle.destinationCountry ||
+        ""
+    );
+
+
+    setValue(
+        "description",
+        vehicle.description ||
+        ""
+    );
+
+
+    setValue(
+        "features",
+        Array.isArray(vehicle.features)
+            ? vehicle.features.join(", ")
+            : vehicle.features || ""
+    );
+
+
+    existingImages =
+        getImages(vehicle);
+
+    selectedImages = [];
+
+
+    renderImagePreview();
+
+
+    const title =
+        $("vehicleFormTitle");
+
+    if (title) {
+
+        title.innerHTML =
+            "Edit <span>Vehicle</span>";
+
+    }
+
+
+    const subtitle =
+        $("vehicleFormSubtitle");
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            `Editing ${vehicle.ref || "vehicle listing"}.`;
+
+    }
+
+
+    const saveButton =
+        $("saveVehicleButton");
+
+    if (saveButton) {
+
+        saveButton.textContent =
+            "Update Vehicle";
+
+    }
+
+
+    openSection("addVehicle");
+
+}
+
+
+/* ============================================================
+   DELETE VEHICLE
+============================================================ */
+
+async function deleteVehicle(vehicleId) {
+
+    const vehicle =
+        allVehicles.find(
+            item => item.id === vehicleId
+        );
+
+
+    if (!vehicle) return;
+
+
+    const title =
+        getVehicleTitle(vehicle);
+
+
+    const confirmed =
+        window.confirm(
+            `Delete ${title} (${vehicle.ref || "No Reference"})?\n\nThis will permanently remove the vehicle listing from Firestore.`
+        );
+
+
+    if (!confirmed) return;
+
+
+    try {
+
+        await deleteDoc(
+            doc(
+                db,
+                VEHICLES_COLLECTION,
+                vehicleId
+            )
+        );
+
+
+        showToast(
+            "Vehicle deleted successfully.",
+            "success"
+        );
+
+
+        await loadVehicles();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete error:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Could not delete vehicle.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   RESET FORM
+============================================================ */
+
+function resetVehicleForm() {
+
+    editingVehicleId = null;
+
+    selectedImages = [];
+
+    existingImages = [];
+
+
+    const form =
+        $("vehicleForm");
+
+    if (form) {
+        form.reset();
+    }
+
+
+    setValue(
+        "status",
+        "Available"
+    );
+
+
+    setValue(
+        "reference",
+        ""
+    );
+
+
+    setValue(
+        "editingVehicleId",
+        ""
+    );
+
+
+    populateCountrySelector();
+
+
+    const title =
+        $("vehicleFormTitle");
+
+    if (title) {
+
+        title.innerHTML =
+            "Add <span>Vehicle</span>";
+
+    }
+
+
+    const subtitle =
+        $("vehicleFormSubtitle");
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            "Publish a vehicle to your public catalog.";
+
+    }
+
+
+    const saveButton =
+        $("saveVehicleButton");
+
+    if (saveButton) {
+
+        saveButton.textContent =
+            "Save Vehicle";
+
+    }
+
+
+    const message =
+        $("vehicleFormMessage");
+
+    hide(message);
+
+
+    const preview =
+        $("imagePreview");
+
+    if (preview) {
+
+        preview.innerHTML = "";
+
+    }
+
+}
+
+
+/* ============================================================
+   TRACKING
+============================================================ */
+
+function renderTracking() {
+
+    const container =
+        $("trackingList");
+
+    if (!container) return;
+
+
+    const activeVehicles =
+        allVehicles.filter(vehicle => {
+
+            return [
+                "Purchased",
+                "In Transit",
+                "Port Arrival"
+            ].includes(
+                vehicle.status
+            );
+
+        });
+
+
+    if (!activeVehicles.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ◈
+                </div>
+
+                <h3>
+                    No active shipments
+                </h3>
+
+                <p>
+                    Purchased and in-transit vehicles will appear here.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        activeVehicles
+            .map(vehicle => {
+
+                const title =
+                    getVehicleTitle(vehicle);
+
+                const ref =
+                    vehicle.ref ||
+                    vehicle.referenceNumber ||
+                    "No Reference";
+
+                const country =
+                    vehicle.country ||
+                    vehicle.destinationCountry ||
+                    "Destination not assigned";
+
+
+                return `
+                    <div class="vehicle-admin-row">
+
+                        <img
+                            class="admin-vehicle-image"
+                            src="${escapeAttribute(
+                                getFirstImage(vehicle)
+                            )}"
+                            alt="${escapeAttribute(title)}"
+                            onerror="this.src='${FALLBACK_IMAGE}'"
+                        >
+
+                        <div class="admin-vehicle-name">
+
+                            <strong>
+                                ${escapeHtml(title)}
+                            </strong>
+
+                            <span>
+                                ${escapeHtml(country)}
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-ref">
+                            ${escapeHtml(ref)}
+                        </div>
+
+                        <div>
+                            ${statusBadge(vehicle.status)}
+                        </div>
+
+                        <div class="vehicle-actions">
+
+                            <button
+                                type="button"
+                                class="icon-button edit-vehicle"
+                                data-id="${escapeAttribute(vehicle.id)}"
+                                title="Update tracking"
+                            >
+                                ✎
+                            </button>
+
+                        </div>
+
+                    </div>
+                `;
+
+            })
+            .join("");
+
+
+    container
+        .querySelectorAll(".edit-vehicle")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => editVehicle(
+                    button.dataset.id
+                )
+            );
+
+        });
+
+}
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function getVehicleTitle(vehicle) {
+
+    const make =
+        vehicle.make ||
+        vehicle.brand ||
+        "";
+
+    const model =
+        vehicle.model ||
+        "";
+
+    const title =
+        `${make} ${model}`.trim();
+
+    return title ||
+        "Japanese Vehicle";
+
+}
+
+
+function getImages(vehicle) {
+
+    const images =
+        vehicle.images ||
+        vehicle.imageUrls ||
+        vehicle.photos ||
+        vehicle.image ||
+        [];
+
+
+    if (Array.isArray(images)) {
+
+        return images.filter(Boolean);
+
+    }
+
+
+    if (typeof images === "string" && images) {
+
+        return [images];
+
+    }
+
+
+    return [];
+
+}
+
+
+function getFirstImage(vehicle) {
+
+    const images =
+        getImages(vehicle);
+
+    return images[0] ||
+        FALLBACK_IMAGE;
+
+}
+
+
+function parseFeatures(text) {
+
+    if (!text) return [];
+
+    return text
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+
+}
+
+
+function statusBadge(status) {
+
+    const current =
+        status ||
+        "Available";
+
+
+    const classes = {
+
+        "Available":
+            "status-available",
+
+        "Purchased":
+            "status-purchased",
+
+        "In Transit":
+            "status-transit",
+
+        "Port Arrival":
+            "status-arrival",
+
+        "Delivered":
+            "status-delivered",
+
+        "Sold":
+            "status-sold"
+
+    };
+
+
+    const className =
+        classes[current] ||
+        "status-available";
+
+
+    return `
+        <span
+            class="status-badge ${className}"
+        >
+            ${escapeHtml(current)}
+        </span>
+    `;
+
+}
+
+
+/* ============================================================
+   FORM MESSAGE
+============================================================ */
+
+function showFormMessage(
+    message,
+    type
+) {
+
+    const element =
+        $("vehicleFormMessage");
+
+    if (!element) return;
+
+    element.textContent =
+        message;
+
+    element.className =
+        `form-message ${type}`;
+
+}
+
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+let toastTimer = null;
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    const toast =
+        $("toast");
+
+    const toastMessage =
+        $("toastMessage");
+
+
+    if (!toast || !toastMessage) return;
+
+
+    toastMessage.textContent =
+        message;
+
+
+    toast.style.borderColor =
+        type === "error"
+            ? "rgba(224,82,82,0.35)"
+            : "rgba(201,162,39,0.3)";
+
+
+    show(toast);
+
+
+    clearTimeout(toastTimer);
+
+
+    toastTimer =
+        setTimeout(() => {
+
+            hide(toast);
+
+        }, 3500);
+
+}
+
+
+/* ============================================================
+   TIMESTAMP
+============================================================ */
+
+function getTimestampMillis(timestamp) {
+
+    if (!timestamp) return 0;
+
+    if (
+        typeof timestamp.toMillis ===
+        "function"
+    ) {
+
+        return timestamp.toMillis();
 
     }
 
     if (
-      !ADMIN_EMAILS
-        .map(item => item.toLowerCase())
-        .includes(cleanEmail)
+        timestamp.seconds !== undefined
     ) {
 
-      alert(
-        "This email is not authorized for the HVE dashboard."
-      );
-
-      return;
+        return timestamp.seconds * 1000;
 
     }
 
-    await signInWithEmailAndPassword(
-      auth,
-      cleanEmail,
-      password
-    );
+    if (
+        timestamp instanceof Date
+    ) {
 
-  } catch (error) {
+        return timestamp.getTime();
 
-    console.error(error);
-
-    let message = "Login failed.";
-
-    if (error.code === "auth/invalid-credential") {
-      message = "Incorrect email or password.";
     }
 
-    if (error.code === "auth/user-not-found") {
-      message = "This Firebase account does not exist.";
-    }
-
-    if (error.code === "auth/wrong-password") {
-      message = "Incorrect password.";
-    }
-
-    if (error.code === "auth/too-many-requests") {
-      message = "Too many attempts. Please try again later.";
-    }
-
-    alert(message);
-
-  }
+    return 0;
 
 }
 
 
-// ============================================================
-// LOGOUT
-// ============================================================
-
-async function logoutUser() {
-
-  try {
-
-    await signOut(auth);
-
-  } catch (error) {
-
-    console.error("Logout error:", error);
-
-  }
-
-}
-
-
-// ============================================================
-// LOGIN SCREEN
-// ============================================================
-
-function showLoginScreen() {
-
-  const loginScreen =
-    document.querySelector("#loginScreen") ||
-    document.querySelector(".login-screen") ||
-    document.querySelector("[data-login]");
-
-  const dashboard =
-    document.querySelector("#dashboard") ||
-    document.querySelector(".dashboard") ||
-    document.querySelector("[data-dashboard]");
-
-  if (loginScreen) {
-    loginScreen.style.display = "";
-  }
-
-  if (dashboard) {
-    dashboard.style.display = "none";
-  }
-
-}
-
-
-// ============================================================
-// DASHBOARD SCREEN
-// ============================================================
-
-function showDashboard() {
-
-  const loginScreen =
-    document.querySelector("#loginScreen") ||
-    document.querySelector(".login-screen") ||
-    document.querySelector("[data-login]");
-
-  const dashboard =
-    document.querySelector("#dashboard") ||
-    document.querySelector(".dashboard") ||
-    document.querySelector("[data-dashboard]");
-
-  if (loginScreen) {
-    loginScreen.style.display = "none";
-  }
-
-  if (dashboard) {
-    dashboard.style.display = "";
-  }
-
-}
-
-
-// ============================================================
-// LOGGED-IN EMAIL
-// ============================================================
-
-function updateLoggedInEmail(email) {
-
-  const elements = [
-    "#adminEmail",
-    "#userEmail",
-    "#loggedInEmail",
-    ".admin-email"
-  ];
-
-  elements.forEach(selector => {
-
-    const element = document.querySelector(selector);
-
-    if (element) {
-      element.textContent = email;
-    }
-
-  });
-
-}
-
-
-// ============================================================
-// LOAD VEHICLES
-// ============================================================
-
-async function loadVehicles() {
-
-  try {
-
-    const q = query(
-      vehiclesCollection,
-      orderBy("createdAt", "desc"),
-      limit(500)
-    );
-
-    const snapshot = await getDocs(q);
-
-    vehicles = [];
-
-    snapshot.forEach(item => {
-
-      vehicles.push({
-        id: item.id,
-        ...item.data()
-      });
-
-    });
-
-    renderVehicles();
-
-    updateDashboardCounts();
-
-  } catch (error) {
-
-    console.error("Could not load vehicles:", error);
-
-    /*
-      If some old vehicles don't contain createdAt,
-      load them without orderBy.
-    */
-
-    try {
-
-      const snapshot = await getDocs(
-        vehiclesCollection
-      );
-
-      vehicles = [];
-
-      snapshot.forEach(item => {
-
-        vehicles.push({
-          id: item.id,
-          ...item.data()
-        });
-
-      });
-
-      vehicles.sort((a, b) => {
-
-        const aTime =
-          a.createdAt?.seconds || 0;
-
-        const bTime =
-          b.createdAt?.seconds || 0;
-
-        return bTime - aTime;
-
-      });
-
-      renderVehicles();
-
-      updateDashboardCounts();
-
-    } catch (secondError) {
-
-      console.error(
-        "Vehicle loading failed:",
-        secondError
-      );
-
-      alert(
-        "Could not load vehicles from Firebase."
-      );
-
-    }
-
-  }
-
-}
-
-
-// ============================================================
-// GET VEHICLE REFERENCE
-// ============================================================
-
-function getNextReference() {
-
-  let highest = 0;
-
-  vehicles.forEach(vehicle => {
-
-    const ref =
-      vehicle.ref ||
-      vehicle.referenceNumber ||
-      vehicle.reference ||
-      "";
-
-    const match =
-      String(ref).match(/HVE-(\d+)/i);
-
-    if (match) {
-
-      const number =
-        parseInt(match[1], 10);
-
-      if (number > highest) {
-        highest = number;
-      }
-
-    }
-
-  });
-
-  return `HVE-${String(highest + 1).padStart(4, "0")}`;
-
-}
-
-
-// ============================================================
-// IMAGE HELPERS
-// ============================================================
-
-function getVehicleImages(vehicle) {
-
-  if (Array.isArray(vehicle.images)) {
-    return vehicle.images.filter(Boolean);
-  }
-
-  if (Array.isArray(vehicle.imageUrls)) {
-    return vehicle.imageUrls.filter(Boolean);
-  }
-
-  if (Array.isArray(vehicle.photos)) {
-    return vehicle.photos.filter(Boolean);
-  }
-
-  if (typeof vehicle.image === "string" && vehicle.image) {
-    return [vehicle.image];
-  }
-
-  return [];
-
-}
-
-
-// ============================================================
-// CLOUDINARY IMAGE UPLOAD
-// ============================================================
-
-async function uploadImage(file) {
-
-  if (!file) {
-    return null;
-  }
-
-  if (!file.type.startsWith("image/")) {
-
-    alert(
-      `${file.name} is not an image file.`
-    );
-
-    return null;
-
-  }
-
-  const formData = new FormData();
-
-  formData.append(
-    "file",
-    file
-  );
-
-  formData.append(
-    "upload_preset",
-    CLOUDINARY_UPLOAD_PRESET
-  );
-
-  try {
-
-    const response = await fetch(
-      CLOUDINARY_UPLOAD_URL,
-      {
-        method: "POST",
-        body: formData
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-
-      console.error(data);
-
-      throw new Error(
-        data.error?.message ||
-        "Cloudinary upload failed."
-      );
-
-    }
-
-    return data.secure_url;
-
-  } catch (error) {
-
-    console.error(
-      "Cloudinary upload error:",
-      error
-    );
-
-    alert(
-      `Image upload failed: ${error.message}`
-    );
-
-    return null;
-
-  }
-
-}
-
-
-// ============================================================
-// UPLOAD MULTIPLE IMAGES
-// ============================================================
-
-async function uploadImages(files) {
-
-  const uploaded = [];
-
-  for (const file of files) {
-
-    const url =
-      await uploadImage(file);
-
-    if (url) {
-      uploaded.push(url);
-    }
-
-  }
-
-  return uploaded;
-
-}
-
-
-// ============================================================
-// REMOVE IMAGE FROM CURRENT VEHICLE
-// ============================================================
-
-function removeImage(index) {
-
-  if (
-    index < 0 ||
-    index >= currentImages.length
-  ) {
-    return;
-  }
-
-  currentImages.splice(index, 1);
-
-  renderCurrentImages();
-
-}
-
-
-// ============================================================
-// IMAGE PREVIEW
-// ============================================================
-
-function renderCurrentImages() {
-
-  const containers = [
-    "#imagePreview",
-    "#imagePreviews",
-    "#vehicleImagePreview",
-    ".image-preview"
-  ];
-
-  let container = null;
-
-  for (const selector of containers) {
-
-    const found =
-      document.querySelector(selector);
-
-    if (found) {
-      container = found;
-      break;
-    }
-
-  }
-
-  if (!container) {
-    return;
-  }
-
-  container.innerHTML = "";
-
-  currentImages.forEach(
-    (image, index) => {
-
-      const wrapper =
-        document.createElement("div");
-
-      wrapper.className =
-        "admin-image-preview-item";
-
-      wrapper.innerHTML = `
-        <img
-          src="${escapeAttribute(image)}"
-          alt="Vehicle image ${index + 1}"
-        >
-
-        <button
-          type="button"
-          class="remove-image-btn"
-          data-remove-image="${index}"
-          title="Remove image"
-        >
-          ×
-        </button>
-      `;
-
-      container.appendChild(wrapper);
-
-    }
-  );
-
-}
-
-
-// ============================================================
-// ESCAPE HTML
-// ============================================================
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+/* ============================================================
+   SECURITY / HTML ESCAPING
+============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 }
 
 
 function escapeAttribute(value) {
 
-  return escapeHTML(value);
+    return escapeHtml(value);
 
 }
 
 
-// ============================================================
-// GET FORM VALUE
-// ============================================================
-
-function getValue(selectors) {
-
-  for (const selector of selectors) {
-
-    const element =
-      document.querySelector(selector);
-
-    if (element) {
-      return element.value.trim();
-    }
-
-  }
-
-  return "";
-
-}
-
-
-// ============================================================
-// SET FORM VALUE
-// ============================================================
-
-function setValue(selectors, value) {
-
-  for (const selector of selectors) {
-
-    const element =
-      document.querySelector(selector);
-
-    if (element) {
-
-      element.value =
-        value ?? "";
-
-      return;
-
-    }
-
-  }
-
-}
-
-
-// ============================================================
-// VEHICLE DATA FROM FORM
-// ============================================================
-
-function getVehicleFromForm() {
-
-  const make =
-    getValue([
-      "#make",
-      "#brand",
-      "#vehicleMake",
-      "[name='make']",
-      "[name='brand']"
-    ]);
-
-  const model =
-    getValue([
-      "#model",
-      "#vehicleModel",
-      "[name='model']"
-    ]);
-
-  const year =
-    getValue([
-      "#year",
-      "#vehicleYear",
-      "[name='year']"
-    ]);
-
-  const mileage =
-    getValue([
-      "#mileage",
-      "#vehicleMileage",
-      "[name='mileage']"
-    ]);
-
-  const engine =
-    getValue([
-      "#engine",
-      "#engineSize",
-      "[name='engine']"
-    ]);
-
-  const fuel =
-    getValue([
-      "#fuel",
-      "[name='fuel']"
-    ]);
-
-  const transmission =
-    getValue([
-      "#transmission",
-      "[name='transmission']"
-    ]);
-
-  const drive =
-    getValue([
-      "#drive",
-      "[name='drive']"
-    ]);
-
-  const region =
-    getValue([
-      "#region",
-      "#market",
-      "[name='region']",
-      "[name='market']"
-    ]);
-
-  const country =
-    getValue([
-      "#country",
-      "#destinationCountry",
-      "[name='country']",
-      "[name='destinationCountry']"
-    ]);
-
-  const status =
-    getValue([
-      "#status",
-      "[name='status']"
-    ]) || "Available";
-
-  const description =
-    getValue([
-      "#description",
-      "#vehicleDescription",
-      "[name='description']"
-    ]);
-
-  const features =
-    getValue([
-      "#features",
-      "#keyFeatures",
-      "[name='features']",
-      "[name='keyFeatures']"
-    ]);
-
-  const chassis =
-    getValue([
-      "#chassis",
-      "#chassisNo",
-      "[name='chassis']",
-      "[name='chassisNo']"
-    ]);
-
-  const modelCode =
-    getValue([
-      "#modelCode",
-      "[name='modelCode']"
-    ]);
-
-  const version =
-    getValue([
-      "#version",
-      "#versionClass",
-      "[name='version']",
-      "[name='versionClass']"
-    ]);
-
-  const steering =
-    getValue([
-      "#steering",
-      "[name='steering']"
-    ]);
-
-  const exteriorColor =
-    getValue([
-      "#exteriorColor",
-      "#extColor",
-      "[name='exteriorColor']",
-      "[name='extColor']"
-    ]);
-
-  const seats =
-    getValue([
-      "#seats",
-      "[name='seats']"
-    ]);
-
-  const doors =
-    getValue([
-      "#doors",
-      "[name='doors']"
-    ]);
-
-  const location =
-    getValue([
-      "#location",
-      "[name='location']"
-    ]);
-
-  const registration =
-    getValue([
-      "#registration",
-      "#registrationYear",
-      "[name='registration']"
-    ]);
-
-  const manufacture =
-    getValue([
-      "#manufacture",
-      "#manufactureYear",
-      "[name='manufacture']"
-    ]);
-
-  const dimension =
-    getValue([
-      "#dimension",
-      "[name='dimension']"
-    ]);
-
-  const weight =
-    getValue([
-      "#weight",
-      "[name='weight']"
-    ]);
-
-  const maxCapacity =
-    getValue([
-      "#maxCapacity",
-      "#maxCap",
-      "[name='maxCapacity']"
-    ]);
-
-  const m3 =
-    getValue([
-      "#m3",
-      "[name='m3']"
-    ]);
-
-  const subRefNo =
-    getValue([
-      "#subRefNo",
-      "#subReference",
-      "[name='subRefNo']"
-    ]);
-
-  return {
-
-    make,
-    brand: make,
-
-    model,
-
-    year,
-
-    mileage,
-
-    engine,
-
-    fuel,
-
-    transmission,
-
-    drive,
-
-    region,
-
-    market: region,
-
-    country,
-
-    destinationCountry: country,
-
-    status,
-
-    description,
-
-    features,
-
-    keyFeatures: features,
-
-    chassis,
-
-    chassisNo: chassis,
-
-    modelCode,
-
-    version,
-
-    versionClass: version,
-
-    steering,
-
-    exteriorColor,
-
-    extColor: exteriorColor,
-
-    seats,
-
-    doors,
-
-    location,
-
-    registration,
-
-    manufacture,
-
-    dimension,
-
-    weight,
-
-    maxCapacity,
-
-    m3,
-
-    subRefNo
-
-  };
-
-}
-
-
-// ============================================================
-// SAVE VEHICLE
-// ============================================================
-
-async function saveVehicle() {
-
-  if (!currentUser) {
-
-    alert("Please login first.");
-
-    return;
-
-  }
-
-  if (!isAuthorizedAdmin(currentUser)) {
-
-    alert(
-      "Your account is not authorized."
-    );
-
-    return;
-
-  }
-
-  const vehicle =
-    getVehicleFromForm();
-
-  if (!vehicle.make) {
-
-    alert("Please enter vehicle make.");
-
-    return;
-
-  }
-
-  if (!vehicle.model) {
-
-    alert("Please enter vehicle model.");
-
-    return;
-
-  }
-
-  // ----------------------------------------------------------
-  // OPTIONAL DESTINATION
-  // ----------------------------------------------------------
-  //
-  // Destination country is NOT required when publishing.
-  // It can be added later when a customer buys/inquires.
-  //
-  // ----------------------------------------------------------
-
-  try {
-
-    let reference;
-
-    if (editingVehicleId) {
-
-      const existing =
-        vehicles.find(
-          item =>
-            item.id === editingVehicleId
-        );
-
-      reference =
-        existing?.ref ||
-        existing?.referenceNumber ||
-        existing?.reference ||
-        getNextReference();
-
-    } else {
-
-      reference =
-        getNextReference();
-
-    }
-
-    vehicle.ref =
-      reference;
-
-    vehicle.referenceNumber =
-      reference;
-
-    vehicle.images =
-      [...currentImages];
-
-    vehicle.updatedAt =
-      serverTimestamp();
-
-    if (!editingVehicleId) {
-
-      vehicle.createdAt =
-        serverTimestamp();
-
-      await addDoc(
-        vehiclesCollection,
-        vehicle
-      );
-
-      alert(
-        `${reference} added successfully.`
-      );
-
-    } else {
-
-      await updateDoc(
-        doc(
-          db,
-          "vehicles",
-          editingVehicleId
-        ),
-        vehicle
-      );
-
-      alert(
-        `${reference} updated successfully.`
-      );
-
-    }
-
-    resetVehicleForm();
-
-    await loadVehicles();
-
-    updateDashboardCounts();
-
-  } catch (error) {
-
-    console.error(
-      "Save vehicle error:",
-      error
-    );
-
-    alert(
-      `Could not save vehicle: ${error.message}`
-    );
-
-  }
-
-}
-
-
-// ============================================================
-// EDIT VEHICLE
-// ============================================================
-
-function editVehicle(id) {
-
-  const vehicle =
-    vehicles.find(
-      item => item.id === id
-    );
-
-  if (!vehicle) {
-    return;
-  }
-
-  editingVehicleId =
-    vehicle.id;
-
-  currentImages =
-    getVehicleImages(vehicle);
-
-  setValue(
-    ["#make", "#brand", "#vehicleMake", "[name='make']", "[name='brand']"],
-    vehicle.make || vehicle.brand || ""
-  );
-
-  setValue(
-    ["#model", "#vehicleModel", "[name='model']"],
-    vehicle.model || ""
-  );
-
-  setValue(
-    ["#year", "#vehicleYear", "[name='year']"],
-    vehicle.year || ""
-  );
-
-  setValue(
-    ["#mileage", "#vehicleMileage", "[name='mileage']"],
-    vehicle.mileage || ""
-  );
-
-  setValue(
-    ["#engine", "#engineSize", "[name='engine']"],
-    vehicle.engine || ""
-  );
-
-  setValue(
-    ["#fuel", "[name='fuel']"],
-    vehicle.fuel || ""
-  );
-
-  setValue(
-    ["#transmission", "[name='transmission']"],
-    vehicle.transmission || ""
-  );
-
-  setValue(
-    ["#drive", "[name='drive']"],
-    vehicle.drive || ""
-  );
-
-  setValue(
-    ["#region", "#market", "[name='region']", "[name='market']"],
-    vehicle.region || vehicle.market || ""
-  );
-
-  setValue(
-    ["#country", "#destinationCountry", "[name='country']", "[name='destinationCountry']"],
-    vehicle.country ||
-    vehicle.destinationCountry ||
-    ""
-  );
-
-  setValue(
-    ["#status", "[name='status']"],
-    vehicle.status || "Available"
-  );
-
-  setValue(
-    ["#description", "#vehicleDescription", "[name='description']"],
-    vehicle.description || ""
-  );
-
-  setValue(
-    ["#features", "#keyFeatures", "[name='features']", "[name='keyFeatures']"],
-    Array.isArray(vehicle.features)
-      ? vehicle.features.join("\n")
-      : vehicle.features ||
-        vehicle.keyFeatures ||
-        ""
-  );
-
-  setValue(
-    ["#chassis", "#chassisNo", "[name='chassis']", "[name='chassisNo']"],
-    vehicle.chassis ||
-    vehicle.chassisNo ||
-    ""
-  );
-
-  setValue(
-    ["#modelCode", "[name='modelCode']"],
-    vehicle.modelCode || ""
-  );
-
-  setValue(
-    ["#version", "#versionClass", "[name='version']", "[name='versionClass']"],
-    vehicle.version ||
-    vehicle.versionClass ||
-    ""
-  );
-
-  setValue(
-    ["#steering", "[name='steering']"],
-    vehicle.steering || ""
-  );
-
-  setValue(
-    ["#exteriorColor", "#extColor", "[name='exteriorColor']", "[name='extColor']"],
-    vehicle.exteriorColor ||
-    vehicle.extColor ||
-    ""
-  );
-
-  setValue(
-    ["#seats", "[name='seats']"],
-    vehicle.seats || ""
-  );
-
-  setValue(
-    ["#doors", "[name='doors']"],
-    vehicle.doors || ""
-  );
-
-  setValue(
-    ["#location", "[name='location']"],
-    vehicle.location || ""
-  );
-
-  setValue(
-    ["#registration", "#registrationYear", "[name='registration']"],
-    vehicle.registration || ""
-  );
-
-  setValue(
-    ["#manufacture", "#manufactureYear", "[name='manufacture']"],
-    vehicle.manufacture || ""
-  );
-
-  setValue(
-    ["#dimension", "[name='dimension']"],
-    vehicle.dimension || ""
-  );
-
-  setValue(
-    ["#weight", "[name='weight']"],
-    vehicle.weight || ""
-  );
-
-  setValue(
-    ["#maxCapacity", "#maxCap", "[name='maxCapacity']"],
-    vehicle.maxCapacity || ""
-  );
-
-  setValue(
-    ["#m3", "[name='m3']"],
-    vehicle.m3 || ""
-  );
-
-  setValue(
-    ["#subRefNo", "#subReference", "[name='subRefNo']"],
-    vehicle.subRefNo || ""
-  );
-
-  renderCurrentImages();
-
-  updateFormTitle();
-
-  scrollToVehicleForm();
-
-}
-
-
-// ============================================================
-// DELETE VEHICLE
-// ============================================================
-
-async function deleteVehicle(id) {
-
-  const vehicle =
-    vehicles.find(
-      item => item.id === id
-    );
-
-  if (!vehicle) {
-    return;
-  }
-
-  const ref =
-    vehicle.ref ||
-    vehicle.referenceNumber ||
-    vehicle.reference ||
-    id;
-
-  const confirmed =
-    confirm(
-      `Delete ${ref} permanently?\n\nThis removes the vehicle from Firestore.`
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  try {
-
-    await deleteDoc(
-      doc(
-        db,
-        "vehicles",
-        id
-      )
-    );
-
-    alert(
-      `${ref} deleted successfully.`
-    );
-
-    if (
-      editingVehicleId === id
-    ) {
-      resetVehicleForm();
-    }
-
-    await loadVehicles();
-
-    updateDashboardCounts();
-
-  } catch (error) {
-
-    console.error(
-      "Delete vehicle error:",
-      error
-    );
-
-    alert(
-      `Could not delete vehicle: ${error.message}`
-    );
-
-  }
-
-}
-
-
-// ============================================================
-// RENDER VEHICLES
-// ============================================================
-
-function renderVehicles(list = vehicles) {
-
-  const containers = [
-    "#vehicleList",
-    "#vehiclesList",
-    "#inventoryList",
-    "#recentVehicles",
-    ".vehicle-list"
-  ];
-
-  let container = null;
-
-  for (const selector of containers) {
-
-    const element =
-      document.querySelector(selector);
-
-    if (element) {
-
-      container = element;
-
-      break;
-
-    }
-
-  }
-
-  if (!container) {
-    return;
-  }
-
-  if (!list.length) {
-
-    container.innerHTML = `
-      <div class="empty-state">
-        No vehicles found.
-      </div>
-    `;
-
-    return;
-
-  }
-
-  container.innerHTML =
-    list.map(vehicle => {
-
-      const ref =
-        vehicle.ref ||
-        vehicle.referenceNumber ||
-        vehicle.reference ||
-        "—";
-
-      const make =
-        vehicle.make ||
-        vehicle.brand ||
-        "";
-
-      const model =
-        vehicle.model ||
-        "";
-
-      const title =
-        `${make} ${model}`.trim() ||
-        "Vehicle";
-
-      const year =
-        vehicle.year ||
-        "—";
-
-      const country =
-        vehicle.country ||
-        vehicle.destinationCountry ||
-        "Not assigned";
-
-      const status =
-        vehicle.status ||
-        "Available";
-
-      const images =
-        getVehicleImages(vehicle);
-
-      const image =
-        images[0] ||
-        "";
-
-      return `
-
-        <div
-          class="admin-vehicle-row"
-          data-vehicle-id="${escapeAttribute(vehicle.id)}"
-        >
-
-          <div class="admin-vehicle-image">
-
-            ${
-              image
-              ?
-              `<img
-                src="${escapeAttribute(image)}"
-                alt="${escapeAttribute(title)}"
-              >`
-              :
-              `<div class="no-vehicle-image">
-                HVE
-              </div>`
-            }
-
-          </div>
-
-          <div class="admin-vehicle-info">
-
-            <strong>
-              ${escapeHTML(title)}
-            </strong>
-
-            <span>
-              ${escapeHTML(ref)}
-            </span>
-
-          </div>
-
-          <div>
-            ${escapeHTML(year)}
-          </div>
-
-          <div>
-            ${escapeHTML(country)}
-          </div>
-
-          <div>
-
-            <span class="status-badge">
-              ${escapeHTML(status)}
-            </span>
-
-          </div>
-
-          <div class="admin-vehicle-actions">
-
-            <button
-              type="button"
-              data-edit-vehicle="${escapeAttribute(vehicle.id)}"
-            >
-              Edit
-            </button>
-
-            <button
-              type="button"
-              data-delete-vehicle="${escapeAttribute(vehicle.id)}"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-}
-
-
-// ============================================================
-// SEARCH VEHICLES
-// ============================================================
-
-function searchVehicles(value) {
-
-  const search =
-    String(value || "")
-      .trim()
-      .toLowerCase();
-
-  if (!search) {
-
-    renderVehicles();
-
-    return;
-
-  }
-
-  const filtered =
-    vehicles.filter(vehicle => {
-
-      const text = [
-
-        vehicle.ref,
-
-        vehicle.referenceNumber,
-
-        vehicle.reference,
-
-        vehicle.make,
-
-        vehicle.brand,
-
-        vehicle.model,
-
-        vehicle.year,
-
-        vehicle.country,
-
-        vehicle.destinationCountry,
-
-        vehicle.status,
-
-        vehicle.region,
-
-        vehicle.chassis,
-
-        vehicle.chassisNo
-
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return text.includes(search);
-
-    });
-
-  renderVehicles(filtered);
-
-}
-
-
-// ============================================================
-// FILTER VEHICLES
-// ============================================================
-
-function filterVehicles(status) {
-
-  if (!status || status === "All") {
-
-    renderVehicles();
-
-    return;
-
-  }
-
-  const filtered =
-    vehicles.filter(
-      vehicle =>
-        String(
-          vehicle.status || ""
-        ).toLowerCase() ===
-        String(status).toLowerCase()
-    );
-
-  renderVehicles(filtered);
-
-}
-
-
-// ============================================================
-// DASHBOARD COUNTS
-// ============================================================
-
-function updateDashboardCounts() {
-
-  const total =
-    vehicles.length;
-
-  const available =
-    vehicles.filter(
-      v =>
-        String(v.status || "")
-          .toLowerCase() ===
-        "available"
-    ).length;
-
-  const sold =
-    vehicles.filter(
-      v =>
-        String(v.status || "")
-          .toLowerCase() ===
-        "sold"
-    ).length;
-
-  const inTransit =
-    vehicles.filter(
-      v =>
-        String(v.status || "")
-          .toLowerCase()
-          .includes("transit")
-    ).length;
-
-  setCounter(
-    ["#totalVehicles", "#totalCount", "[data-count='total']"],
-    total
-  );
-
-  setCounter(
-    ["#availableVehicles", "#availableCount", "[data-count='available']"],
-    available
-  );
-
-  setCounter(
-    ["#soldVehicles", "#soldCount", "[data-count='sold']"],
-    sold
-  );
-
-  setCounter(
-    ["#inTransitVehicles", "#transitCount", "[data-count='transit']"],
-    inTransit
-  );
-
-}
-
-
-function setCounter(selectors, value) {
-
-  for (const selector of selectors) {
-
-    const element =
-      document.querySelector(selector);
-
-    if (element) {
-
-      element.textContent =
-        value;
-
-      return;
-
-    }
-
-  }
-
-}
-
-
-// ============================================================
-// RESET FORM
-// ============================================================
-
-function resetVehicleForm() {
-
-  editingVehicleId = null;
-
-  currentImages = [];
-
-  const form =
-    document.querySelector("#vehicleForm") ||
-    document.querySelector("#addVehicleForm") ||
-    document.querySelector("form[data-vehicle-form]");
-
-  if (form) {
-    form.reset();
-  }
-
-  setValue(
-    ["#status", "[name='status']"],
-    "Available"
-  );
-
-  renderCurrentImages();
-
-  updateFormTitle();
-
-}
-
-
-// ============================================================
-// FORM TITLE
-// ============================================================
-
-function updateFormTitle() {
-
-  const titleSelectors = [
-    "#vehicleFormTitle",
-    "#formTitle",
-    ".vehicle-form-title"
-  ];
-
-  for (const selector of titleSelectors) {
-
-    const element =
-      document.querySelector(selector);
-
-    if (element) {
-
-      element.textContent =
-        editingVehicleId
-          ? "Edit Vehicle"
-          : "Add Vehicle";
-
-    }
-
-  }
-
-}
-
-
-// ============================================================
-// SCROLL TO FORM
-// ============================================================
-
-function scrollToVehicleForm() {
-
-  const form =
-    document.querySelector("#vehicleForm") ||
-    document.querySelector("#addVehicleForm") ||
-    document.querySelector("form[data-vehicle-form]");
-
-  if (form) {
-
-    form.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-  }
-
-}
-
-
-// ============================================================
-// IMPORT JSON
-// ============================================================
-
-async function importVehiclesFromJSON(file) {
-
-  if (!file) {
-    return;
-  }
-
-  try {
-
-    const text =
-      await file.text();
-
-    const data =
-      JSON.parse(text);
-
-    const list =
-      Array.isArray(data)
-        ? data
-        : Array.isArray(data.vehicles)
-          ? data.vehicles
-          : [];
-
-    if (!list.length) {
-
-      alert(
-        "No vehicles were found in the JSON file."
-      );
-
-      return;
-
-    }
-
-    let imported = 0;
-
-    for (const item of list) {
-
-      const vehicle = {
-        ...item
-      };
-
-      const reference =
-        vehicle.ref ||
-        vehicle.referenceNumber ||
-        vehicle.reference ||
-        getNextReference();
-
-      vehicle.ref =
-        reference;
-
-      vehicle.referenceNumber =
-        reference;
-
-      if (!Array.isArray(vehicle.images)) {
-
-        vehicle.images =
-          getVehicleImages(vehicle);
-
-      }
-
-      vehicle.createdAt =
-        serverTimestamp();
-
-      vehicle.updatedAt =
-        serverTimestamp();
-
-      await addDoc(
-        vehiclesCollection,
-        vehicle
-      );
-
-      imported++;
-
-    }
-
-    alert(
-      `${imported} vehicle(s) imported successfully.`
-    );
-
-    await loadVehicles();
-
-    updateDashboardCounts();
-
-  } catch (error) {
-
-    console.error(
-      "JSON import error:",
-      error
-    );
-
-    alert(
-      `JSON import failed: ${error.message}`
-    );
-
-  }
-
-}
-
-
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    // --------------------------------------------------------
-    // LOGIN FORM
-    // --------------------------------------------------------
-
-    const loginForm =
-      document.querySelector("#loginForm") ||
-      document.querySelector("form[data-login-form]");
-
-    if (loginForm) {
-
-      loginForm.addEventListener(
-        "submit",
-        event => {
-
-          event.preventDefault();
-
-          const emailInput =
-            loginForm.querySelector(
-              "input[type='email']"
-            ) ||
-            document.querySelector("#email") ||
-            document.querySelector("#loginEmail");
-
-          const passwordInput =
-            loginForm.querySelector(
-              "input[type='password']"
-            ) ||
-            document.querySelector("#password") ||
-            document.querySelector("#loginPassword");
-
-          loginUser(
-            emailInput?.value || "",
-            passwordInput?.value || ""
-          );
-
-        }
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // LOGOUT BUTTONS
-    // --------------------------------------------------------
-
-    document.addEventListener(
-      "click",
-      event => {
-
-        const logoutButton =
-          event.target.closest(
-            "#logoutBtn, #signOutBtn, [data-logout]"
-          );
-
-        if (logoutButton) {
-
-          event.preventDefault();
-
-          logoutUser();
-
-        }
-
-      }
-    );
-
-
-    // --------------------------------------------------------
-    // VEHICLE FORM
-    // --------------------------------------------------------
-
-    const vehicleForm =
-      document.querySelector("#vehicleForm") ||
-      document.querySelector("#addVehicleForm") ||
-      document.querySelector("form[data-vehicle-form]");
-
-    if (vehicleForm) {
-
-      vehicleForm.addEventListener(
-        "submit",
-        async event => {
-
-          event.preventDefault();
-
-          const submitButton =
-            vehicleForm.querySelector(
-              "button[type='submit']"
-            );
-
-          if (submitButton) {
-            submitButton.disabled = true;
-          }
-
-          await saveVehicle();
-
-          if (submitButton) {
-            submitButton.disabled = false;
-          }
-
-        }
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // IMAGE FILE INPUT
-    // --------------------------------------------------------
-
-    const imageInput =
-      document.querySelector("#images") ||
-      document.querySelector("#vehicleImages") ||
-      document.querySelector("#imageUpload") ||
-      document.querySelector(
-        "input[type='file'][multiple]"
-      );
-
-    if (imageInput) {
-
-      imageInput.addEventListener(
-        "change",
-        async event => {
-
-          const files =
-            Array.from(
-              event.target.files || []
-            );
-
-          if (!files.length) {
-            return;
-          }
-
-          const uploadButton =
-            document.querySelector(
-              "#uploadImagesBtn"
-            );
-
-          if (uploadButton) {
-
-            uploadButton.disabled =
-              true;
-
-            uploadButton.textContent =
-              "Uploading...";
-
-          }
-
-          const uploaded =
-            await uploadImages(files);
-
-          currentImages.push(
-            ...uploaded
-          );
-
-          renderCurrentImages();
-
-          event.target.value = "";
-
-          if (uploadButton) {
-
-            uploadButton.disabled =
-              false;
-
-            uploadButton.textContent =
-              "Upload Images";
-
-          }
-
-        }
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // BUTTON EVENTS
-    // --------------------------------------------------------
-
-    document.addEventListener(
-      "click",
-      event => {
-
-        // Edit vehicle
-        const editButton =
-          event.target.closest(
-            "[data-edit-vehicle]"
-          );
-
-        if (editButton) {
-
-          editVehicle(
-            editButton.dataset.editVehicle
-          );
-
-          return;
-
-        }
-
-
-        // Delete vehicle
-        const deleteButton =
-          event.target.closest(
-            "[data-delete-vehicle]"
-          );
-
-        if (deleteButton) {
-
-          deleteVehicle(
-            deleteButton.dataset.deleteVehicle
-          );
-
-          return;
-
-        }
-
-
-        // Remove image from listing
-        const removeImageButton =
-          event.target.closest(
-            "[data-remove-image]"
-          );
-
-        if (removeImageButton) {
-
-          const index =
-            parseInt(
-              removeImageButton.dataset.removeImage,
-              10
-            );
-
-          removeImage(index);
-
-          return;
-
-        }
-
-
-        // Reset form
-        const resetButton =
-          event.target.closest(
-            "#resetVehicleBtn, #cancelEditBtn, [data-reset-form]"
-          );
-
-        if (resetButton) {
-
-          resetVehicleForm();
-
-          return;
-
-        }
-
-
-        // Add vehicle button
-        const addButton =
-          event.target.closest(
-            "#addVehicleBtn, [data-add-vehicle]"
-          );
-
-        if (addButton) {
-
-          resetVehicleForm();
-
-          scrollToVehicleForm();
-
-          return;
-
-        }
-
-      }
-    );
-
-
-    // --------------------------------------------------------
-    // SEARCH
-    // --------------------------------------------------------
-
-    const searchInput =
-      document.querySelector("#vehicleSearch") ||
-      document.querySelector("#searchVehicles") ||
-      document.querySelector(
-        "input[data-vehicle-search]"
-      );
-
-    if (searchInput) {
-
-      searchInput.addEventListener(
-        "input",
-        event => {
-
-          searchVehicles(
-            event.target.value
-          );
-
-        }
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // STATUS FILTER
-    // --------------------------------------------------------
-
-    const statusFilter =
-      document.querySelector("#statusFilter") ||
-      document.querySelector("#vehicleStatusFilter");
-
-    if (statusFilter) {
-
-      statusFilter.addEventListener(
-        "change",
-        event => {
-
-          filterVehicles(
-            event.target.value
-          );
-
-        }
-      );
-
-    }
-
-
-    // --------------------------------------------------------
-    // JSON IMPORT
-    // --------------------------------------------------------
-
-    const jsonInput =
-      document.querySelector("#jsonFile") ||
-      document.querySelector("#importJSON") ||
-      document.querySelector(
-        "input[type='file'][accept*='json']"
-      );
-
-    if (jsonInput) {
-
-      jsonInput.addEventListener(
-        "change",
-        event => {
-
-          const file =
-            event.target.files?.[0];
-
-          if (file) {
-
-            importVehiclesFromJSON(
-              file
-            );
-
-          }
-
-          event.target.value = "";
-
-        }
-      );
-
-    }
-
-  }
-);
-
-
-// ============================================================
-// GLOBAL FUNCTIONS
-// ============================================================
-//
-// Makes these available to existing HTML onclick handlers.
-// ============================================================
-
-window.loginUser =
-  loginUser;
-
-window.logoutUser =
-  logoutUser;
-
-window.loadVehicles =
-  loadVehicles;
-
-window.editVehicle =
-  editVehicle;
-
-window.deleteVehicle =
-  deleteVehicle;
-
-window.removeImage =
-  removeImage;
-
-window.saveVehicle =
-  saveVehicle;
-
-window.resetVehicleForm =
-  resetVehicleForm;
-
-window.searchVehicles =
-  searchVehicles;
-
-window.filterVehicles =
-  filterVehicles;
-
-window.importVehiclesFromJSON =
-  importVehiclesFromJSON;
+/* ============================================================
+   INITIAL COUNTRY LIST
+============================================================ */
+
+populateCountrySelector();
