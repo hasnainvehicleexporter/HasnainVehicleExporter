@@ -1,11 +1,14 @@
 /* =====================================================
    HASNAIN VEHICLE EXPORTER
-   BROWSE VEHICLES JAVASCRIPT
+   BROWSE VEHICLES
+   FIREBASE + FILTERS + SORTING
    ===================================================== */
+
 
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
 
 import {
     getFirestore,
@@ -47,7 +50,7 @@ const firebaseConfig = {
 
 
 /* =====================================================
-   INITIALIZE FIREBASE
+   FIREBASE
    ===================================================== */
 
 const app =
@@ -71,14 +74,32 @@ const loadingMessage =
 const noVehicles =
     document.getElementById("noVehicles");
 
-const searchInput =
-    document.getElementById("vehicleSearch");
+const vehicleCount =
+    document.getElementById("vehicleCount");
 
-const regionFilter =
-    document.getElementById("regionFilter");
+const makeFilter =
+    document.getElementById("makeFilter");
 
-const statusFilter =
-    document.getElementById("statusFilter");
+const modelFilter =
+    document.getElementById("modelFilter");
+
+const yearFilter =
+    document.getElementById("yearFilter");
+
+const priceFilter =
+    document.getElementById("priceFilter");
+
+const sortFilter =
+    document.getElementById("sortFilter");
+
+const resetFilters =
+    document.getElementById("resetFilters");
+
+const menuToggle =
+    document.getElementById("menuToggle");
+
+const mainNav =
+    document.getElementById("mainNav");
 
 
 
@@ -91,29 +112,29 @@ let vehicles = [];
 
 
 /* =====================================================
-   FALLBACK VEHICLE IMAGE
+   FALLBACK IMAGE
    ===================================================== */
 
 const fallbackImage =
-    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85";
+    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=85";
 
 
 
 /* =====================================================
-   SAFE VALUE
+   HELPER
    ===================================================== */
 
-function valueOf(vehicle, ...keys) {
+function getValue(data, ...keys) {
 
     for (const key of keys) {
 
         if (
-            vehicle[key] !== undefined &&
-            vehicle[key] !== null &&
-            vehicle[key] !== ""
+            data[key] !== undefined &&
+            data[key] !== null &&
+            data[key] !== ""
         ) {
 
-            return vehicle[key];
+            return data[key];
 
         }
 
@@ -126,21 +147,59 @@ function valueOf(vehicle, ...keys) {
 
 
 /* =====================================================
-   GET VEHICLE IMAGE
+   NUMBER
    ===================================================== */
 
-function getVehicleImage(vehicle) {
+function numberValue(value) {
+
+    if (
+        typeof value === "number"
+    ) {
+
+        return value;
+
+    }
+
+
+    if (
+        typeof value === "string"
+    ) {
+
+        const clean =
+            value
+                .replace(/,/g, "")
+                .replace(/[^\d.]/g, "");
+
+        return Number(clean) || 0;
+
+    }
+
+
+    return 0;
+
+}
+
+
+
+/* =====================================================
+   IMAGE
+   ===================================================== */
+
+function getImage(data) {
 
     const images =
-        valueOf(
-            vehicle,
+        getValue(
+            data,
             "images",
             "imageUrls",
             "photos"
         );
 
 
-    if (Array.isArray(images) && images.length > 0) {
+    if (
+        Array.isArray(images) &&
+        images.length
+    ) {
 
         return images[0];
 
@@ -149,7 +208,7 @@ function getVehicleImage(vehicle) {
 
     if (
         typeof images === "string" &&
-        images.trim() !== ""
+        images.trim()
     ) {
 
         return images;
@@ -157,12 +216,17 @@ function getVehicleImage(vehicle) {
     }
 
 
-    if (
-        vehicle.image &&
-        typeof vehicle.image === "string"
-    ) {
+    const image =
+        getValue(
+            data,
+            "image",
+            "imageUrl"
+        );
 
-        return vehicle.image;
+
+    if (image) {
+
+        return image;
 
     }
 
@@ -174,7 +238,7 @@ function getVehicleImage(vehicle) {
 
 
 /* =====================================================
-   NORMALIZE VEHICLE
+   NORMALIZE
    ===================================================== */
 
 function normalizeVehicle(doc) {
@@ -184,7 +248,7 @@ function normalizeVehicle(doc) {
 
 
     const make =
-        valueOf(
+        getValue(
             data,
             "make",
             "brand"
@@ -192,23 +256,30 @@ function normalizeVehicle(doc) {
 
 
     const model =
-        valueOf(
+        getValue(
             data,
             "model"
         );
 
 
     const year =
-        valueOf(
-            data,
-            "year"
+        numberValue(
+            getValue(
+                data,
+                "year"
+            )
         );
 
 
-    const title =
-        [make, model]
-            .filter(Boolean)
-            .join(" ");
+    const price =
+        numberValue(
+            getValue(
+                data,
+                "price",
+                "sellingPrice",
+                "amount"
+            )
+        );
 
 
     return {
@@ -216,60 +287,69 @@ function normalizeVehicle(doc) {
         id: doc.id,
 
         ref:
-            valueOf(
+            getValue(
                 data,
                 "ref",
                 "referenceNumber",
                 "reference"
             ) || "HVE",
 
-        title:
-            title ||
-            "Japanese Vehicle",
+        make:
+            make || "Japanese",
 
-        year:
-            year ||
-            "",
+        model:
+            model || "Vehicle",
+
+        title:
+            `${make || "Japanese"} ${model || "Vehicle"}`,
+
+        year,
 
         mileage:
-            valueOf(
+            getValue(
                 data,
                 "mileage"
             ) || "—",
 
         engine:
-            valueOf(
+            getValue(
                 data,
                 "engine"
             ) || "—",
 
         fuel:
-            valueOf(
+            getValue(
                 data,
-                "fuel"
+                "fuel",
+                "fuelType"
             ) || "—",
 
         transmission:
-            valueOf(
+            getValue(
                 data,
                 "transmission"
             ) || "—",
 
         region:
-            valueOf(
+            getValue(
                 data,
                 "region",
                 "market"
             ) || "",
 
         status:
-            valueOf(
+            getValue(
                 data,
                 "status"
             ) || "Available",
 
+        price,
+
         image:
-            getVehicleImage(data)
+            getImage(data),
+
+        createdAt:
+            data.createdAt || null
 
     };
 
@@ -278,23 +358,29 @@ function normalizeVehicle(doc) {
 
 
 /* =====================================================
-   LOAD VEHICLES
+   LOAD FIREBASE VEHICLES
    ===================================================== */
 
 async function loadVehicles() {
 
     try {
 
-        loadingMessage.classList.remove("hidden");
+        loadingMessage.classList.remove(
+            "hidden"
+        );
 
-        noVehicles.classList.add("hidden");
 
-        vehicleGrid.innerHTML = "";
+        noVehicles.classList.add(
+            "hidden"
+        );
 
 
         const snapshot =
             await getDocs(
-                collection(db, "vehicles")
+                collection(
+                    db,
+                    "vehicles"
+                )
             );
 
 
@@ -304,7 +390,12 @@ async function loadVehicles() {
             );
 
 
-        loadingMessage.classList.add("hidden");
+        populateFilters();
+
+
+        loadingMessage.classList.add(
+            "hidden"
+        );
 
 
         renderVehicles();
@@ -313,14 +404,22 @@ async function loadVehicles() {
     } catch (error) {
 
         console.error(
-            "Firebase vehicle loading error:",
+            "Vehicle loading error:",
             error
         );
 
 
-        loadingMessage.textContent =
-            "Unable to load vehicles. Please refresh the page.";
+        loadingMessage.innerHTML = `
 
+            <strong>
+                Unable to load vehicles
+            </strong>
+
+            <span>
+                Please refresh the page and try again.
+            </span>
+
+        `;
 
     }
 
@@ -329,100 +428,482 @@ async function loadVehicles() {
 
 
 /* =====================================================
-   RENDER VEHICLES
+   POPULATE MAKE / MODEL / YEAR
+   ===================================================== */
+
+function populateFilters() {
+
+
+    const makes =
+        [...new Set(
+            vehicles
+                .map(v => v.make)
+                .filter(Boolean)
+        )]
+        .sort();
+
+
+    const years =
+        [...new Set(
+            vehicles
+                .map(v => v.year)
+                .filter(Boolean)
+        )]
+        .sort(
+            (a, b) => b - a
+        );
+
+
+    makeFilter.innerHTML = `
+
+        <option value="all">
+            All Makes
+        </option>
+
+        ${
+            makes.map(
+                make =>
+                    `
+                    <option value="${escapeAttr(make)}">
+                        ${escapeHtml(make)}
+                    </option>
+                    `
+            ).join("")
+        }
+
+    `;
+
+
+    yearFilter.innerHTML = `
+
+        <option value="all">
+            All Years
+        </option>
+
+        ${
+            years.map(
+                year =>
+                    `
+                    <option value="${year}">
+                        ${year}
+                    </option>
+                    `
+            ).join("")
+        }
+
+    `;
+
+
+    updateModelFilter();
+
+}
+
+
+
+/* =====================================================
+   MODEL FILTER
+   ===================================================== */
+
+function updateModelFilter() {
+
+    const selectedMake =
+        makeFilter.value;
+
+
+    let filtered =
+        vehicles;
+
+
+    if (
+        selectedMake !== "all"
+    ) {
+
+        filtered =
+            vehicles.filter(
+                vehicle =>
+                    vehicle.make ===
+                    selectedMake
+            );
+
+    }
+
+
+    const models =
+        [...new Set(
+            filtered
+                .map(v => v.model)
+                .filter(Boolean)
+        )]
+        .sort();
+
+
+    modelFilter.innerHTML = `
+
+        <option value="all">
+            All Models
+        </option>
+
+        ${
+            models.map(
+                model =>
+                    `
+                    <option value="${escapeAttr(model)}">
+                        ${escapeHtml(model)}
+                    </option>
+                    `
+            ).join("")
+        }
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   GET CHECKED FILTERS
+   ===================================================== */
+
+function getCheckedValues(className) {
+
+    return [
+        ...document.querySelectorAll(
+            `.${className}:checked`
+        )
+    ].map(
+        input => input.value
+    );
+
+}
+
+
+
+/* =====================================================
+   PRICE MATCH
+   ===================================================== */
+
+function priceMatches(vehicle) {
+
+    const filter =
+        priceFilter.value;
+
+
+    if (
+        filter === "all"
+    ) {
+
+        return true;
+
+    }
+
+
+    /*
+       Your public website uses
+       country-specific quotations.
+
+       If a vehicle does not have a
+       numeric price in Firestore,
+       it remains visible.
+    */
+
+    if (
+        !vehicle.price
+    ) {
+
+        return true;
+
+    }
+
+
+    const price =
+        vehicle.price;
+
+
+    if (
+        filter === "under10000"
+    ) {
+
+        return price < 10000;
+
+    }
+
+
+    if (
+        filter === "10000-15000"
+    ) {
+
+        return (
+            price >= 10000 &&
+            price <= 15000
+        );
+
+    }
+
+
+    if (
+        filter === "15000-20000"
+    ) {
+
+        return (
+            price >= 15000 &&
+            price <= 20000
+        );
+
+    }
+
+
+    if (
+        filter === "20000-30000"
+    ) {
+
+        return (
+            price >= 20000 &&
+            price <= 30000
+        );
+
+    }
+
+
+    if (
+        filter === "30000plus"
+    ) {
+
+        return price >= 30000;
+
+    }
+
+
+    return true;
+
+}
+
+
+
+/* =====================================================
+   FILTER VEHICLES
+   ===================================================== */
+
+function getFilteredVehicles() {
+
+    const selectedMake =
+        makeFilter.value;
+
+
+    const selectedModel =
+        modelFilter.value;
+
+
+    const selectedYear =
+        yearFilter.value;
+
+
+    const transmissions =
+        getCheckedValues(
+            "transmission-filter"
+        );
+
+
+    const fuels =
+        getCheckedValues(
+            "fuel-filter"
+        );
+
+
+    return vehicles.filter(
+        vehicle => {
+
+
+            if (
+                selectedMake !== "all" &&
+                vehicle.make !== selectedMake
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                selectedModel !== "all" &&
+                vehicle.model !== selectedModel
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                selectedYear !== "all" &&
+                String(vehicle.year) !==
+                String(selectedYear)
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                transmissions.length &&
+                !transmissions.includes(
+                    vehicle.transmission
+                )
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                fuels.length &&
+                !fuels.includes(
+                    vehicle.fuel
+                )
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                !priceMatches(vehicle)
+            ) {
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   SORT
+   ===================================================== */
+
+function sortVehicles(list) {
+
+    const sorted =
+        [...list];
+
+
+    if (
+        sortFilter.value === "newest"
+    ) {
+
+        sorted.sort(
+            (a, b) =>
+                b.year - a.year
+        );
+
+    }
+
+
+    if (
+        sortFilter.value === "oldest"
+    ) {
+
+        sorted.sort(
+            (a, b) =>
+                a.year - b.year
+        );
+
+    }
+
+
+    if (
+        sortFilter.value === "name"
+    ) {
+
+        sorted.sort(
+            (a, b) =>
+                a.title.localeCompare(
+                    b.title
+                )
+        );
+
+    }
+
+
+    return sorted;
+
+}
+
+
+
+/* =====================================================
+   RENDER
    ===================================================== */
 
 function renderVehicles() {
 
-    const search =
-        searchInput.value
-            .trim()
-            .toLowerCase();
-
-
-    const region =
-        regionFilter.value;
-
-
-    const status =
-        statusFilter.value;
-
-
     const filtered =
-        vehicles.filter(vehicle => {
+        getFilteredVehicles();
 
 
-            const searchableText =
-                `
-                ${vehicle.title}
-                ${vehicle.year}
-                ${vehicle.ref}
-                ${vehicle.engine}
-                ${vehicle.fuel}
-                ${vehicle.transmission}
-                `
-                .toLowerCase();
+    const sorted =
+        sortVehicles(filtered);
 
 
-            const matchesSearch =
-                !search ||
-                searchableText.includes(search);
+    vehicleGrid.innerHTML =
+        "";
 
 
-            const matchesRegion =
-                region === "all" ||
-                vehicle.region === region;
+    vehicleCount.textContent =
+        `Showing ${sorted.length} of ${vehicles.length} vehicles`;
 
 
-            const matchesStatus =
-                status === "all" ||
-                vehicle.status === status;
+    if (
+        sorted.length === 0
+    ) {
 
-
-            return (
-                matchesSearch &&
-                matchesRegion &&
-                matchesStatus
-            );
-
-        });
-
-
-    vehicleGrid.innerHTML = "";
-
-
-    if (filtered.length === 0) {
-
-        noVehicles.classList.remove("hidden");
+        noVehicles.classList.remove(
+            "hidden"
+        );
 
         return;
 
     }
 
 
-    noVehicles.classList.add("hidden");
+    noVehicles.classList.add(
+        "hidden"
+    );
 
 
-    filtered.forEach(vehicle => {
+    sorted.forEach(
+        vehicle => {
 
-        vehicleGrid.appendChild(
-            createVehicleCard(vehicle)
-        );
+            vehicleGrid.appendChild(
+                createCard(vehicle)
+            );
 
-    });
+        }
+    );
 
 }
 
 
 
 /* =====================================================
-   CREATE VEHICLE CARD
+   CARD
    ===================================================== */
 
-function createVehicleCard(vehicle) {
+function createCard(vehicle) {
 
     const card =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
 
     card.className =
@@ -430,106 +911,237 @@ function createVehicleCard(vehicle) {
 
 
     const isSold =
-        vehicle.status.toLowerCase() === "sold";
+        vehicle.status
+            .toLowerCase()
+            .includes("sold");
 
 
     const statusClass =
-        isSold ? "sold" : "";
-
-
-    const yearText =
-        vehicle.year
-            ? vehicle.year
+        isSold
+            ? "sold"
             : "";
+
+
+    const whatsappMessage =
+        `Hello Hasnain Vehicle Exporter, I am interested in the ${vehicle.title} ${vehicle.year ? vehicle.year : ""} (Ref: ${vehicle.ref}). Please provide the country-specific price and shipping details.`;
+
+
+    const whatsappURL =
+        `https://wa.me/923392207418?text=${encodeURIComponent(whatsappMessage)}`;
 
 
     card.innerHTML = `
 
         <div class="vehicle-image">
 
+
             <img
-                src="${escapeHtml(vehicle.image)}"
-                alt="${escapeHtml(vehicle.title)}"
+                src="${escapeAttr(vehicle.image)}"
+                alt="${escapeAttr(vehicle.title)}"
                 loading="lazy"
-                onerror="this.src='${fallbackImage}'"
             >
 
-            <div class="vehicle-status ${statusClass}">
-                ${escapeHtml(vehicle.status)}
+
+            <div class="japan-badge">
+
+                <span>
+                    🇯🇵
+                </span>
+
+                JAPAN
+
             </div>
+
+
+            <div
+                class="card-status ${statusClass}"
+            >
+
+                ${escapeHtml(vehicle.status)}
+
+            </div>
+
 
             ${
                 isSold
-                ?
-                `
-                <div class="sold-watermark">
-                    SOLD
-                </div>
-                `
-                :
-                ""
+                    ?
+                    `
+                    <div class="sold-overlay">
+                        SOLD
+                    </div>
+                    `
+                    :
+                    ""
             }
+
 
         </div>
 
 
-        <div class="vehicle-content">
 
-            <div class="vehicle-ref">
-                ${escapeHtml(vehicle.ref)}
-            </div>
+        <div class="vehicle-card-body">
 
 
-            <h3 class="vehicle-name">
+            <h3>
                 ${escapeHtml(vehicle.title)}
-                ${yearText ? ` ${escapeHtml(yearText)}` : ""}
+                ${vehicle.year ? ` ${vehicle.year}` : ""}
             </h3>
 
 
-            <div class="vehicle-specs">
+            <div class="vehicle-reference">
 
-                <div class="vehicle-spec">
-                    ${escapeHtml(vehicle.mileage)} km
-                </div>
-
-                <div class="vehicle-spec">
-                    ${escapeHtml(vehicle.engine)}
-                </div>
-
-                <div class="vehicle-spec">
-                    ${escapeHtml(vehicle.fuel)}
-                </div>
-
-                <div class="vehicle-spec">
-                    ${escapeHtml(vehicle.transmission)}
-                </div>
+                REF:
+                ${escapeHtml(vehicle.ref)}
 
             </div>
 
 
-            <div class="vehicle-price">
+
+            <div class="vehicle-spec-grid">
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ◫
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.year || "—")
+                    )}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ◉
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.mileage)
+                    )}
+                    km
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ⚙
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.engine)
+                    )}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ⇄
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.transmission)
+                    )}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ◌
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.fuel)
+                    )}
+
+                </div>
+
+
+                <div class="vehicle-spec">
+
+                    <span class="spec-icon">
+                        ●
+                    </span>
+
+                    ${escapeHtml(
+                        String(vehicle.region || "Japan")
+                    )}
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="vehicle-quote">
 
                 Price
 
-                <strong>
+                <span>
                     Request Country-Specific Quote
-                </strong>
+                </span>
 
             </div>
 
 
+
             <a
-                class="vehicle-details-button"
+                class="vehicle-whatsapp"
+                href="${whatsappURL}"
+                target="_blank"
+                rel="noopener"
+            >
+
+                <span class="vehicle-whatsapp-icon">
+                    ☎
+                </span>
+
+                Contact for This Vehicle
+
+            </a>
+
+
+
+            <a
+                class="vehicle-details-link"
                 href="vehicle-details.html?id=${encodeURIComponent(vehicle.id)}"
             >
 
-                View Details
+                View Full Vehicle Details →
 
             </a>
+
 
         </div>
 
     `;
+
+
+    const image =
+        card.querySelector(
+            ".vehicle-image img"
+        );
+
+
+    image.addEventListener(
+        "error",
+        () => {
+
+            image.src =
+                fallbackImage;
+
+        }
+    );
 
 
     return card;
@@ -554,80 +1166,164 @@ function escapeHtml(value) {
 }
 
 
+function escapeAttr(value) {
+
+    return escapeHtml(value);
+
+}
+
+
 
 /* =====================================================
-   FILTER EVENTS
+   EVENTS
    ===================================================== */
 
-searchInput.addEventListener(
-    "input",
-    renderVehicles
+makeFilter.addEventListener(
+    "change",
+    () => {
+
+        updateModelFilter();
+
+        renderVehicles();
+
+    }
 );
 
 
-regionFilter.addEventListener(
+modelFilter.addEventListener(
     "change",
     renderVehicles
 );
 
 
-statusFilter.addEventListener(
+yearFilter.addEventListener(
     "change",
     renderVehicles
 );
 
 
+priceFilter.addEventListener(
+    "change",
+    renderVehicles
+);
+
+
+sortFilter.addEventListener(
+    "change",
+    renderVehicles
+);
+
+
+document
+    .querySelectorAll(
+        ".transmission-filter, .fuel-filter"
+    )
+    .forEach(
+        checkbox => {
+
+            checkbox.addEventListener(
+                "change",
+                renderVehicles
+            );
+
+        }
+    );
+
+
 
 /* =====================================================
-   MOBILE MENU
+   RESET
    ===================================================== */
 
-const menuToggle =
-    document.getElementById("menuToggle");
-
-const mainNav =
-    document.getElementById("mainNav");
-
-
-menuToggle.addEventListener(
+resetFilters.addEventListener(
     "click",
     () => {
 
-        const opened =
-            mainNav.classList.toggle("open");
+        makeFilter.value =
+            "all";
+
+        updateModelFilter();
+
+        modelFilter.value =
+            "all";
+
+        yearFilter.value =
+            "all";
+
+        priceFilter.value =
+            "all";
+
+        sortFilter.value =
+            "newest";
 
 
-        menuToggle.setAttribute(
-            "aria-expanded",
-            opened
-        );
+        document
+            .querySelectorAll(
+                ".transmission-filter, .fuel-filter"
+            )
+            .forEach(
+                checkbox => {
+
+                    checkbox.checked =
+                        false;
+
+                }
+            );
+
+
+        renderVehicles();
 
     }
 );
 
 
 
-/* CLOSE MOBILE MENU */
+/* =====================================================
+   MOBILE NAV
+   ===================================================== */
+
+menuToggle.addEventListener(
+    "click",
+    () => {
+
+        const open =
+            mainNav.classList.toggle(
+                "open"
+            );
+
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            open
+        );
+
+    }
+);
+
 
 mainNav
     .querySelectorAll("a")
-    .forEach(link => {
+    .forEach(
+        link => {
 
-        link.addEventListener(
-            "click",
-            () => {
+            link.addEventListener(
+                "click",
+                () => {
 
-                mainNav.classList.remove("open");
+                    mainNav.classList.remove(
+                        "open"
+                    );
 
-                menuToggle.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
+                    menuToggle.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
 
-            }
-        );
+                }
+            );
 
-    });
+        }
+    );
 
 
 
@@ -635,12 +1331,10 @@ mainNav
    YEAR
    ===================================================== */
 
-const currentYear =
-    document.getElementById("currentYear");
-
-
-currentYear.textContent =
-    new Date().getFullYear();
+document
+    .getElementById("currentYear")
+    .textContent =
+        new Date().getFullYear();
 
 
 
