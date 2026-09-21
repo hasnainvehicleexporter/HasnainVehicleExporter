@@ -8,14 +8,25 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>HVE Admin | Hasnain Vehicle Exporter</title>
+    <title>
+        Hasnain Vehicle Exporter | Admin Dashboard
+    </title>
 
     <meta
         name="description"
-        content="Hasnain Vehicle Exporter administration dashboard."
+        content="Hasnain Vehicle Exporter vehicle inventory administration dashboard."
     >
 
-    <link rel="stylesheet" href="admin.css">
+    <link
+        rel="icon"
+        type="image/png"
+        href="../images/logo.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
 </head>
 
 <body>
@@ -24,69 +35,69 @@
          LOGIN SCREEN
     ====================================================== -->
 
-    <div id="loginScreen" class="login-screen">
-
-        <div class="login-background"></div>
+    <div
+        id="loginScreen"
+        class="login-screen"
+    >
 
         <div class="login-card">
 
-            <div class="login-logo-wrap">
+            <div class="login-logo">
                 <img
                     src="../images/logo.png"
                     alt="Hasnain Vehicle Exporter"
-                    class="login-logo"
-                    onerror="this.style.display='none';"
                 >
             </div>
 
-            <div class="login-heading">
-
-                <span class="login-eyebrow">
-                    ADMINISTRATION PANEL
-                </span>
-
-                <h1>
-                    Welcome <span>Back</span>
-                </h1>
-
-                <p>
-                    Sign in to manage your vehicle inventory.
-                </p>
-
+            <div class="login-label">
+                ADMINISTRATION
             </div>
 
-            <form id="loginForm" class="login-form">
+            <h1>
+                Admin Login
+            </h1>
+
+            <p class="login-subtitle">
+                Manage your vehicle inventory and export listings.
+            </p>
+
+
+            <form
+                id="loginForm"
+                autocomplete="on"
+            >
 
                 <div class="form-group">
 
-                    <label for="email">
+                    <label for="loginEmail">
                         Email Address
                     </label>
 
                     <input
                         type="email"
-                        id="email"
+                        id="loginEmail"
                         name="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
+                        placeholder="Enter admin email"
+                        autocomplete="username"
                         required
                     >
 
                 </div>
 
+
                 <div class="form-group">
 
-                    <label for="password">
+                    <label for="loginPassword">
                         Password
                     </label>
 
-                    <div class="password-wrap">
+                    <div class="password-wrapper">
 
                         <input
                             type="password"
-                            id="password"
+                            id="loginPassword"
                             name="password"
-                            placeholder="Enter your password"
+                            placeholder="Enter password"
                             autocomplete="current-password"
                             required
                         >
@@ -104,33 +115,44 @@
 
                 </div>
 
+
                 <button
                     type="submit"
                     id="loginButton"
-                    class="login-button"
+                    class="primary-button login-button"
                 >
                     <span id="loginButtonText">
-                        Sign In
+                        Login
                     </span>
 
                     <span
                         id="loginSpinner"
                         class="button-spinner hidden"
-                    ></span>
+                    >
+                    </span>
                 </button>
+
 
                 <div
                     id="loginError"
                     class="login-error hidden"
                     role="alert"
-                ></div>
+                >
+                </div>
 
             </form>
 
-            <div class="login-footer">
-                <span>HASNAIN VEHICLE EXPORTER</span>
-                <span>•</span>
-                <span>ADMIN ACCESS</span>
+
+            <div class="login-security">
+
+                <span class="security-icon">
+                    🔒
+                </span>
+
+                <span>
+                    Authorized administrator access only
+                </span>
+
             </div>
 
         </div>
@@ -139,27 +161,65 @@
 
 
     <!-- =====================================================
-         ADMIN DASHBOARD
+         ADMIN APPLICATION
     ====================================================== -->
 
-    <div id="dashboard" class="dashboard hidden">
+    <div
+        id="adminApp"
+        class="admin-app hidden"
+    >
 
-        <!-- SIDEBAR -->
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
 
-        <aside class="sidebar" id="sidebar">
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
 
-            <div class="sidebar-brand">
+            <div class="sidebar-header">
 
-                <img
-                    src="../images/logo.png"
-                    alt="Hasnain Vehicle Exporter"
-                    class="sidebar-logo"
-                    onerror="this.style.display='none';"
+                <a
+                    href="../index.html"
+                    class="sidebar-brand"
                 >
 
-                <div class="sidebar-brand-text">
-                    <strong>HVE</strong>
-                    <span>ADMIN PANEL</span>
+                    <img
+                        src="../images/logo.png"
+                        alt="Hasnain Vehicle Exporter"
+                    >
+
+                </a>
+
+                <button
+                    type="button"
+                    id="closeSidebar"
+                    class="mobile-sidebar-close"
+                    aria-label="Close menu"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="sidebar-admin">
+
+                <div class="admin-avatar">
+                    HVE
+                </div>
+
+                <div class="admin-user-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        has...@gmail.com
+                    </span>
+
                 </div>
 
             </div>
@@ -167,63 +227,107 @@
 
             <nav class="sidebar-nav">
 
-                <button
-                    class="nav-item active"
-                    data-section="overview"
-                    type="button"
-                >
-                    <span class="nav-icon">⌂</span>
-                    <span>Overview</span>
-                </button>
+                <div class="nav-section-title">
+                    MANAGEMENT
+                </div>
+
 
                 <button
-                    class="nav-item"
+                    type="button"
+                    class="sidebar-nav-item active"
+                    data-section="dashboard"
+                >
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="sidebar-nav-item"
                     data-section="vehicles"
-                    type="button"
                 >
-                    <span class="nav-icon">🚘</span>
-                    <span>Vehicles</span>
+                    <span class="nav-icon">
+                        🚗
+                    </span>
+
+                    <span>
+                        Vehicles
+                    </span>
                 </button>
 
+
                 <button
-                    class="nav-item"
+                    type="button"
+                    class="sidebar-nav-item"
                     data-section="addVehicle"
-                    type="button"
                 >
-                    <span class="nav-icon">＋</span>
-                    <span>Add Vehicle</span>
+                    <span class="nav-icon">
+                        ＋
+                    </span>
+
+                    <span>
+                        Add Vehicle
+                    </span>
                 </button>
+
+
+                <div class="nav-section-title">
+                    TOOLS
+                </div>
+
 
                 <button
-                    class="nav-item"
-                    data-section="tracking"
                     type="button"
+                    class="sidebar-nav-item"
+                    data-section="importExport"
                 >
-                    <span class="nav-icon">◈</span>
-                    <span>Tracking</span>
+                    <span class="nav-icon">
+                        ⇅
+                    </span>
+
+                    <span>
+                        Import / Export
+                    </span>
                 </button>
 
-            </nav>
-
-
-            <div class="sidebar-bottom">
 
                 <a
                     href="../vehicles.html"
                     target="_blank"
-                    class="sidebar-link"
+                    class="sidebar-nav-item sidebar-link"
                 >
-                    <span>↗</span>
-                    View Public Catalog
+                    <span class="nav-icon">
+                        ↗
+                    </span>
+
+                    <span>
+                        View Website
+                    </span>
                 </a>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
 
                 <button
                     type="button"
                     id="logoutButton"
                     class="logout-button"
                 >
-                    <span>⇥</span>
-                    Sign Out
+
+                    <span>
+                        ⇥
+                    </span>
+
+                    Logout
+
                 </button>
 
             </div>
@@ -231,50 +335,90 @@
         </aside>
 
 
-        <!-- MAIN AREA -->
+        <!-- =================================================
+             MOBILE OVERLAY
+        ================================================== -->
+
+        <div
+            id="sidebarOverlay"
+            class="sidebar-overlay"
+        >
+        </div>
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
 
         <main class="main-content">
 
-            <!-- TOPBAR -->
+
+            <!-- =============================================
+                 TOP HEADER
+            ============================================== -->
 
             <header class="topbar">
 
-                <button
-                    type="button"
-                    id="mobileMenuButton"
-                    class="mobile-menu-button"
-                    aria-label="Open menu"
-                >
-                    ☰
-                </button>
+                <div class="topbar-left">
 
-                <div class="topbar-title">
+                    <button
+                        type="button"
+                        id="openSidebar"
+                        class="mobile-menu-button"
+                        aria-label="Open menu"
+                    >
+                        ☰
+                    </button>
 
-                    <span class="topbar-label">
-                        HASNAIN VEHICLE EXPORTER
-                    </span>
 
-                    <h2 id="pageTitle">
-                        Dashboard
-                    </h2>
+                    <div class="page-heading">
+
+                        <div
+                            id="pageEyebrow"
+                            class="page-eyebrow"
+                        >
+                            ADMINISTRATION
+                        </div>
+
+                        <h1 id="pageTitle">
+                            Dashboard
+                        </h1>
+
+                    </div>
 
                 </div>
 
-                <div class="admin-user">
 
-                    <div class="admin-avatar">
-                        HVE
+                <div class="topbar-right">
+
+                    <a
+                        href="../index.html"
+                        target="_blank"
+                        class="topbar-website-link"
+                    >
+                        View Website ↗
+                    </a>
+
+                    <div class="topbar-divider">
                     </div>
 
-                    <div class="admin-user-info">
+                    <div class="topbar-user">
 
-                        <strong id="adminEmail">
-                            Administrator
-                        </strong>
+                        <div class="topbar-avatar">
+                            H
+                        </div>
 
-                        <span>
-                            Authorized Admin
-                        </span>
+                        <div class="topbar-user-text">
+
+                            <strong>
+                                Admin
+                            </strong>
+
+                            <span>
+                                Hasnain Vehicle Exporter
+                            </span>
+
+                        </div>
 
                     </div>
 
@@ -283,36 +427,51 @@
             </header>
 
 
-            <!-- =================================================
-                 OVERVIEW
-            ================================================== -->
+            <!-- =============================================
+                 GLOBAL MESSAGE
+            ============================================== -->
+
+            <div
+                id="globalMessage"
+                class="global-message hidden"
+                role="status"
+            >
+            </div>
+
+
+            <!-- =============================================
+                 DASHBOARD SECTION
+            ============================================== -->
 
             <section
-                id="section-overview"
-                class="dashboard-section active-section"
+                id="dashboardSection"
+                class="admin-section active-section"
             >
 
-                <div class="section-heading">
+                <div class="section-intro">
 
                     <div>
-                        <span class="section-eyebrow">
-                            CONTROL CENTER
-                        </span>
 
-                        <h1>
-                            Vehicle <span>Inventory</span>
-                        </h1>
+                        <div class="section-label">
+                            OVERVIEW
+                        </div>
+
+                        <h2>
+                            Vehicle Inventory
+                        </h2>
 
                         <p>
-                            Manage your Japanese vehicle inventory,
-                            availability and shipment status.
+                            Manage vehicles published on
+                            Hasnain Vehicle Exporter.
                         </p>
+
                     </div>
+
 
                     <button
                         type="button"
-                        class="gold-button"
-                        data-open-section="addVehicle"
+                        class="primary-button"
+                        data-section="addVehicle"
                     >
                         + Add Vehicle
                     </button>
@@ -320,17 +479,34 @@
                 </div>
 
 
+                <!-- STAT CARDS -->
+
                 <div class="stats-grid">
 
+
                     <div class="stat-card">
 
-                        <div class="stat-icon">
-                            🚘
+                        <div class="stat-card-top">
+
+                            <span class="stat-label">
+                                TOTAL VEHICLES
+                            </span>
+
+                            <span class="stat-icon">
+                                🚗
+                            </span>
+
                         </div>
 
-                        <div>
-                            <span>Total Vehicles</span>
-                            <strong id="statTotal">0</strong>
+                        <div
+                            id="totalVehicles"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            All inventory records
                         </div>
 
                     </div>
@@ -338,13 +514,27 @@
 
                     <div class="stat-card">
 
-                        <div class="stat-icon">
-                            ✓
+                        <div class="stat-card-top">
+
+                            <span class="stat-label">
+                                AVAILABLE
+                            </span>
+
+                            <span class="stat-icon">
+                                ✓
+                            </span>
+
                         </div>
 
-                        <div>
-                            <span>Available</span>
-                            <strong id="statAvailable">0</strong>
+                        <div
+                            id="availableVehicles"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Currently available
                         </div>
 
                     </div>
@@ -352,13 +542,27 @@
 
                     <div class="stat-card">
 
-                        <div class="stat-icon">
-                            ◉
+                        <div class="stat-card-top">
+
+                            <span class="stat-label">
+                                IN TRANSIT
+                            </span>
+
+                            <span class="stat-icon">
+                                ⇢
+                            </span>
+
                         </div>
 
-                        <div>
-                            <span>In Transit</span>
-                            <strong id="statTransit">0</strong>
+                        <div
+                            id="inTransitVehicles"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Currently shipping
                         </div>
 
                     </div>
@@ -366,13 +570,27 @@
 
                     <div class="stat-card">
 
-                        <div class="stat-icon">
-                            ◆
+                        <div class="stat-card-top">
+
+                            <span class="stat-label">
+                                SOLD
+                            </span>
+
+                            <span class="stat-icon">
+                                $
+                            </span>
+
                         </div>
 
-                        <div>
-                            <span>Delivered</span>
-                            <strong id="statDelivered">0</strong>
+                        <div
+                            id="soldVehicles"
+                            class="stat-number"
+                        >
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Completed / sold
                         </div>
 
                     </div>
@@ -380,42 +598,156 @@
                 </div>
 
 
-                <div class="dashboard-card">
+                <!-- RECENT VEHICLES -->
 
-                    <div class="card-header">
+                <div class="dashboard-panel">
+
+                    <div class="panel-header">
 
                         <div>
-                            <span class="card-eyebrow">
+
+                            <div class="panel-label">
                                 INVENTORY
-                            </span>
+                            </div>
 
                             <h3>
                                 Recent Vehicles
                             </h3>
+
                         </div>
+
 
                         <button
                             type="button"
-                            class="text-button"
-                            data-open-section="vehicles"
+                            class="secondary-button"
+                            data-section="vehicles"
                         >
-                            View All →
+                            View All
                         </button>
 
                     </div>
+
 
                     <div
                         id="recentVehicles"
                         class="recent-vehicles"
                     >
 
-                        <div class="empty-state">
-                            <div class="empty-icon">🚘</div>
-                            <h3>No vehicles yet</h3>
-                            <p>
-                                Add your first vehicle to your inventory.
-                            </p>
+                        <div class="table-loading">
+                            Loading vehicles...
                         </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="dashboard-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <div class="panel-label">
+                                QUICK ACTIONS
+                            </div>
+
+                            <h3>
+                                Manage Inventory
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="quick-actions-grid">
+
+
+                        <button
+                            type="button"
+                            class="quick-action"
+                            data-section="addVehicle"
+                        >
+
+                            <span class="quick-action-icon">
+                                ＋
+                            </span>
+
+                            <strong>
+                                Add Vehicle
+                            </strong>
+
+                            <span>
+                                Publish a new vehicle
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="quick-action"
+                            data-section="vehicles"
+                        >
+
+                            <span class="quick-action-icon">
+                                🚗
+                            </span>
+
+                            <strong>
+                                Manage Vehicles
+                            </strong>
+
+                            <span>
+                                Edit existing listings
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="quick-action"
+                            data-section="importExport"
+                        >
+
+                            <span class="quick-action-icon">
+                                ⇅
+                            </span>
+
+                            <strong>
+                                Import / Export
+                            </strong>
+
+                            <span>
+                                Backup inventory data
+                            </span>
+
+                        </button>
+
+
+                        <a
+                            href="../vehicles.html"
+                            target="_blank"
+                            class="quick-action"
+                        >
+
+                            <span class="quick-action-icon">
+                                ↗
+                            </span>
+
+                            <strong>
+                                Public Catalog
+                            </strong>
+
+                            <span>
+                                View customer website
+                            </span>
+
+                        </a>
 
                     </div>
 
@@ -424,35 +756,38 @@
             </section>
 
 
-            <!-- =================================================
-                 VEHICLES
-            ================================================== -->
+            <!-- =============================================
+                 VEHICLES SECTION
+            ============================================== -->
 
             <section
-                id="section-vehicles"
-                class="dashboard-section"
+                id="vehiclesSection"
+                class="admin-section"
             >
 
-                <div class="section-heading">
+                <div class="section-intro">
 
                     <div>
-                        <span class="section-eyebrow">
-                            INVENTORY MANAGEMENT
-                        </span>
 
-                        <h1>
-                            All <span>Vehicles</span>
-                        </h1>
+                        <div class="section-label">
+                            INVENTORY
+                        </div>
+
+                        <h2>
+                            Manage Vehicles
+                        </h2>
 
                         <p>
-                            Search, edit and manage your vehicle listings.
+                            Add, edit, track, or remove vehicle listings.
                         </p>
+
                     </div>
+
 
                     <button
                         type="button"
-                        class="gold-button"
-                        data-open-section="addVehicle"
+                        class="primary-button"
+                        data-section="addVehicle"
                     >
                         + Add Vehicle
                     </button>
@@ -460,81 +795,116 @@
                 </div>
 
 
-                <div class="toolbar">
+                <!-- VEHICLE FILTERS -->
 
-                    <div class="search-box">
+                <div class="filter-panel">
 
-                        <span>⌕</span>
+                    <div class="filter-search">
+
+                        <label for="vehicleSearch">
+                            Search
+                        </label>
 
                         <input
                             type="search"
                             id="vehicleSearch"
-                            placeholder="Search vehicle, reference or model..."
+                            placeholder="Search make, model, HVE reference..."
                         >
 
                     </div>
 
 
-                    <select id="statusFilter">
+                    <div class="filter-field">
 
-                        <option value="all">
-                            All Status
-                        </option>
+                        <label for="statusFilter">
+                            Status
+                        </label>
 
-                        <option value="Available">
-                            Available
-                        </option>
+                        <select id="statusFilter">
 
-                        <option value="Purchased">
-                            Purchased
-                        </option>
+                            <option value="all">
+                                All Statuses
+                            </option>
 
-                        <option value="In Transit">
-                            In Transit
-                        </option>
+                            <option value="Available">
+                                Available
+                            </option>
 
-                        <option value="Port Arrival">
-                            Port Arrival
-                        </option>
+                            <option value="Purchased">
+                                Purchased
+                            </option>
 
-                        <option value="Delivered">
-                            Delivered
-                        </option>
+                            <option value="Port Departure">
+                                Port Departure
+                            </option>
 
-                        <option value="Sold">
-                            Sold
-                        </option>
+                            <option value="In Transit">
+                                In Transit
+                            </option>
 
-                    </select>
+                            <option value="Port Arrival">
+                                Port Arrival
+                            </option>
+
+                            <option value="Delivered">
+                                Delivered
+                            </option>
+
+                            <option value="Sold">
+                                Sold
+                            </option>
+
+                        </select>
+
+                    </div>
 
 
-                    <select id="regionFilter">
+                    <div class="filter-field">
 
-                        <option value="all">
-                            All Regions
-                        </option>
+                        <label for="regionFilter">
+                            Region
+                        </label>
 
-                        <option value="Africa">
-                            Africa
-                        </option>
+                        <select id="regionFilter">
 
-                        <option value="Caribbean">
-                            Caribbean
-                        </option>
+                            <option value="all">
+                                All Regions
+                            </option>
 
-                    </select>
+                            <option value="Africa">
+                                Africa
+                            </option>
+
+                            <option value="Caribbean">
+                                Caribbean
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="clearFilters"
+                        class="secondary-button filter-clear"
+                    >
+                        Clear
+                    </button>
 
                 </div>
 
 
-                <div class="dashboard-card">
+                <!-- VEHICLES TABLE -->
+
+                <div class="vehicles-panel">
 
                     <div
-                        id="vehicleList"
-                        class="vehicle-admin-list"
+                        id="vehiclesTableWrapper"
+                        class="vehicles-table-wrapper"
                     >
 
-                        <div class="loading-state">
+                        <div class="table-loading">
                             Loading vehicles...
                         </div>
 
@@ -545,35 +915,49 @@
             </section>
 
 
-            <!-- =================================================
-                 ADD / EDIT VEHICLE
-            ================================================== -->
+            <!-- =============================================
+                 ADD / EDIT VEHICLE SECTION
+            ============================================== -->
 
             <section
-                id="section-addVehicle"
-                class="dashboard-section"
+                id="addVehicleSection"
+                class="admin-section"
             >
 
-                <div class="section-heading">
+                <div class="section-intro">
 
                     <div>
 
-                        <span class="section-eyebrow">
-                            INVENTORY
-                        </span>
+                        <div
+                            id="vehicleFormLabel"
+                            class="section-label"
+                        >
+                            NEW LISTING
+                        </div>
 
-                        <h1 id="vehicleFormTitle">
-                            Add <span>Vehicle</span>
-                        </h1>
+                        <h2 id="vehicleFormTitle">
+                            Add Vehicle
+                        </h2>
 
                         <p id="vehicleFormSubtitle">
-                            Publish a vehicle to your public catalog.
+                            Publish a Japanese vehicle to your public catalog.
                         </p>
 
                     </div>
 
+
+                    <button
+                        type="button"
+                        id="cancelVehicleButton"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
                 </div>
 
+
+                <!-- VEHICLE FORM -->
 
                 <form
                     id="vehicleForm"
@@ -582,24 +966,27 @@
 
                     <input
                         type="hidden"
-                        id="editingVehicleId"
+                        id="editVehicleId"
+                        value=""
                     >
 
 
                     <!-- BASIC INFORMATION -->
 
-                    <div class="form-card">
+                    <div class="form-panel">
 
-                        <div class="form-card-header">
+                        <div class="form-panel-header">
 
                             <div>
-                                <span class="card-eyebrow">
-                                    01
-                                </span>
+
+                                <div class="panel-label">
+                                    BASIC INFORMATION
+                                </div>
 
                                 <h3>
-                                    Vehicle Information
+                                    Vehicle Details
                                 </h3>
+
                             </div>
 
                         </div>
@@ -607,16 +994,18 @@
 
                         <div class="form-grid">
 
+
                             <div class="form-group">
 
-                                <label for="make">
-                                    Make *
+                                <label for="vehicleMake">
+                                    Make / Brand
+                                    <span>*</span>
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="make"
-                                    placeholder="Toyota"
+                                    id="vehicleMake"
+                                    placeholder="e.g. Toyota"
                                     required
                                 >
 
@@ -625,14 +1014,15 @@
 
                             <div class="form-group">
 
-                                <label for="model">
-                                    Model *
+                                <label for="vehicleModel">
+                                    Model
+                                    <span>*</span>
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="model"
-                                    placeholder="Land Cruiser Prado"
+                                    id="vehicleModel"
+                                    placeholder="e.g. Land Cruiser Prado"
                                     required
                                 >
 
@@ -641,16 +1031,17 @@
 
                             <div class="form-group">
 
-                                <label for="year">
-                                    Year *
+                                <label for="vehicleYear">
+                                    Year
+                                    <span>*</span>
                                 </label>
 
                                 <input
                                     type="number"
-                                    id="year"
-                                    min="1950"
+                                    id="vehicleYear"
+                                    min="1900"
                                     max="2100"
-                                    placeholder="2020"
+                                    placeholder="e.g. 2020"
                                     required
                                 >
 
@@ -659,14 +1050,14 @@
 
                             <div class="form-group">
 
-                                <label for="mileage">
+                                <label for="vehicleMileage">
                                     Mileage
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="mileage"
-                                    placeholder="78,000 km"
+                                    id="vehicleMileage"
+                                    placeholder="e.g. 78,000 km"
                                 >
 
                             </div>
@@ -674,14 +1065,14 @@
 
                             <div class="form-group">
 
-                                <label for="engine">
+                                <label for="vehicleEngine">
                                     Engine
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="engine"
-                                    placeholder="2.7L"
+                                    id="vehicleEngine"
+                                    placeholder="e.g. 2.7L"
                                 >
 
                             </div>
@@ -689,14 +1080,14 @@
 
                             <div class="form-group">
 
-                                <label for="fuel">
+                                <label for="vehicleFuel">
                                     Fuel
                                 </label>
 
-                                <select id="fuel">
+                                <select id="vehicleFuel">
 
                                     <option value="">
-                                        Select Fuel
+                                        Select fuel
                                     </option>
 
                                     <option value="Petrol">
@@ -715,6 +1106,10 @@
                                         Electric
                                     </option>
 
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
                                 </select>
 
                             </div>
@@ -722,14 +1117,14 @@
 
                             <div class="form-group">
 
-                                <label for="transmission">
+                                <label for="vehicleTransmission">
                                     Transmission
                                 </label>
 
-                                <select id="transmission">
+                                <select id="vehicleTransmission">
 
                                     <option value="">
-                                        Select Transmission
+                                        Select transmission
                                     </option>
 
                                     <option value="Automatic">
@@ -740,6 +1135,14 @@
                                         Manual
                                     </option>
 
+                                    <option value="CVT">
+                                        CVT
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
                                 </select>
 
                             </div>
@@ -747,14 +1150,244 @@
 
                             <div class="form-group">
 
-                                <label for="drive">
+                                <label for="vehicleDrive">
                                     Drive
+                                </label>
+
+                                <select id="vehicleDrive">
+
+                                    <option value="">
+                                        Select drive
+                                    </option>
+
+                                    <option value="2WD">
+                                        2WD
+                                    </option>
+
+                                    <option value="4WD">
+                                        4WD
+                                    </option>
+
+                                    <option value="AWD">
+                                        AWD
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleSeats">
+                                    Seats
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="vehicleSeats"
+                                    min="1"
+                                    max="100"
+                                    placeholder="e.g. 7"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleColor">
+                                    Exterior Color
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="drive"
-                                    placeholder="4WD"
+                                    id="vehicleColor"
+                                    placeholder="e.g. Black"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleLocation">
+                                    Location
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleLocation"
+                                    placeholder="e.g. YOKOHAMA"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleChassis">
+                                    Chassis No.
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleChassis"
+                                    placeholder="e.g. TRJ150-0065879"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleModelCode">
+                                    Model Code
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleModelCode"
+                                    placeholder="e.g. CBA-TRJ150W"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleVersion">
+                                    Version / Class
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleVersion"
+                                    placeholder="e.g. 2.7TXL4WD"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleRegistration">
+                                    Registration Year / Month
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleRegistration"
+                                    placeholder="e.g. 2016 / 05"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleManufacture">
+                                    Manufacture Year / Month
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleManufacture"
+                                    placeholder="e.g. 2016 / 05"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleDoors">
+                                    Doors
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleDoors"
+                                    placeholder="e.g. 5"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleDimension">
+                                    Dimension
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleDimension"
+                                    placeholder="e.g. 4.76 × 1.88 × 1.88 m"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleWeight">
+                                    Weight
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleWeight"
+                                    placeholder="e.g. 2,117 kg"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleM3">
+                                    M3
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleM3"
+                                    placeholder="e.g. 16.824"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleSteering">
+                                    Steering
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleSteering"
+                                    placeholder="e.g. Right Hand Drive"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleMaxCapacity">
+                                    Max. Capacity
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleMaxCapacity"
+                                    placeholder="Optional"
                                 >
 
                             </div>
@@ -764,20 +1397,22 @@
                     </div>
 
 
-                    <!-- REFERENCE / STATUS -->
+                    <!-- INVENTORY INFORMATION -->
 
-                    <div class="form-card">
+                    <div class="form-panel">
 
-                        <div class="form-card-header">
+                        <div class="form-panel-header">
 
                             <div>
-                                <span class="card-eyebrow">
-                                    02
-                                </span>
+
+                                <div class="panel-label">
+                                    INVENTORY
+                                </div>
 
                                 <h3>
-                                    Listing Details
+                                    Listing Information
                                 </h3>
+
                             </div>
 
                         </div>
@@ -785,21 +1420,22 @@
 
                         <div class="form-grid">
 
+
                             <div class="form-group">
 
-                                <label>
-                                    HVE Reference
+                                <label for="vehicleReference">
+                                    Vehicle Reference
                                 </label>
 
                                 <input
                                     type="text"
-                                    id="reference"
-                                    placeholder="Automatic"
+                                    id="vehicleReference"
+                                    placeholder="Automatic HVE reference"
                                     readonly
                                 >
 
                                 <small>
-                                    Generated automatically.
+                                    New listings receive an HVE reference automatically.
                                 </small>
 
                             </div>
@@ -807,11 +1443,84 @@
 
                             <div class="form-group">
 
-                                <label for="status">
-                                    Status *
+                                <label for="vehicleSubReference">
+                                    Sub Reference No.
                                 </label>
 
-                                <select id="status" required>
+                                <input
+                                    type="text"
+                                    id="vehicleSubReference"
+                                    placeholder="Optional"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleRegion">
+                                    Region
+                                    <span>*</span>
+                                </label>
+
+                                <select
+                                    id="vehicleRegion"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select region
+                                    </option>
+
+                                    <option value="Africa">
+                                        Africa
+                                    </option>
+
+                                    <option value="Caribbean">
+                                        Caribbean
+                                    </option>
+
+                                </select>
+
+                                <small>
+                                    Destination country is not required to publish a vehicle.
+                                </small>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleCountry">
+                                    Customer Destination
+                                </label>
+
+                                <select id="vehicleCountry">
+
+                                    <option value="">
+                                        No destination yet
+                                    </option>
+
+                                </select>
+
+                                <small>
+                                    Enter a destination only when a customer buys or requests one.
+                                </small>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="vehicleStatus">
+                                    Status
+                                    <span>*</span>
+                                </label>
+
+                                <select
+                                    id="vehicleStatus"
+                                    required
+                                >
 
                                     <option value="Available">
                                         Available
@@ -819,6 +1528,10 @@
 
                                     <option value="Purchased">
                                         Purchased
+                                    </option>
+
+                                    <option value="Port Departure">
+                                        Port Departure
                                     </option>
 
                                     <option value="In Transit">
@@ -844,46 +1557,45 @@
 
                             <div class="form-group">
 
-                                <label for="region">
-                                    Region
+                                <label for="vehicleCustomerName">
+                                    Customer Name
                                 </label>
 
-                                <select id="region">
-
-                                    <option value="">
-                                        Select Region
-                                    </option>
-
-                                    <option value="Africa">
-                                        Africa
-                                    </option>
-
-                                    <option value="Caribbean">
-                                        Caribbean
-                                    </option>
-
-                                </select>
+                                <input
+                                    type="text"
+                                    id="vehicleCustomerName"
+                                    placeholder="Optional"
+                                >
 
                             </div>
 
 
                             <div class="form-group">
 
-                                <label for="country">
-                                    Destination Country
+                                <label for="vehicleCustomerWhatsApp">
+                                    Customer WhatsApp
                                 </label>
 
-                                <select id="country">
+                                <input
+                                    type="text"
+                                    id="vehicleCustomerWhatsApp"
+                                    placeholder="Optional"
+                                >
 
-                                    <option value="">
-                                        No Destination Yet
-                                    </option>
+                            </div>
 
-                                </select>
 
-                                <small>
-                                    Optional when publishing an available vehicle.
-                                </small>
+                            <div class="form-group">
+
+                                <label for="vehicleTracking">
+                                    Tracking / Shipment Reference
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="vehicleTracking"
+                                    placeholder="Optional"
+                                >
 
                             </div>
 
@@ -894,18 +1606,20 @@
 
                     <!-- DESCRIPTION -->
 
-                    <div class="form-card">
+                    <div class="form-panel">
 
-                        <div class="form-card-header">
+                        <div class="form-panel-header">
 
                             <div>
-                                <span class="card-eyebrow">
-                                    03
-                                </span>
+
+                                <div class="panel-label">
+                                    CONTENT
+                                </div>
 
                                 <h3>
                                     Description & Features
                                 </h3>
+
                             </div>
 
                         </div>
@@ -913,14 +1627,14 @@
 
                         <div class="form-group">
 
-                            <label for="description">
+                            <label for="vehicleDescription">
                                 Vehicle Description
                             </label>
 
                             <textarea
-                                id="description"
-                                rows="6"
-                                placeholder="Write a detailed description of the vehicle..."
+                                id="vehicleDescription"
+                                rows="7"
+                                placeholder="Write a description of the vehicle..."
                             ></textarea>
 
                         </div>
@@ -928,18 +1642,18 @@
 
                         <div class="form-group">
 
-                            <label for="features">
+                            <label for="vehicleFeatures">
                                 Key Features
                             </label>
 
                             <textarea
-                                id="features"
-                                rows="5"
-                                placeholder="Example: 4WD, Leather Interior, Sunroof, Reverse Camera..."
+                                id="vehicleFeatures"
+                                rows="6"
+                                placeholder="Enter features separated by commas or one per line..."
                             ></textarea>
 
                             <small>
-                                Separate features with commas.
+                                Example: Leather Seats, Sunroof, Reverse Camera, Alloy Wheels
                             </small>
 
                         </div>
@@ -949,62 +1663,99 @@
 
                     <!-- PHOTOS -->
 
-                    <div class="form-card">
+                    <div class="form-panel">
 
-                        <div class="form-card-header">
+                        <div class="form-panel-header">
 
                             <div>
-                                <span class="card-eyebrow">
-                                    04
-                                </span>
+
+                                <div class="panel-label">
+                                    PHOTOS
+                                </div>
 
                                 <h3>
-                                    Vehicle Photos
+                                    Vehicle Images
                                 </h3>
 
                                 <p>
-                                    Upload multiple vehicle photos.
+                                    Upload multiple vehicle photos using Cloudinary.
                                 </p>
+
                             </div>
 
                         </div>
 
 
-                        <div class="upload-area">
+                        <div
+                            id="imageDropZone"
+                            class="image-drop-zone"
+                        >
+
+                            <div class="upload-icon">
+                                ↑
+                            </div>
+
+                            <h4>
+                                Upload Vehicle Photos
+                            </h4>
+
+                            <p>
+                                Select one or multiple JPG, JPEG, PNG or WEBP images.
+                            </p>
+
+                            <label
+                                for="vehicleImages"
+                                class="secondary-button upload-label"
+                            >
+                                Choose Images
+                            </label>
 
                             <input
                                 type="file"
                                 id="vehicleImages"
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/webp"
                                 multiple
+                                hidden
                             >
-
-                            <label
-                                for="vehicleImages"
-                                class="upload-label"
-                            >
-
-                                <span class="upload-icon">
-                                    ↑
-                                </span>
-
-                                <strong>
-                                    Choose Vehicle Photos
-                                </strong>
-
-                                <span>
-                                    JPG, PNG or WebP
-                                </span>
-
-                            </label>
 
                         </div>
 
 
                         <div
-                            id="imagePreview"
-                            class="image-preview"
-                        ></div>
+                            id="uploadProgress"
+                            class="upload-progress hidden"
+                        >
+
+                            <div class="upload-progress-header">
+
+                                <span>
+                                    Uploading images...
+                                </span>
+
+                                <span id="uploadProgressText">
+                                    0%
+                                </span>
+
+                            </div>
+
+                            <div class="progress-bar">
+
+                                <div
+                                    id="uploadProgressBar"
+                                    class="progress-bar-fill"
+                                >
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="imagePreviewGrid"
+                            class="image-preview-grid"
+                        >
+                        </div>
 
                     </div>
 
@@ -1015,55 +1766,61 @@
 
                         <button
                             type="button"
-                            id="cancelVehicleButton"
+                            id="cancelVehicleButtonBottom"
                             class="secondary-button"
                         >
                             Cancel
                         </button>
 
+
                         <button
                             type="submit"
                             id="saveVehicleButton"
-                            class="gold-button"
+                            class="primary-button"
                         >
-                            Save Vehicle
+
+                            <span id="saveVehicleButtonText">
+                                Publish Vehicle
+                            </span>
+
+                            <span
+                                id="saveVehicleSpinner"
+                                class="button-spinner hidden"
+                            >
+                            </span>
+
                         </button>
 
                     </div>
-
-                    <div
-                        id="vehicleFormMessage"
-                        class="form-message hidden"
-                    ></div>
 
                 </form>
 
             </section>
 
 
-            <!-- =================================================
-                 TRACKING
-            ================================================== -->
+            <!-- =============================================
+                 IMPORT / EXPORT SECTION
+            ============================================== -->
 
             <section
-                id="section-tracking"
-                class="dashboard-section"
+                id="importExportSection"
+                class="admin-section"
             >
 
-                <div class="section-heading">
+                <div class="section-intro">
 
                     <div>
 
-                        <span class="section-eyebrow">
-                            SHIPMENT MANAGEMENT
-                        </span>
+                        <div class="section-label">
+                            DATA TOOLS
+                        </div>
 
-                        <h1>
-                            Vehicle <span>Tracking</span>
-                        </h1>
+                        <h2>
+                            Import / Export
+                        </h2>
 
                         <p>
-                            Monitor vehicle shipment progress.
+                            Back up or restore your vehicle inventory data.
                         </p>
 
                     </div>
@@ -1071,84 +1828,118 @@
                 </div>
 
 
-                <div class="tracking-flow">
-
-                    <div class="tracking-step">
-                        <span>01</span>
-                        <strong>Purchased</strong>
-                        <small>Vehicle purchased in Japan</small>
-                    </div>
-
-                    <div class="tracking-line"></div>
-
-                    <div class="tracking-step">
-                        <span>02</span>
-                        <strong>Port Departure</strong>
-                        <small>Shipment leaves Japan</small>
-                    </div>
-
-                    <div class="tracking-line"></div>
-
-                    <div class="tracking-step">
-                        <span>03</span>
-                        <strong>In Transit</strong>
-                        <small>Vehicle is on the way</small>
-                    </div>
-
-                    <div class="tracking-line"></div>
-
-                    <div class="tracking-step">
-                        <span>04</span>
-                        <strong>Port Arrival</strong>
-                        <small>Vehicle reaches destination port</small>
-                    </div>
-
-                    <div class="tracking-line"></div>
-
-                    <div class="tracking-step">
-                        <span>05</span>
-                        <strong>Delivered</strong>
-                        <small>Vehicle delivered</small>
-                    </div>
-
-                </div>
+                <div class="tools-grid">
 
 
-                <div class="dashboard-card">
+                    <!-- EXPORT -->
 
-                    <div class="card-header">
+                    <div class="form-panel tool-panel">
 
-                        <div>
-
-                            <span class="card-eyebrow">
-                                ACTIVE SHIPMENTS
-                            </span>
-
-                            <h3>
-                                Current Tracking
-                            </h3>
-
+                        <div class="tool-icon">
+                            ↓
                         </div>
 
+                        <div class="panel-label">
+                            BACKUP
+                        </div>
+
+                        <h3>
+                            Export Vehicles
+                        </h3>
+
+                        <p>
+                            Download your current vehicle inventory
+                            as a JSON file for backup.
+                        </p>
+
+                        <button
+                            type="button"
+                            id="exportVehiclesButton"
+                            class="primary-button"
+                        >
+                            Export JSON
+                        </button>
+
                     </div>
 
-                    <div id="trackingList">
 
-                        <div class="empty-state">
+                    <!-- IMPORT -->
 
-                            <div class="empty-icon">
-                                ◈
-                            </div>
+                    <div class="form-panel tool-panel">
 
-                            <h3>
-                                No active shipments
-                            </h3>
-
-                            <p>
-                                Purchased and in-transit vehicles will appear here.
-                            </p>
-
+                        <div class="tool-icon">
+                            ↑
                         </div>
+
+                        <div class="panel-label">
+                            RESTORE
+                        </div>
+
+                        <h3>
+                            Import Vehicles
+                        </h3>
+
+                        <p>
+                            Import vehicle records from a previously
+                            exported JSON file.
+                        </p>
+
+                        <label
+                            for="importVehiclesFile"
+                            class="primary-button import-label"
+                        >
+                            Choose JSON File
+                        </label>
+
+                        <input
+                            type="file"
+                            id="importVehiclesFile"
+                            accept=".json,application/json"
+                            hidden
+                        >
+
+                    </div>
+
+
+                    <!-- INFORMATION -->
+
+                    <div class="form-panel tool-panel tool-info">
+
+                        <div class="tool-icon">
+                            !
+                        </div>
+
+                        <div class="panel-label">
+                            IMPORTANT
+                        </div>
+
+                        <h3>
+                            Inventory Rules
+                        </h3>
+
+                        <ul>
+
+                            <li>
+                                New vehicles can be published without a destination country.
+                            </li>
+
+                            <li>
+                                Destination is added when a customer buys or requests the vehicle.
+                            </li>
+
+                            <li>
+                                HVE references are generated for inventory records.
+                            </li>
+
+                            <li>
+                                Vehicle photos are stored through Cloudinary.
+                            </li>
+
+                            <li>
+                                Public prices remain country-specific quote requests.
+                            </li>
+
+                        </ul>
 
                     </div>
 
@@ -1162,15 +1953,146 @@
 
 
     <!-- =====================================================
+         VEHICLE DETAILS MODAL
+    ====================================================== -->
+
+    <div
+        id="vehicleModal"
+        class="modal hidden"
+        aria-hidden="true"
+    >
+
+        <div class="modal-overlay">
+        </div>
+
+        <div
+            class="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalVehicleTitle"
+        >
+
+            <button
+                type="button"
+                id="closeVehicleModal"
+                class="modal-close"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <div class="panel-label">
+                        VEHICLE DETAILS
+                    </div>
+
+                    <h2 id="modalVehicleTitle">
+                        Vehicle
+                    </h2>
+
+                    <p id="modalVehicleReference">
+                        HVE-0000
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="modalVehicleContent"
+                class="modal-content"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DELETE CONFIRMATION MODAL
+    ====================================================== -->
+
+    <div
+        id="deleteModal"
+        class="modal hidden"
+        aria-hidden="true"
+    >
+
+        <div class="modal-overlay">
+        </div>
+
+        <div
+            class="confirm-modal-card"
+            role="dialog"
+            aria-modal="true"
+        >
+
+            <div class="confirm-icon">
+                !
+            </div>
+
+            <div class="panel-label">
+                DELETE VEHICLE
+            </div>
+
+            <h2>
+                Are you sure?
+            </h2>
+
+            <p id="deleteMessage">
+                This vehicle will be permanently deleted.
+            </p>
+
+            <div class="confirm-actions">
+
+                <button
+                    type="button"
+                    id="cancelDeleteButton"
+                    class="secondary-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="confirmDeleteButton"
+                    class="danger-button"
+                >
+                    Delete Vehicle
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
          TOAST
     ====================================================== -->
 
     <div
         id="toast"
-        class="toast hidden"
+        class="toast"
         role="status"
+        aria-live="polite"
     >
-        <span id="toastMessage"></span>
+
+        <span id="toastIcon">
+            ✓
+        </span>
+
+        <span id="toastMessage">
+            Saved successfully.
+        </span>
+
     </div>
 
 
@@ -1178,7 +2100,10 @@
          JAVASCRIPT
     ====================================================== -->
 
-    <script type="module" src="admin.js"></script>
+    <script
+        type="module"
+        src="admin.js"
+    ></script>
 
 </body>
 </html>
