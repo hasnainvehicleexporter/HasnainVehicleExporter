@@ -1,28 +1,33 @@
-/* =========================================================
+/* =====================================================
    HASNAIN VEHICLE EXPORTER
-   VEHICLE DETAILS JAVASCRIPT
-   ========================================================= */
+   VEHICLE DETAILS
+   FIREBASE + GALLERY + COUNTRY QUOTE
+   ===================================================== */
+
 
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
+
 import {
     getFirestore,
-    doc,
-    getDoc,
     collection,
-    getDocs
+    getDoc,
+    getDocs,
+    doc
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 
-/* =========================================================
-   FIREBASE
-   ========================================================= */
+
+/* =====================================================
+   FIREBASE CONFIG
+   ===================================================== */
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyC_O0pbiX4T4JqEyn-9iHacP2xNLqUvGY",
+    apiKey:
+        "AIzaSyC_O0pbiX4T4JqEyn-9iHacP2xNLqUvGY",
 
     authDomain:
         "hasnainvehicleexporter9048.firebaseapp.com",
@@ -41,216 +46,195 @@ const firebaseConfig = {
 
     measurementId:
         "G-78SPE8THNW"
+
 };
 
 
+
+/* =====================================================
+   FIREBASE
+   ===================================================== */
+
 const app =
     initializeApp(firebaseConfig);
-
 
 const db =
     getFirestore(app);
 
 
-/* =========================================================
-   COUNTRIES
-   ========================================================= */
 
-const AFRICA_COUNTRIES = [
+/* =====================================================
+   URL
+   ===================================================== */
 
-    "Algeria",
-    "Angola",
-    "Benin",
-    "Botswana",
-    "Burkina Faso",
-    "Burundi",
-    "Cabo Verde",
-    "Cameroon",
-    "Central African Republic",
-    "Chad",
-    "Comoros",
-    "Democratic Republic of the Congo",
-    "Republic of the Congo",
-    "Cote d'Ivoire",
-    "Djibouti",
-    "Egypt",
-    "Equatorial Guinea",
-    "Eritrea",
-    "Eswatini",
-    "Ethiopia",
-    "Gabon",
-    "Gambia",
-    "Ghana",
-    "Guinea",
-    "Guinea-Bissau",
-    "Kenya",
-    "Lesotho",
-    "Liberia",
-    "Libya",
-    "Madagascar",
-    "Malawi",
-    "Mali",
-    "Mauritania",
-    "Mauritius",
-    "Morocco",
-    "Mozambique",
-    "Namibia",
-    "Niger",
-    "Nigeria",
-    "Rwanda",
-    "Sao Tome and Principe",
-    "Senegal",
-    "Seychelles",
-    "Sierra Leone",
-    "Somalia",
-    "South Africa",
-    "South Sudan",
-    "Sudan",
-    "Tanzania",
-    "Togo",
-    "Tunisia",
-    "Uganda",
-    "Zambia",
-    "Zimbabwe"
-
-];
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
 
 
-const CARIBBEAN_COUNTRIES = [
-
-    "Antigua and Barbuda",
-    "Bahamas",
-    "Barbados",
-    "Belize",
-    "Cuba",
-    "Dominica",
-    "Dominican Republic",
-    "Grenada",
-    "Guyana",
-    "Haiti",
-    "Jamaica",
-    "Saint Kitts and Nevis",
-    "Saint Lucia",
-    "Saint Vincent and the Grenadines",
-    "Suriname",
-    "Trinidad and Tobago"
-
-];
+const vehicleId =
+    params.get("id");
 
 
-const ALL_COUNTRIES = [
 
-    ...AFRICA_COUNTRIES,
-    ...CARIBBEAN_COUNTRIES
-
-].sort();
-
-
-/* =========================================================
+/* =====================================================
    ELEMENTS
-   ========================================================= */
-
-const loading =
-    document.getElementById(
-        "detailsLoading"
-    );
-
-
-const errorBox =
-    document.getElementById(
-        "detailsError"
-    );
-
-
-const errorMessage =
-    document.getElementById(
-        "errorMessage"
-    );
-
-
-const details =
-    document.getElementById(
-        "vehicleDetails"
-    );
-
+   ===================================================== */
 
 const mainImage =
     document.getElementById(
         "mainVehicleImage"
     );
 
-
-const thumbnails =
+const thumbnailRow =
     document.getElementById(
-        "thumbnailGallery"
+        "thumbnailRow"
     );
 
-
-const vehicleReference =
+const imageCounter =
     document.getElementById(
-        "vehicleReference"
+        "imageCounter"
     );
-
 
 const vehicleTitle =
     document.getElementById(
         "vehicleTitle"
     );
 
-
-const vehicleSubtitle =
+const vehicleReference =
     document.getElementById(
-        "vehicleSubtitle"
+        "vehicleReference"
+    );
+
+const breadcrumbVehicle =
+    document.getElementById(
+        "breadcrumbVehicle"
+    );
+
+const vehicleYear =
+    document.getElementById(
+        "vehicleYear"
+    );
+
+const vehicleMileage =
+    document.getElementById(
+        "vehicleMileage"
+    );
+
+const vehicleEngine =
+    document.getElementById(
+        "vehicleEngine"
+    );
+
+const vehicleTransmission =
+    document.getElementById(
+        "vehicleTransmission"
+    );
+
+const vehicleFuel =
+    document.getElementById(
+        "vehicleFuel"
+    );
+
+const vehicleDrive =
+    document.getElementById(
+        "vehicleDrive"
+    );
+
+const vehicleDescription =
+    document.getElementById(
+        "vehicleDescription"
+    );
+
+const keyFeaturesList =
+    document.getElementById(
+        "keyFeaturesList"
+    );
+
+const fullSpecifications =
+    document.getElementById(
+        "fullSpecifications"
+    );
+
+const featuresGrid =
+    document.getElementById(
+        "featuresGrid"
+    );
+
+const largeGallery =
+    document.getElementById(
+        "largeGallery"
+    );
+
+const morePhotos =
+    document.getElementById(
+        "morePhotos"
+    );
+
+const similarVehicles =
+    document.getElementById(
+        "similarVehicles"
+    );
+
+const destinationCountry =
+    document.getElementById(
+        "destinationCountry"
+    );
+
+const customerName =
+    document.getElementById(
+        "customerName"
+    );
+
+const customerEmail =
+    document.getElementById(
+        "customerEmail"
+    );
+
+const customerMessage =
+    document.getElementById(
+        "customerMessage"
     );
 
 
-const detailStatus =
-    document.getElementById(
-        "detailStatus"
-    );
+
+/* =====================================================
+   VARIABLES
+   ===================================================== */
+
+let vehicle = null;
+
+let galleryImages = [];
+
+let currentImageIndex = 0;
 
 
-const quoteCountry =
-    document.getElementById(
-        "quoteCountry"
-    );
+
+/* =====================================================
+   FALLBACK
+   ===================================================== */
+
+const fallbackImage =
+    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=85";
 
 
-const whatsappQuote =
-    document.getElementById(
-        "whatsappQuote"
-    );
 
+/* =====================================================
+   GET VALUE
+   ===================================================== */
 
-const quoteMessage =
-    document.getElementById(
-        "quoteMessage"
-    );
+function getValue(data, ...keys) {
 
-
-/* =========================================================
-   FALLBACK IMAGE
-   ========================================================= */
-
-const FALLBACK_IMAGE =
-    "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1600&q=85";
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function getValue(vehicle, fields) {
-
-    for (const field of fields) {
+    for (const key of keys) {
 
         if (
-            vehicle[field] !== undefined &&
-            vehicle[field] !== null &&
-            vehicle[field] !== ""
+            data[key] !== undefined &&
+            data[key] !== null &&
+            data[key] !== ""
         ) {
 
-            return vehicle[field];
+            return data[key];
 
         }
 
@@ -261,1102 +245,132 @@ function getValue(vehicle, fields) {
 }
 
 
-/* =========================================================
-   IMAGES
-   ========================================================= */
 
-function getImages(vehicle) {
+/* =====================================================
+   IMAGES
+   ===================================================== */
+
+function getImages(data) {
 
     let images =
         getValue(
-            vehicle,
-            [
-                "images",
-                "imageUrls",
-                "photos"
-            ]
+            data,
+            "images",
+            "imageUrls",
+            "photos"
         );
-
-
-    if (!images) {
-
-        const single =
-            getValue(
-                vehicle,
-                [
-                    "image",
-                    "imageUrl",
-                    "photo",
-                    "photoUrl"
-                ]
-            );
-
-
-        if (single) {
-
-            images = [single];
-
-        }
-
-    }
-
-
-    if (!Array.isArray(images)) {
-
-        if (
-            typeof images === "string"
-        ) {
-
-            images =
-                images
-                    .split(",")
-                    .map(x => x.trim())
-                    .filter(Boolean);
-
-        } else {
-
-            images = [];
-
-        }
-
-    }
-
-
-    images =
-        images
-            .map(image => {
-
-                if (
-                    typeof image === "string"
-                ) {
-
-                    return image;
-
-                }
-
-
-                if (
-                    image &&
-                    typeof image === "object"
-                ) {
-
-                    return (
-                        image.url ||
-                        image.secure_url ||
-                        image.src ||
-                        ""
-                    );
-
-                }
-
-
-                return "";
-
-            })
-            .filter(Boolean);
 
 
     if (
-        images.length === 0
+        Array.isArray(images)
     ) {
 
-        images.push(
-            FALLBACK_IMAGE
-        );
+        return images.filter(Boolean);
 
     }
 
 
-    return images;
+    if (
+        typeof images === "string" &&
+        images.trim()
+    ) {
 
-}
+        return [
+            images
+        ];
 
-
-/* =========================================================
-   COUNTRY SELECT
-   ========================================================= */
-
-function populateCountries() {
-
-    if (!quoteCountry) {
-        return;
     }
 
 
-    quoteCountry.innerHTML = `
-
-        <option value="">
-            Select your country
-        </option>
-
-    `;
-
-
-    const africa =
-        document.createElement(
-            "optgroup"
+    const image =
+        getValue(
+            data,
+            "image",
+            "imageUrl"
         );
 
-    africa.label =
-        "Africa";
+
+    if (image) {
+
+        return [
+            image
+        ];
+
+    }
 
 
-    AFRICA_COUNTRIES
-        .forEach(country => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                country;
-
-            option.textContent =
-                country;
-
-            africa.appendChild(
-                option
-            );
-
-        });
-
-
-    quoteCountry.appendChild(
-        africa
-    );
-
-
-    const caribbean =
-        document.createElement(
-            "optgroup"
-        );
-
-    caribbean.label =
-        "Caribbean";
-
-
-    CARIBBEAN_COUNTRIES
-        .forEach(country => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                country;
-
-            option.textContent =
-                country;
-
-            caribbean.appendChild(
-                option
-            );
-
-        });
-
-
-    quoteCountry.appendChild(
-        caribbean
-    );
+    return [
+        fallbackImage
+    ];
 
 }
 
 
-/* =========================================================
-   REFERENCE
-   ========================================================= */
 
-function getReference(vehicle) {
+/* =====================================================
+   NORMALIZE FEATURES
+   ===================================================== */
 
-    return (
-        getValue(
-            vehicle,
-            [
-                "ref",
-                "referenceNumber",
-                "reference",
-                "hveRef"
-            ]
-        )
-        ||
-        "HVE-0000"
-    );
-
-}
-
-
-/* =========================================================
-   NAME
-   ========================================================= */
-
-function getName(vehicle) {
-
-    const make =
-        getValue(
-            vehicle,
-            [
-                "make",
-                "brand"
-            ]
-        );
-
-
-    const model =
-        getValue(
-            vehicle,
-            [
-                "model"
-            ]
-        );
-
-
-    return (
-        `${make} ${model}`
-            .trim()
-            ||
-            "Japanese Vehicle"
-    );
-
-}
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-function getStatus(vehicle) {
-
-    return (
-        getValue(
-            vehicle,
-            [
-                "status"
-            ]
-        )
-        ||
-        "Available"
-    );
-
-}
-
-
-/* =========================================================
-   DISPLAY VEHICLE
-   ========================================================= */
-
-function displayVehicle(vehicle) {
-
-    const images =
-        getImages(vehicle);
-
-
-    const reference =
-        getReference(vehicle);
-
-
-    const make =
-        getValue(
-            vehicle,
-            [
-                "make",
-                "brand"
-            ]
-        );
-
-
-    const model =
-        getValue(
-            vehicle,
-            [
-                "model"
-            ]
-        );
-
-
-    const year =
-        getValue(
-            vehicle,
-            [
-                "year"
-            ]
-        ) || "—";
-
-
-    const mileage =
-        getValue(
-            vehicle,
-            [
-                "mileage"
-            ]
-        ) || "—";
-
-
-    const engine =
-        getValue(
-            vehicle,
-            [
-                "engine"
-            ]
-        ) || "—";
-
-
-    const fuel =
-        getValue(
-            vehicle,
-            [
-                "fuel"
-            ]
-        ) || "—";
-
-
-    const transmission =
-        getValue(
-            vehicle,
-            [
-                "transmission"
-            ]
-        ) || "—";
-
-
-    const drive =
-        getValue(
-            vehicle,
-            [
-                "drive"
-            ]
-        ) || "—";
-
-
-    const description =
-        getValue(
-            vehicle,
-            [
-                "description"
-            ]
-        )
-        ||
-        "Contact us for complete vehicle information, current availability and a country-specific quotation.";
-
+function getFeatures(data) {
 
     const features =
         getValue(
-            vehicle,
-            [
-                "features",
-                "keyFeatures"
-            ]
+            data,
+            "features",
+            "keyFeatures"
         );
-
-
-    /* REFERENCE */
-
-    vehicleReference.textContent =
-        reference;
-
-
-    /* TITLE */
-
-    vehicleTitle.textContent =
-        `${make} ${model}`.trim();
-
-
-    /* SUBTITLE */
-
-    vehicleSubtitle.textContent =
-        `${year} • Japanese Vehicle`;
-
-
-    /* STATUS */
-
-    const status =
-        getStatus(vehicle);
-
-
-    detailStatus.textContent =
-        status.toUpperCase();
-
-
-    detailStatus.classList.toggle(
-        "sold",
-        status.toLowerCase() === "sold"
-    );
-
-
-    /* SPECS */
-
-    document.getElementById(
-        "specYear"
-    ).textContent =
-        year;
-
-
-    document.getElementById(
-        "specMileage"
-    ).textContent =
-        mileage;
-
-
-    document.getElementById(
-        "specEngine"
-    ).textContent =
-        engine;
-
-
-    document.getElementById(
-        "specFuel"
-    ).textContent =
-        fuel;
-
-
-    document.getElementById(
-        "specTransmission"
-    ).textContent =
-        transmission;
-
-
-    document.getElementById(
-        "specDrive"
-    ).textContent =
-        drive;
-
-
-    /* DESCRIPTION */
-
-    document.getElementById(
-        "vehicleDescription"
-    ).textContent =
-        description;
-
-
-    /* FEATURES */
-
-    renderFeatures(
-        features,
-        vehicle
-    );
-
-
-    /* GALLERY */
-
-    renderGallery(
-        images,
-        `${make} ${model}`
-    );
-
-}
-
-
-/* =========================================================
-   GALLERY
-   ========================================================= */
-
-function renderGallery(images, title) {
-
-    if (!mainImage) {
-        return;
-    }
-
-
-    mainImage.src =
-        images[0];
-
-
-    mainImage.alt =
-        title;
-
-
-    mainImage.onerror =
-        function () {
-
-            this.onerror = null;
-
-            this.src =
-                FALLBACK_IMAGE;
-
-        };
-
-
-    thumbnails.innerHTML =
-        "";
-
-
-    images.forEach(
-        (image, index) => {
-
-            const thumbnail =
-                document.createElement(
-                    "img"
-                );
-
-
-            thumbnail.className =
-                "vehicle-thumbnail";
-
-
-            if (index === 0) {
-
-                thumbnail.classList.add(
-                    "active"
-                );
-
-            }
-
-
-            thumbnail.src =
-                image;
-
-
-            thumbnail.alt =
-                `${title} photo ${index + 1}`;
-
-
-            thumbnail.onerror =
-                function () {
-
-                    this.onerror = null;
-
-                    this.src =
-                        FALLBACK_IMAGE;
-
-                };
-
-
-            thumbnail.addEventListener(
-                "click",
-                function () {
-
-                    mainImage.src =
-                        image;
-
-                    thumbnails
-                        .querySelectorAll(
-                            ".vehicle-thumbnail"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-                    thumbnail.classList.add(
-                        "active"
-                    );
-
-                }
-            );
-
-
-            thumbnails.appendChild(
-                thumbnail
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   FEATURES
-   ========================================================= */
-
-function renderFeatures(
-    features,
-    vehicle
-) {
-
-    const list =
-        document.getElementById(
-            "vehicleFeatures"
-        );
-
-
-    list.innerHTML =
-        "";
-
-
-    let featureArray =
-        [];
 
 
     if (
         Array.isArray(features)
     ) {
 
-        featureArray =
-            features;
+        return features.filter(Boolean);
 
     }
-    else if (
+
+
+    if (
         typeof features === "string"
     ) {
 
-        featureArray =
-            features
-                .split(/[,|\n]/)
-                .map(
-                    x => x.trim()
-                )
-                .filter(Boolean);
-
-    }
-
-
-    /* Add useful automatic specs */
-
-    if (
-        vehicle.year
-    ) {
-
-        featureArray.push(
-            `${vehicle.year} Model`
-        );
-
-    }
-
-
-    if (
-        vehicle.fuel
-    ) {
-
-        featureArray.push(
-            `${vehicle.fuel} Fuel`
-        );
-
-    }
-
-
-    if (
-        vehicle.transmission
-    ) {
-
-        featureArray.push(
-            `${vehicle.transmission} Transmission`
-        );
-
-    }
-
-
-    if (
-        vehicle.drive
-    ) {
-
-        featureArray.push(
-            `${vehicle.drive} Drive`
-        );
-
-    }
-
-
-    featureArray =
-        [
-            ...new Set(
-                featureArray
+        return features
+            .split(/\n|,/)
+            .map(
+                item =>
+                    item.trim()
             )
-        ];
-
-
-    if (
-        featureArray.length === 0
-    ) {
-
-        featureArray = [
-            "Japanese vehicle",
-            "Vehicle sourcing available",
-            "Country-specific quotation",
-            "Export support"
-        ];
+            .filter(Boolean);
 
     }
 
 
-    featureArray
-        .slice(0, 10)
-        .forEach(feature => {
+    return [
 
-            const li =
-                document.createElement(
-                    "li"
-                );
+        "Quality Japanese vehicle",
 
-            li.textContent =
-                feature;
+        "Reliable performance",
 
-            list.appendChild(
-                li
-            );
+        "Personal support",
 
-        });
+        "Export assistance"
+
+    ];
 
 }
 
 
-/* =========================================================
-   WHATSAPP QUOTE
-   ========================================================= */
 
-function setupWhatsApp(vehicle) {
-
-    whatsappQuote.addEventListener(
-        "click",
-        function () {
-
-            const country =
-                quoteCountry.value;
-
-
-            if (!country) {
-
-                quoteMessage.textContent =
-                    "Please select your destination country first.";
-
-                quoteMessage.style.color =
-                    "#d4af37";
-
-                quoteCountry.focus();
-
-                return;
-
-            }
-
-
-            const reference =
-                getReference(vehicle);
-
-
-            const name =
-                getName(vehicle);
-
-
-            const message =
-                `Hello Hasnain Vehicle Exporter,
-
-I am interested in the ${name} (${vehicle.year || ""}).
-
-Reference: ${reference}
-
-Destination: ${country}
-
-Please provide the country-specific price and shipping details.`;
-
-
-            const url =
-                "https://wa.me/923392207418?text=" +
-                encodeURIComponent(
-                    message
-                );
-
-
-            window.open(
-                url,
-                "_blank"
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SIMILAR VEHICLES
-   ========================================================= */
-
-async function loadSimilarVehicles(
-    currentVehicle
-) {
-
-    const container =
-        document.getElementById(
-            "similarVehicles"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    try {
-
-        const snapshot =
-            await getDocs(
-                collection(
-                    db,
-                    "vehicles"
-                )
-            );
-
-
-        const vehicles = [];
-
-
-        snapshot.forEach(
-            documentSnapshot => {
-
-                if (
-                    documentSnapshot.id ===
-                    currentVehicle.id
-                ) {
-                    return;
-                }
-
-
-                vehicles.push({
-
-                    id:
-                        documentSnapshot.id,
-
-                    ...documentSnapshot.data()
-
-                });
-
-            }
-        );
-
-
-        const currentMake =
-            String(
-                getValue(
-                    currentVehicle,
-                    [
-                        "make",
-                        "brand"
-                    ]
-                )
-            ).toLowerCase();
-
-
-        const similar =
-            vehicles
-                .filter(
-                    vehicle => {
-
-                        const make =
-                            String(
-                                getValue(
-                                    vehicle,
-                                    [
-                                        "make",
-                                        "brand"
-                                    ]
-                                )
-                            ).toLowerCase();
-
-
-                        return (
-                            make &&
-                            make === currentMake
-                        );
-
-                    }
-                )
-                .slice(0, 3);
-
-
-        const finalVehicles =
-            similar.length
-                ? similar
-                : vehicles.slice(0, 3);
-
-
-        container.innerHTML =
-            "";
-
-
-        finalVehicles.forEach(
-            vehicle => {
-
-                container.appendChild(
-                    createSimilarCard(
-                        vehicle
-                    )
-                );
-
-            }
-        );
-
-
-        if (
-            finalVehicles.length === 0
-        ) {
-
-            container.innerHTML = `
-
-                <p style="
-                    color:#777;
-                    font-size:13px;
-                ">
-                    More vehicles will be added soon.
-                </p>
-
-            `;
-
-        }
-
-
-    }
-    catch (error) {
-
-        console.error(
-            "Similar vehicles error:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   SIMILAR CARD
-   ========================================================= */
-
-function createSimilarCard(
-    vehicle
-) {
-
-    const card =
-        document.createElement(
-            "article"
-        );
-
-
-    card.className =
-        "similar-card";
-
-
-    const images =
-        getImages(vehicle);
-
-
-    const image =
-        images[0];
-
-
-    const name =
-        getName(vehicle);
-
-
-    const reference =
-        getReference(vehicle);
-
-
-    const year =
-        getValue(
-            vehicle,
-            [
-                "year"
-            ]
-        ) || "";
-
-
-    card.innerHTML = `
-
-        <div class="similar-card-image">
-
-            <img
-                src="${image}"
-                alt="${name}"
-                loading="lazy"
-            >
-
-        </div>
-
-        <div class="similar-card-content">
-
-            <div class="similar-ref">
-                ${reference}
-            </div>
-
-            <h3>
-                ${name}
-            </h3>
-
-            <p>
-                ${year}
-                • Request Country-Specific Quote
-            </p>
-
-            <a
-                href="vehicle-details.html?id=${encodeURIComponent(vehicle.id)}"
-            >
-                View Details →
-            </a>
-
-        </div>
-
-    `;
-
-
-    return card;
-
-}
-
-
-/* =========================================================
-   SHOW ERROR
-   ========================================================= */
-
-function showError(message) {
-
-    if (loading) {
-
-        loading.style.display =
-            "none";
-
-    }
-
-
-    if (details) {
-
-        details.style.display =
-            "none";
-
-    }
-
-
-    if (errorBox) {
-
-        errorBox.style.display =
-            "flex";
-
-    }
-
-
-    if (errorMessage) {
-
-        errorMessage.textContent =
-            message;
-
-    }
-
-}
-
-
-/* =========================================================
+/* =====================================================
    LOAD VEHICLE
-   ========================================================= */
+   ===================================================== */
 
 async function loadVehicle() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const vehicleId =
-        params.get("id");
-
 
     if (!vehicleId) {
 
         showError(
-            "No vehicle ID was provided."
+            "No vehicle was selected."
         );
 
         return;
@@ -1383,7 +397,7 @@ async function loadVehicle() {
         if (!snapshot.exists()) {
 
             showError(
-                "This vehicle no longer exists or could not be found."
+                "Vehicle not found."
             );
 
             return;
@@ -1391,62 +405,115 @@ async function loadVehicle() {
         }
 
 
-        const vehicle = {
+        const data =
+            snapshot.data();
+
+
+        vehicle = {
 
             id:
                 snapshot.id,
 
-            ...snapshot.data()
+            ref:
+                getValue(
+                    data,
+                    "ref",
+                    "referenceNumber",
+                    "reference"
+                ) || "HVE",
+
+            make:
+                getValue(
+                    data,
+                    "make",
+                    "brand"
+                ) || "Japanese",
+
+            model:
+                getValue(
+                    data,
+                    "model"
+                ) || "Vehicle",
+
+            year:
+                getValue(
+                    data,
+                    "year"
+                ) || "—",
+
+            mileage:
+                getValue(
+                    data,
+                    "mileage"
+                ) || "—",
+
+            engine:
+                getValue(
+                    data,
+                    "engine"
+                ) || "—",
+
+            fuel:
+                getValue(
+                    data,
+                    "fuel",
+                    "fuelType"
+                ) || "—",
+
+            transmission:
+                getValue(
+                    data,
+                    "transmission"
+                ) || "—",
+
+            drive:
+                getValue(
+                    data,
+                    "drive",
+                    "drivetrain"
+                ) || "—",
+
+            status:
+                getValue(
+                    data,
+                    "status"
+                ) || "Available",
+
+            description:
+                getValue(
+                    data,
+                    "description"
+                ) ||
+                "This quality Japanese vehicle is available through Hasnain Vehicle Exporter. Contact us for current availability, country-specific pricing and shipping information.",
+
+            features:
+                getFeatures(data),
+
+            images:
+                getImages(data)
 
         };
 
 
-        displayVehicle(
-            vehicle
-        );
+        galleryImages =
+            vehicle.images;
 
 
-        setupWhatsApp(
-            vehicle
-        );
+        renderVehicle();
 
 
-        loadSimilarVehicles(
-            vehicle
-        );
+        loadSimilarVehicles();
 
 
-        if (loading) {
-
-            loading.style.display =
-                "none";
-
-        }
-
-
-        if (details) {
-
-            details.style.display =
-                "block";
-
-        }
-
-
-        document.title =
-            `${getName(vehicle)} | Hasnain Vehicle Exporter`;
-
-
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Vehicle details error:",
             error
         );
 
 
         showError(
-            "Unable to load this vehicle. Please refresh the page and try again."
+            "Unable to load this vehicle."
         );
 
     }
@@ -1454,10 +521,1269 @@ async function loadVehicle() {
 }
 
 
-/* =========================================================
-   START
-   ========================================================= */
 
-populateCountries();
+/* =====================================================
+   RENDER VEHICLE
+   ===================================================== */
+
+function renderVehicle() {
+
+    const title =
+        `${vehicle.make} ${vehicle.model}`;
+
+
+    vehicleTitle.textContent =
+        title;
+
+
+    breadcrumbVehicle.textContent =
+        title;
+
+
+    vehicleReference.textContent =
+        vehicle.ref;
+
+
+    vehicleYear.textContent =
+        vehicle.year;
+
+
+    vehicleMileage.textContent =
+        formatMileage(
+            vehicle.mileage
+        );
+
+
+    vehicleEngine.textContent =
+        vehicle.engine;
+
+
+    vehicleTransmission.textContent =
+        vehicle.transmission;
+
+
+    vehicleFuel.textContent =
+        vehicle.fuel;
+
+
+    vehicleDrive.textContent =
+        vehicle.drive;
+
+
+    vehicleDescription.textContent =
+        vehicle.description;
+
+
+    document.title =
+        `${title} | Hasnain Vehicle Exporter`;
+
+
+    renderGallery();
+
+
+    renderFeatures();
+
+
+    renderSpecifications();
+
+
+    renderWhatsApp();
+
+
+}
+
+
+
+/* =====================================================
+   MILEAGE
+   ===================================================== */
+
+function formatMileage(value) {
+
+    if (
+        value === "—"
+    ) {
+
+        return value;
+
+    }
+
+
+    const number =
+        String(value)
+            .replace(/,/g, "")
+            .replace(/[^\d.]/g, "");
+
+
+    if (
+        number
+    ) {
+
+        return (
+            Number(number)
+                .toLocaleString()
+            + " km"
+        );
+
+    }
+
+
+    return String(value);
+
+}
+
+
+
+/* =====================================================
+   GALLERY
+   ===================================================== */
+
+function renderGallery() {
+
+    if (
+        !galleryImages.length
+    ) {
+
+        galleryImages =
+            [fallbackImage];
+
+    }
+
+
+    currentImageIndex =
+        0;
+
+
+    showGalleryImage(
+        0
+    );
+
+
+    thumbnailRow.innerHTML =
+        "";
+
+
+    galleryImages.forEach(
+        (image, index) => {
+
+            const thumbnail =
+                document.createElement(
+                    "div"
+                );
+
+
+            thumbnail.className =
+                "thumbnail";
+
+
+            if (
+                index === 0
+            ) {
+
+                thumbnail.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            thumbnail.innerHTML = `
+
+                <img
+                    src="${escapeAttr(image)}"
+                    alt="${escapeAttr(vehicle.make + " " + vehicle.model)}"
+                >
+
+            `;
+
+
+            thumbnail.addEventListener(
+                "click",
+                () => {
+
+                    showGalleryImage(
+                        index
+                    );
+
+                }
+            );
+
+
+            thumbnailRow.appendChild(
+                thumbnail
+            );
+
+        }
+    );
+
+
+    renderLargeGallery();
+
+}
+
+
+
+/* =====================================================
+   SHOW IMAGE
+   ===================================================== */
+
+function showGalleryImage(index) {
+
+    if (
+        !galleryImages.length
+    ) {
+
+        return;
+
+    }
+
+
+    currentImageIndex =
+        index;
+
+
+    mainImage.src =
+        galleryImages[index];
+
+
+    mainImage.alt =
+        `${vehicle.make} ${vehicle.model}`;
+
+
+    imageCounter.textContent =
+        `${index + 1} / ${galleryImages.length}`;
+
+
+    document
+        .querySelectorAll(
+            ".thumbnail"
+        )
+        .forEach(
+            (thumbnail, i) => {
+
+                thumbnail.classList.toggle(
+                    "active",
+                    i === index
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =====================================================
+   GALLERY BUTTONS
+   ===================================================== */
+
+document
+    .getElementById(
+        "galleryPrev"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            let next =
+                currentImageIndex - 1;
+
+
+            if (
+                next < 0
+            ) {
+
+                next =
+                    galleryImages.length - 1;
+
+            }
+
+
+            showGalleryImage(
+                next
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "galleryNext"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            let next =
+                currentImageIndex + 1;
+
+
+            if (
+                next >= galleryImages.length
+            ) {
+
+                next = 0;
+
+            }
+
+
+            showGalleryImage(
+                next
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   MAIN IMAGE FALLBACK
+   ===================================================== */
+
+mainImage.addEventListener(
+    "error",
+    () => {
+
+        if (
+            mainImage.src !==
+            fallbackImage
+        ) {
+
+            mainImage.src =
+                fallbackImage;
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   FEATURES
+   ===================================================== */
+
+function renderFeatures() {
+
+    keyFeaturesList.innerHTML =
+        "";
+
+
+    featuresGrid.innerHTML =
+        "";
+
+
+    vehicle.features.forEach(
+        feature => {
+
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+
+            li.textContent =
+                feature;
+
+
+            keyFeaturesList.appendChild(
+                li
+            );
+
+
+
+            const featureBox =
+                document.createElement(
+                    "div"
+                );
+
+
+            featureBox.className =
+                "feature-item";
+
+
+            featureBox.textContent =
+                feature;
+
+
+            featuresGrid.appendChild(
+                featureBox
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   SPECIFICATIONS
+   ===================================================== */
+
+function renderSpecifications() {
+
+    const specifications = [
+
+        [
+            "Reference",
+            vehicle.ref
+        ],
+
+        [
+            "Make",
+            vehicle.make
+        ],
+
+        [
+            "Model",
+            vehicle.model
+        ],
+
+        [
+            "Year",
+            vehicle.year
+        ],
+
+        [
+            "Mileage",
+            formatMileage(
+                vehicle.mileage
+            )
+        ],
+
+        [
+            "Engine",
+            vehicle.engine
+        ],
+
+        [
+            "Fuel Type",
+            vehicle.fuel
+        ],
+
+        [
+            "Transmission",
+            vehicle.transmission
+        ],
+
+        [
+            "Drive",
+            vehicle.drive
+        ],
+
+        [
+            "Status",
+            vehicle.status
+        ]
+
+    ];
+
+
+    fullSpecifications.innerHTML =
+        "";
+
+
+    specifications.forEach(
+        item => {
+
+            const box =
+                document.createElement(
+                    "div"
+                );
+
+
+            box.className =
+                "full-spec";
+
+
+            box.innerHTML = `
+
+                <span>
+                    ${escapeHtml(item[0])}
+                </span>
+
+                <strong>
+                    ${escapeHtml(item[1])}
+                </strong>
+
+            `;
+
+
+            fullSpecifications.appendChild(
+                box
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   LARGE GALLERY
+   ===================================================== */
+
+function renderLargeGallery() {
+
+    largeGallery.innerHTML =
+        "";
+
+
+    morePhotos.innerHTML =
+        "";
+
+
+    galleryImages.forEach(
+        image => {
+
+            const large =
+                document.createElement(
+                    "img"
+                );
+
+
+            large.src =
+                image;
+
+
+            large.alt =
+                vehicle.make +
+                " " +
+                vehicle.model;
+
+
+            largeGallery.appendChild(
+                large
+            );
+
+
+            const photo =
+                document.createElement(
+                    "div"
+                );
+
+
+            photo.className =
+                "more-photo";
+
+
+            photo.innerHTML = `
+
+                <img
+                    src="${escapeAttr(image)}"
+                    alt="${escapeAttr(vehicle.make + " " + vehicle.model)}"
+                    loading="lazy"
+                >
+
+            `;
+
+
+            photo.addEventListener(
+                "click",
+                () => {
+
+                    const index =
+                        galleryImages.indexOf(
+                            image
+                        );
+
+
+                    if (
+                        index >= 0
+                    ) {
+
+                        showGalleryImage(
+                            index
+                        );
+
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                    }
+
+                }
+            );
+
+
+            morePhotos.appendChild(
+                photo
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   WHATSAPP
+   ===================================================== */
+
+function createWhatsAppURL(
+    country = ""
+) {
+
+    const title =
+        `${vehicle.make} ${vehicle.model}`;
+
+
+    let message =
+        `Hello Hasnain Vehicle Exporter, I am interested in the ${title} ${vehicle.year} (Ref: ${vehicle.ref}).`;
+
+
+    if (
+        country
+    ) {
+
+        message +=
+            ` Destination: ${country}.`;
+
+    }
+
+
+    message +=
+        ` Please provide the country-specific price and shipping details.`;
+
+
+    return (
+        "https://wa.me/923392207418?text=" +
+        encodeURIComponent(
+            message
+        )
+    );
+
+}
+
+
+
+/* =====================================================
+   MAIN WHATSAPP
+   ===================================================== */
+
+function renderWhatsApp() {
+
+    const button =
+        document.getElementById(
+            "mainWhatsAppButton"
+        );
+
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            const country =
+                destinationCountry.value;
+
+
+            window.open(
+                createWhatsAppURL(
+                    country
+                ),
+                "_blank"
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   CONTACT FORM
+   ===================================================== */
+
+document
+    .getElementById(
+        "vehicleContactForm"
+    )
+    .addEventListener(
+        "submit",
+        event => {
+
+            event.preventDefault();
+
+
+            const name =
+                customerName.value.trim();
+
+
+            const email =
+                customerEmail.value.trim();
+
+
+            const country =
+                destinationCountry.value;
+
+
+            const message =
+                customerMessage.value.trim();
+
+
+            const title =
+                `${vehicle.make} ${vehicle.model}`;
+
+
+            let whatsappMessage =
+                `Hello Hasnain Vehicle Exporter,%0A%0A`;
+
+
+            whatsappMessage +=
+                `I am interested in:%20${encodeURIComponent(title)}%0A`;
+
+
+            whatsappMessage +=
+                `Year:%20${encodeURIComponent(vehicle.year)}%0A`;
+
+
+            whatsappMessage +=
+                `Reference:%20${encodeURIComponent(vehicle.ref)}%0A`;
+
+
+            whatsappMessage +=
+                `Destination:%20${encodeURIComponent(country)}%0A`;
+
+
+            whatsappMessage +=
+                `Name:%20${encodeURIComponent(name)}%0A`;
+
+
+            if (email) {
+
+                whatsappMessage +=
+                    `Email:%20${encodeURIComponent(email)}%0A`;
+
+            }
+
+
+            if (message) {
+
+                whatsappMessage +=
+                    `Message:%20${encodeURIComponent(message)}%0A`;
+
+            }
+
+
+            whatsappMessage +=
+                `%0APlease provide the country-specific price and shipping details.`;
+
+
+            window.open(
+                "https://wa.me/923392207418?text=" +
+                whatsappMessage,
+                "_blank"
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   TABS
+   ===================================================== */
+
+document
+    .querySelectorAll(
+        ".information-tab"
+    )
+    .forEach(
+        tab => {
+
+            tab.addEventListener(
+                "click",
+                () => {
+
+                    const target =
+                        tab.dataset.tab;
+
+
+                    document
+                        .querySelectorAll(
+                            ".information-tab"
+                        )
+                        .forEach(
+                            item => {
+
+                                item.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    document
+                        .querySelectorAll(
+                            ".tab-panel"
+                        )
+                        .forEach(
+                            panel => {
+
+                                panel.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    tab.classList.add(
+                        "active"
+                    );
+
+
+                    document
+                        .getElementById(
+                            `tab-${target}`
+                        )
+                        .classList.add(
+                            "active"
+                        );
+
+                }
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   FAVORITE
+   ===================================================== */
+
+document
+    .getElementById(
+        "favoriteButton"
+    )
+    .addEventListener(
+        "click",
+        event => {
+
+            event.currentTarget.classList.toggle(
+                "saved"
+            );
+
+
+            event.currentTarget.textContent =
+                event.currentTarget.classList.contains(
+                    "saved"
+                )
+                    ? "♥"
+                    : "♡";
+
+        }
+    );
+
+
+
+/* =====================================================
+   SIMILAR VEHICLES
+   ===================================================== */
+
+async function loadSimilarVehicles() {
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "vehicles"
+                )
+            );
+
+
+        const allVehicles =
+            snapshot.docs
+                .map(
+                    item => {
+
+                        const data =
+                            item.data();
+
+
+                        return {
+
+                            id:
+                                item.id,
+
+                            make:
+                                getValue(
+                                    data,
+                                    "make",
+                                    "brand"
+                                ) || "",
+
+                            model:
+                                getValue(
+                                    data,
+                                    "model"
+                                ) || "",
+
+                            year:
+                                getValue(
+                                    data,
+                                    "year"
+                                ) || "—",
+
+                            mileage:
+                                getValue(
+                                    data,
+                                    "mileage"
+                                ) || "—",
+
+                            engine:
+                                getValue(
+                                    data,
+                                    "engine"
+                                ) || "—",
+
+                            fuel:
+                                getValue(
+                                    data,
+                                    "fuel",
+                                    "fuelType"
+                                ) || "—",
+
+                            ref:
+                                getValue(
+                                    data,
+                                    "ref",
+                                    "referenceNumber",
+                                    "reference"
+                                ) || "HVE",
+
+                            image:
+                                getImages(data)[0]
+
+                        };
+
+                    }
+                )
+                .filter(
+                    item =>
+                        item.id !== vehicleId
+                );
+
+
+        const sameMake =
+            allVehicles.filter(
+                item =>
+                    item.make === vehicle.make
+            );
+
+
+        const finalList =
+            [
+                ...sameMake,
+                ...allVehicles
+            ]
+            .filter(
+                (item, index, arr) =>
+                    arr.findIndex(
+                        x =>
+                            x.id === item.id
+                    ) === index
+            )
+            .slice(0, 3);
+
+
+        renderSimilar(
+            finalList
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Similar vehicles error:",
+            error
+        );
+
+
+        similarVehicles.innerHTML = `
+            <div class="similar-loading">
+                View more vehicles in our catalog.
+            </div>
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   RENDER SIMILAR
+   ===================================================== */
+
+function renderSimilar(list) {
+
+    similarVehicles.innerHTML =
+        "";
+
+
+    if (
+        !list.length
+    ) {
+
+        similarVehicles.innerHTML = `
+
+            <div class="similar-loading">
+                More vehicles coming soon.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    list.forEach(
+        item => {
+
+            const element =
+                document.createElement(
+                    "a"
+                );
+
+
+            element.href =
+                `vehicle-details.html?id=${encodeURIComponent(item.id)}`;
+
+
+            element.className =
+                "similar-item";
+
+
+            element.innerHTML = `
+
+                <div class="similar-image">
+
+                    <img
+                        src="${escapeAttr(item.image || fallbackImage)}"
+                        alt="${escapeAttr(item.make + " " + item.model)}"
+                    >
+
+                </div>
+
+
+                <div class="similar-info">
+
+                    <strong>
+                        🇯🇵
+                        ${escapeHtml(item.make)}
+                        ${escapeHtml(item.model)}
+                    </strong>
+
+                    <small>
+                        ${escapeHtml(String(item.year))}
+                        &nbsp;•&nbsp;
+                        ${escapeHtml(String(item.mileage))}
+                        &nbsp;•&nbsp;
+                        ${escapeHtml(String(item.engine))}
+                    </small>
+
+                    <div class="similar-price">
+                        Request Quote
+                    </div>
+
+                </div>
+
+            `;
+
+
+            similarVehicles.appendChild(
+                element
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+function showError(message) {
+
+    document.querySelector(
+        "main"
+    ).innerHTML = `
+
+        <div
+            style="
+                min-height:70vh;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                text-align:center;
+                padding:40px;
+            "
+        >
+
+            <div>
+
+                <h1
+                    style="
+                        color:#d4af37;
+                        margin-bottom:12px;
+                    "
+                >
+                    ${escapeHtml(message)}
+                </h1>
+
+                <p
+                    style="
+                        color:#b8c0c4;
+                        margin-bottom:20px;
+                    "
+                >
+                    The vehicle may have been removed
+                    or the link may be incorrect.
+                </p>
+
+                <a
+                    href="vehicles.html"
+                    style="
+                        display:inline-block;
+                        padding:11px 20px;
+                        background:#d4af37;
+                        color:#111;
+                        border-radius:5px;
+                        font-weight:800;
+                    "
+                >
+                    Browse Vehicles
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   ESCAPE
+   ===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttr(value) {
+
+    return escapeHtml(value);
+
+}
+
+
+
+/* =====================================================
+   MOBILE NAV
+   ===================================================== */
+
+const menuToggle =
+    document.getElementById(
+        "menuToggle"
+    );
+
+
+const mainNav =
+    document.getElementById(
+        "mainNav"
+    );
+
+
+menuToggle.addEventListener(
+    "click",
+    () => {
+
+        const open =
+            mainNav.classList.toggle(
+                "open"
+            );
+
+
+        menuToggle.setAttribute(
+            "aria-expanded",
+            String(open)
+        );
+
+    }
+);
+
+
+mainNav
+    .querySelectorAll("a")
+    .forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    mainNav.classList.remove(
+                        "open"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+
+/* =====================================================
+   START
+   ===================================================== */
 
 loadVehicle();
