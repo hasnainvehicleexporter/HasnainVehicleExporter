@@ -1,4 +1,20 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+// ============================================================
+// HASNAIN VEHICLE EXPORTER
+// ADMIN DASHBOARD
+// Supports multiple authorized admin accounts
+// ============================================================
+
+import {
+  firebaseConfig,
+  ADMIN_EMAILS,
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_UPLOAD_PRESET,
+  CLOUDINARY_UPLOAD_URL
+} from "./firebase-config.js";
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
 import {
   getAuth,
@@ -10,969 +26,524 @@ import {
 import {
   getFirestore,
   collection,
-  getDocs,
   addDoc,
+  getDocs,
+  getDoc,
   doc,
   updateDoc,
   deleteDoc,
   query,
   orderBy,
-  serverTimestamp,
-  writeBatch
+  limit,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-import {
-  firebaseConfig,
-  ADMIN_EMAIL,
-  CLOUDINARY_UPLOAD_PRESET,
-  CLOUDINARY_UPLOAD_URL
-} from "./firebase-config.js";
 
-
-/* =========================================================
-   FIREBASE
-========================================================= */
+// ============================================================
+// FIREBASE INITIALIZATION
+// ============================================================
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
+
 const db = getFirestore(app);
 
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-const $ = (id) => document.getElementById(id);
-const qs = (s) => document.querySelector(s);
-const qsa = (s) => [...document.querySelectorAll(s)];
+const vehiclesCollection = collection(db, "vehicles");
 
 
-/* =========================================================
-   STATE
-========================================================= */
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+
+let currentUser = null;
 
 let vehicles = [];
 
-/*
-  Files waiting to be uploaded to Cloudinary.
-*/
-let selectedFiles = [];
+let editingVehicleId = null;
 
-/*
-  Existing images currently attached to the vehicle being edited.
-*/
 let currentImages = [];
 
-/*
-  Vehicle currently being edited.
-*/
-let editingVehicle = null;
 
+// ============================================================
+// ADMIN EMAIL CHECK
+// ============================================================
 
-/* =========================================================
-   TOAST
-========================================================= */
-
-function toast(message, error = false) {
-  const el = $("toast");
-
-  if (!el) return;
-
-  el.textContent = message;
-  el.className = `toast show ${error ? "error" : ""}`;
-
-  setTimeout(() => {
-    el.className = "toast";
-  }, 3000);
-}
-
-
-/* =========================================================
-   SECURITY / HTML
-========================================================= */
-
-function escapeHtml(value = "") {
-  return String(value).replace(
-    /[&<>"']/g,
-    c => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[c])
-  );
-}
-
-
-/* =========================================================
-   SLUG
-========================================================= */
-
-function slugify(value = "") {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-
-/* =========================================================
-   NORMALIZE VEHICLE
-========================================================= */
-
-function normalizeVehicle(v, id = "") {
-  return {
-    id: id || v.id || "",
-    ref: v.ref || v.reference || "",
-    status: v.status || "Available",
-    make: v.make || "",
-    model: v.model || "",
-    year: Number(v.year) || "",
-    mileage: v.mileage || "",
-    engine: v.engine || "",
-    fuel: v.fuel || "Petrol",
-    transmission: v.transmission || "Automatic",
-    drive: v.drive || "",
-    region: v.region || "Africa",
-    country: v.country || "",
-    beforwardRef: v.beforwardRef || v.beforward_reference || "",
-    description: v.description || "",
-
-    features: Array.isArray(v.features)
-      ? v.features
-      : String(v.features || "")
-          .split(",")
-          .map(x => x.trim())
-          .filter(Boolean),
-
-    images: Array.isArray(v.images)
-      ? v.images
-      : [],
-
-    tracking: {
-      status: v.tracking?.status || "Available in Japan",
-      location: v.tracking?.location || "Japan",
-      updatedAt: v.tracking?.updatedAt || null
-    }
-  };
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function statusClass(status) {
-  const s = String(status).toLowerCase();
-
-  if (s === "sold") {
-    return "pill sold";
+function isAuthorizedAdmin(user) {
+  if (!user || !user.email) {
+    return false;
   }
 
-  if (s === "available") {
-    return "pill available";
-  }
+  const email = user.email.trim().toLowerCase();
 
-  if (s.includes("transit")) {
-    return "pill transit";
-  }
-
-  return "pill";
+  return ADMIN_EMAILS
+    .map(item => item.toLowerCase())
+    .includes(email);
 }
 
 
-/* =========================================================
-   LOAD VEHICLES
-========================================================= */
+// ============================================================
+// AUTHENTICATION
+// ============================================================
 
-async function loadVehicles() {
-  try {
-    const snap = await getDocs(
-      query(
-        collection(db, "vehicles"),
-        orderBy("createdAt", "desc")
-      )
+onAuthStateChanged(auth, async (user) => {
+
+  currentUser = user || null;
+
+  if (!user) {
+    showLoginScreen();
+    return;
+  }
+
+  if (!isAuthorizedAdmin(user)) {
+
+    alert(
+      "This account is not authorized for the HVE dashboard."
     );
 
-    vehicles = snap.docs.map(d =>
-      normalizeVehicle(d.data(), d.id)
-    );
+    await signOut(auth);
 
-    renderAll();
-
-  } catch (err) {
-    console.error(err);
-
-    /*
-      If createdAt ordering causes a problem for older records,
-      fall back to loading the collection normally.
-    */
-
-    try {
-      const snap = await getDocs(collection(db, "vehicles"));
-
-      vehicles = snap.docs.map(d =>
-        normalizeVehicle(d.data(), d.id)
-      );
-
-      vehicles.sort((a, b) =>
-        String(b.ref).localeCompare(String(a.ref))
-      );
-
-      renderAll();
-
-    } catch (fallbackError) {
-      console.error(fallbackError);
-      toast("Could not load vehicles.", true);
-    }
-  }
-}
-
-
-/* =========================================================
-   RENDER ALL
-========================================================= */
-
-function renderAll() {
-  const total = vehicles.length;
-
-  $("statTotal").textContent = total;
-
-  $("statAvailable").textContent =
-    vehicles.filter(v => v.status === "Available").length;
-
-  $("statSold").textContent =
-    vehicles.filter(v => v.status === "Sold").length;
-
-  $("statTransit").textContent =
-    vehicles.filter(v => v.status === "In Transit").length;
-
-  const recent = vehicles.slice(0, 8);
-
-  $("recentTable").innerHTML =
-    tableHtml(recent, true);
-
-  renderVehicleTable();
-  renderTracking();
-}
-
-
-/* =========================================================
-   VEHICLE TABLE
-========================================================= */
-
-function tableHtml(list, compact = false) {
-
-  if (!list.length) {
-    return `<div class="empty">No vehicles found.</div>`;
-  }
-
-  return `
-    <table>
-      <thead>
-        <tr>
-          <th>Reference</th>
-          <th>Vehicle</th>
-          <th>Year</th>
-          <th>Country</th>
-          <th>Status</th>
-          ${compact ? "" : "<th>Actions</th>"}
-        </tr>
-      </thead>
-
-      <tbody>
-
-        ${list.map(v => `
-
-          <tr>
-
-            <td>
-              <strong>${escapeHtml(v.ref)}</strong>
-            </td>
-
-            <td>
-              ${escapeHtml(v.make)}
-              ${escapeHtml(v.model)}
-            </td>
-
-            <td>
-              ${escapeHtml(v.year)}
-            </td>
-
-            <td>
-              ${escapeHtml(v.country || "—")}
-            </td>
-
-            <td>
-              <span class="${statusClass(v.status)}">
-                ${escapeHtml(v.status)}
-              </span>
-            </td>
-
-            ${
-              compact
-                ? ""
-                : `
-                  <td class="actions">
-
-                    <button
-                      type="button"
-                      class="mini-btn"
-                      data-edit="${escapeHtml(v.id)}">
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      class="mini-btn danger"
-                      data-delete="${escapeHtml(v.id)}">
-                      Delete
-                    </button>
-
-                  </td>
-                `
-            }
-
-          </tr>
-
-        `).join("")}
-
-      </tbody>
-    </table>
-  `;
-}
-
-
-/* =========================================================
-   VEHICLE TABLE FILTER
-========================================================= */
-
-function renderVehicleTable() {
-
-  const search =
-    $("vehicleSearch").value.trim().toLowerCase();
-
-  const status =
-    $("statusFilter").value;
-
-  const filtered = vehicles.filter(v => {
-
-    const hay =
-      `${v.ref} ${v.make} ${v.model} ${v.country} ${v.region}`
-        .toLowerCase();
-
-    return (
-      (!search || hay.includes(search)) &&
-      (!status || v.status === status)
-    );
-  });
-
-  $("vehicleTable").innerHTML =
-    tableHtml(filtered);
-
-  qsa("[data-edit]").forEach(button => {
-    button.onclick = () =>
-      startEdit(button.dataset.edit);
-  });
-
-  qsa("[data-delete]").forEach(button => {
-    button.onclick = () =>
-      removeVehicle(button.dataset.delete);
-  });
-}
-
-
-/* =========================================================
-   TRACKING
-========================================================= */
-
-function renderTracking() {
-
-  const tracked =
-    vehicles.filter(v => v.status !== "Sold");
-
-  $("trackingTable").innerHTML =
-    tracked.length
-
-      ? `
-        <table>
-
-          <thead>
-            <tr>
-              <th>Reference</th>
-              <th>Vehicle</th>
-              <th>Tracking Status</th>
-              <th>Location</th>
-              <th>Update</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            ${tracked.map(v => `
-
-              <tr>
-
-                <td>
-                  <strong>
-                    ${escapeHtml(v.ref)}
-                  </strong>
-                </td>
-
-                <td>
-                  ${escapeHtml(v.make)}
-                  ${escapeHtml(v.model)}
-                </td>
-
-                <td>
-
-                  <select
-                    class="tracking-select"
-                    data-track="${escapeHtml(v.id)}">
-
-                    ${
-                      [
-                        "Available in Japan",
-                        "Vehicle Purchased",
-                        "Port Departure",
-                        "In Transit",
-                        "Port Arrival",
-                        "Delivered"
-                      ]
-                        .map(x => `
-                          <option
-                            ${x === v.tracking.status ? "selected" : ""}>
-                            ${escapeHtml(x)}
-                          </option>
-                        `)
-                        .join("")
-                    }
-
-                  </select>
-
-                </td>
-
-                <td>
-
-                  <input
-                    class="tracking-location"
-                    data-location="${escapeHtml(v.id)}"
-                    value="${escapeHtml(v.tracking.location || "")}">
-
-                </td>
-
-                <td>
-
-                  <button
-                    type="button"
-                    class="mini-btn"
-                    data-save-track="${escapeHtml(v.id)}">
-                    Save
-                  </button>
-
-                </td>
-
-              </tr>
-
-            `).join("")}
-
-          </tbody>
-
-        </table>
-      `
-
-      : `
-        <div class="empty">
-          No active vehicles to track.
-        </div>
-      `;
-
-  qsa("[data-save-track]").forEach(button => {
-
-    button.onclick = () =>
-      updateTracking(button.dataset.saveTrack);
-
-  });
-}
-
-
-/* =========================================================
-   UPDATE TRACKING
-========================================================= */
-
-async function updateTracking(id) {
-
-  const status =
-    qs(`[data-track="${id}"]`).value;
-
-  const location =
-    qs(`[data-location="${id}"]`).value.trim();
-
-  try {
-
-    await updateDoc(
-      doc(db, "vehicles", id),
-      {
-        "tracking.status": status,
-        "tracking.location": location,
-        "tracking.updatedAt": serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }
-    );
-
-    toast("Tracking updated.");
-
-    await loadVehicles();
-
-  } catch (err) {
-
-    console.error(err);
-
-    toast(
-      "Could not update tracking.",
-      true
-    );
-  }
-}
-
-
-/* =========================================================
-   NEXT HVE REFERENCE
-========================================================= */
-
-async function nextReference() {
-
-  const snap =
-    await getDocs(collection(db, "vehicles"));
-
-  let max = 0;
-
-  snap.docs.forEach(d => {
-
-    const ref =
-      d.data().ref || "";
-
-    const m =
-      String(ref).match(/^HVE-(\d+)$/i);
-
-    if (m) {
-      max =
-        Math.max(
-          max,
-          Number(m[1])
-        );
-    }
-  });
-
-  return `HVE-${String(max + 1).padStart(4, "0")}`;
-}
-
-
-/* =========================================================
-   COUNTRIES
-========================================================= */
-
-async function loadCountries() {
-
-  try {
-
-    const response =
-      await fetch("../data/countries.json");
-
-    if (!response.ok) {
-      throw new Error(
-        "Could not load countries.json"
-      );
-    }
-
-    const data =
-      await response.json();
-
-    window.__countries = data;
-
-    fillCountryOptions([]);
-
-    /*
-      Prevent adding duplicate change listeners
-      if countries are loaded again.
-    */
-
-    const region =
-      $("region");
-
-    region.onchange = () => {
-
-      fillCountryOptions(
-        data[region.value] || []
-      );
-
-    };
-
-  } catch (err) {
-
-    console.error(err);
-
-    toast(
-      "Could not load country list.",
-      true
-    );
-  }
-}
-
-
-function fillCountryOptions(list) {
-
-  $("country").innerHTML =
-    `<option value="">Not selected</option>` +
-
-    list
-      .map(
-        c =>
-          `<option value="${escapeHtml(c)}">
-            ${escapeHtml(c)}
-          </option>`
-      )
-      .join("");
-}
-
-
-/* =========================================================
-   CLEAN OBJECT URLS
-========================================================= */
-
-function revokePreviewUrls() {
-
-  selectedFiles.forEach(file => {
-
-    if (file.__previewUrl) {
-      URL.revokeObjectURL(
-        file.__previewUrl
-      );
-    }
-
-  });
-}
-
-
-/* =========================================================
-   RESET FORM
-========================================================= */
-
-function resetForm() {
-
-  revokePreviewUrls();
-
-  selectedFiles = [];
-  currentImages = [];
-  editingVehicle = null;
-
-  $("vehicleForm").reset();
-
-  $("editId").value = "";
-
-  $("formTitle").textContent =
-    "Add Vehicle";
-
-  $("cancelEditBtn")
-    .classList.add("hidden");
-
-  $("formMessage").textContent = "";
-
-  $("photoPreview").innerHTML = "";
-
-  /*
-    Reset country options.
-  */
-
-  fillCountryOptions([]);
-
-  /*
-    Generate the next HVE reference.
-  */
-
-  nextReference()
-    .then(ref => {
-      $("ref").value = ref;
-    })
-    .catch(err => {
-      console.error(err);
-    });
-}
-
-
-/* =========================================================
-   START EDIT
-========================================================= */
-
-function startEdit(id) {
-
-  const v =
-    vehicles.find(x => x.id === id);
-
-  if (!v) return;
-
-  /*
-    Clear any previous pending files.
-  */
-
-  revokePreviewUrls();
-
-  selectedFiles = [];
-
-  editingVehicle = v;
-
-  currentImages =
-    Array.isArray(v.images)
-      ? [...v.images]
-      : [];
-
-  $("editId").value = v.id;
-
-  $("ref").value = v.ref;
-
-  $("status").value = v.status;
-
-  $("make").value = v.make;
-
-  $("model").value = v.model;
-
-  $("year").value = v.year;
-
-  $("mileage").value = v.mileage;
-
-  $("engine").value = v.engine;
-
-  $("fuel").value = v.fuel;
-
-  $("transmission").value =
-    v.transmission;
-
-  $("drive").value = v.drive;
-
-  $("beforwardRef").value =
-    v.beforwardRef;
-
-  $("region").value =
-    v.region || "";
-
-  fillCountryOptions(
-    window.__countries?.[v.region] || []
-  );
-
-  $("country").value =
-    v.country || "";
-
-  $("description").value =
-    v.description;
-
-  $("features").value =
-    v.features.join(", ");
-
-  $("trackingStatus").value =
-    v.tracking?.status ||
-    "Available in Japan";
-
-  $("trackingLocation").value =
-    v.tracking?.location ||
-    "Japan";
-
-  $("formTitle").textContent =
-    `Edit ${v.ref}`;
-
-  $("cancelEditBtn")
-    .classList.remove("hidden");
-
-  renderPhotoPreview();
-
-  showView("add");
-}
-
-
-/* =========================================================
-   PHOTO PREVIEW
-========================================================= */
-
-function renderPhotoPreview() {
-
-  const container =
-    $("photoPreview");
-
-  if (!container) return;
-
-  const existingHtml =
-    currentImages.length
-
-      ? currentImages
-          .map((url, index) => {
-
-            return `
-              <div
-                class="photo-item existing-photo"
-                data-existing-photo="${index}">
-
-                <div class="photo-image-wrap">
-
-                  <img
-                    src="${escapeHtml(url)}"
-                    alt="Vehicle photo ${index + 1}"
-                    loading="lazy"
-                    onerror="this.style.display='none';">
-
-                  <span class="photo-badge">
-                    Saved
-                  </span>
-
-                  <button
-                    type="button"
-                    class="photo-remove-btn"
-                    data-remove-existing="${index}"
-                    title="Remove this image">
-
-                    ×
-
-                  </button>
-
-                </div>
-
-                <div class="photo-name">
-                  Photo ${index + 1}
-                </div>
-
-              </div>
-            `;
-
-          })
-          .join("")
-
-      : "";
-
-
-  const newHtml =
-    selectedFiles.length
-
-      ? selectedFiles
-          .map((file, index) => {
-
-            const previewUrl =
-              file.__previewUrl ||
-              URL.createObjectURL(file);
-
-            file.__previewUrl =
-              previewUrl;
-
-            return `
-              <div
-                class="photo-item new-photo"
-                data-new-photo="${index}">
-
-                <div class="photo-image-wrap">
-
-                  <img
-                    src="${escapeHtml(previewUrl)}"
-                    alt="${escapeHtml(file.name)}">
-
-                  <span class="photo-badge new">
-                    New
-                  </span>
-
-                  <button
-                    type="button"
-                    class="photo-remove-btn"
-                    data-remove-new="${index}"
-                    title="Remove this image">
-
-                    ×
-
-                  </button>
-
-                </div>
-
-                <div class="photo-name"
-                     title="${escapeHtml(file.name)}">
-
-                  ${escapeHtml(file.name)}
-
-                </div>
-
-              </div>
-            `;
-
-          })
-          .join("")
-
-      : "";
-
-
-  if (!existingHtml && !newHtml) {
-
-    container.innerHTML = `
-      <div class="photo-empty">
-        <span class="photo-empty-icon">▧</span>
-        <strong>No vehicle photos</strong>
-        <small>
-          Add photos using the button above.
-        </small>
-      </div>
-    `;
+    showLoginScreen();
 
     return;
   }
 
+  showDashboard();
 
-  container.innerHTML =
-    existingHtml +
-    newHtml;
+  updateLoggedInEmail(user.email);
 
+  await loadVehicles();
 
-  /*
-    Existing image removal
-  */
+  updateDashboardCounts();
 
-  qsa("[data-remove-existing]")
-    .forEach(button => {
-
-      button.onclick = () => {
-
-        const index =
-          Number(
-            button.dataset.removeExisting
-          );
-
-        removeExistingImage(index);
-
-      };
-
-    });
+});
 
 
-  /*
-    New image removal
-  */
+// ============================================================
+// LOGIN
+// ============================================================
 
-  qsa("[data-remove-new]")
-    .forEach(button => {
+async function loginUser(email, password) {
 
-      button.onclick = () => {
+  try {
 
-        const index =
-          Number(
-            button.dataset.removeNew
-          );
+    const cleanEmail = email.trim().toLowerCase();
 
-        removeNewImage(index);
+    if (!cleanEmail || !password) {
 
-      };
+      alert("Please enter your email and password.");
 
-    });
+      return;
+
+    }
+
+    if (
+      !ADMIN_EMAILS
+        .map(item => item.toLowerCase())
+        .includes(cleanEmail)
+    ) {
+
+      alert(
+        "This email is not authorized for the HVE dashboard."
+      );
+
+      return;
+
+    }
+
+    await signInWithEmailAndPassword(
+      auth,
+      cleanEmail,
+      password
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    let message = "Login failed.";
+
+    if (error.code === "auth/invalid-credential") {
+      message = "Incorrect email or password.";
+    }
+
+    if (error.code === "auth/user-not-found") {
+      message = "This Firebase account does not exist.";
+    }
+
+    if (error.code === "auth/wrong-password") {
+      message = "Incorrect password.";
+    }
+
+    if (error.code === "auth/too-many-requests") {
+      message = "Too many attempts. Please try again later.";
+    }
+
+    alert(message);
+
+  }
+
 }
 
 
-/* =========================================================
-   REMOVE EXISTING IMAGE
-========================================================= */
+// ============================================================
+// LOGOUT
+// ============================================================
 
-function removeExistingImage(index) {
+async function logoutUser() {
+
+  try {
+
+    await signOut(auth);
+
+  } catch (error) {
+
+    console.error("Logout error:", error);
+
+  }
+
+}
+
+
+// ============================================================
+// LOGIN SCREEN
+// ============================================================
+
+function showLoginScreen() {
+
+  const loginScreen =
+    document.querySelector("#loginScreen") ||
+    document.querySelector(".login-screen") ||
+    document.querySelector("[data-login]");
+
+  const dashboard =
+    document.querySelector("#dashboard") ||
+    document.querySelector(".dashboard") ||
+    document.querySelector("[data-dashboard]");
+
+  if (loginScreen) {
+    loginScreen.style.display = "";
+  }
+
+  if (dashboard) {
+    dashboard.style.display = "none";
+  }
+
+}
+
+
+// ============================================================
+// DASHBOARD SCREEN
+// ============================================================
+
+function showDashboard() {
+
+  const loginScreen =
+    document.querySelector("#loginScreen") ||
+    document.querySelector(".login-screen") ||
+    document.querySelector("[data-login]");
+
+  const dashboard =
+    document.querySelector("#dashboard") ||
+    document.querySelector(".dashboard") ||
+    document.querySelector("[data-dashboard]");
+
+  if (loginScreen) {
+    loginScreen.style.display = "none";
+  }
+
+  if (dashboard) {
+    dashboard.style.display = "";
+  }
+
+}
+
+
+// ============================================================
+// LOGGED-IN EMAIL
+// ============================================================
+
+function updateLoggedInEmail(email) {
+
+  const elements = [
+    "#adminEmail",
+    "#userEmail",
+    "#loggedInEmail",
+    ".admin-email"
+  ];
+
+  elements.forEach(selector => {
+
+    const element = document.querySelector(selector);
+
+    if (element) {
+      element.textContent = email;
+    }
+
+  });
+
+}
+
+
+// ============================================================
+// LOAD VEHICLES
+// ============================================================
+
+async function loadVehicles() {
+
+  try {
+
+    const q = query(
+      vehiclesCollection,
+      orderBy("createdAt", "desc"),
+      limit(500)
+    );
+
+    const snapshot = await getDocs(q);
+
+    vehicles = [];
+
+    snapshot.forEach(item => {
+
+      vehicles.push({
+        id: item.id,
+        ...item.data()
+      });
+
+    });
+
+    renderVehicles();
+
+    updateDashboardCounts();
+
+  } catch (error) {
+
+    console.error("Could not load vehicles:", error);
+
+    /*
+      If some old vehicles don't contain createdAt,
+      load them without orderBy.
+    */
+
+    try {
+
+      const snapshot = await getDocs(
+        vehiclesCollection
+      );
+
+      vehicles = [];
+
+      snapshot.forEach(item => {
+
+        vehicles.push({
+          id: item.id,
+          ...item.data()
+        });
+
+      });
+
+      vehicles.sort((a, b) => {
+
+        const aTime =
+          a.createdAt?.seconds || 0;
+
+        const bTime =
+          b.createdAt?.seconds || 0;
+
+        return bTime - aTime;
+
+      });
+
+      renderVehicles();
+
+      updateDashboardCounts();
+
+    } catch (secondError) {
+
+      console.error(
+        "Vehicle loading failed:",
+        secondError
+      );
+
+      alert(
+        "Could not load vehicles from Firebase."
+      );
+
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// GET VEHICLE REFERENCE
+// ============================================================
+
+function getNextReference() {
+
+  let highest = 0;
+
+  vehicles.forEach(vehicle => {
+
+    const ref =
+      vehicle.ref ||
+      vehicle.referenceNumber ||
+      vehicle.reference ||
+      "";
+
+    const match =
+      String(ref).match(/HVE-(\d+)/i);
+
+    if (match) {
+
+      const number =
+        parseInt(match[1], 10);
+
+      if (number > highest) {
+        highest = number;
+      }
+
+    }
+
+  });
+
+  return `HVE-${String(highest + 1).padStart(4, "0")}`;
+
+}
+
+
+// ============================================================
+// IMAGE HELPERS
+// ============================================================
+
+function getVehicleImages(vehicle) {
+
+  if (Array.isArray(vehicle.images)) {
+    return vehicle.images.filter(Boolean);
+  }
+
+  if (Array.isArray(vehicle.imageUrls)) {
+    return vehicle.imageUrls.filter(Boolean);
+  }
+
+  if (Array.isArray(vehicle.photos)) {
+    return vehicle.photos.filter(Boolean);
+  }
+
+  if (typeof vehicle.image === "string" && vehicle.image) {
+    return [vehicle.image];
+  }
+
+  return [];
+
+}
+
+
+// ============================================================
+// CLOUDINARY IMAGE UPLOAD
+// ============================================================
+
+async function uploadImage(file) {
+
+  if (!file) {
+    return null;
+  }
+
+  if (!file.type.startsWith("image/")) {
+
+    alert(
+      `${file.name} is not an image file.`
+    );
+
+    return null;
+
+  }
+
+  const formData = new FormData();
+
+  formData.append(
+    "file",
+    file
+  );
+
+  formData.append(
+    "upload_preset",
+    CLOUDINARY_UPLOAD_PRESET
+  );
+
+  try {
+
+    const response = await fetch(
+      CLOUDINARY_UPLOAD_URL,
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      console.error(data);
+
+      throw new Error(
+        data.error?.message ||
+        "Cloudinary upload failed."
+      );
+
+    }
+
+    return data.secure_url;
+
+  } catch (error) {
+
+    console.error(
+      "Cloudinary upload error:",
+      error
+    );
+
+    alert(
+      `Image upload failed: ${error.message}`
+    );
+
+    return null;
+
+  }
+
+}
+
+
+// ============================================================
+// UPLOAD MULTIPLE IMAGES
+// ============================================================
+
+async function uploadImages(files) {
+
+  const uploaded = [];
+
+  for (const file of files) {
+
+    const url =
+      await uploadImage(file);
+
+    if (url) {
+      uploaded.push(url);
+    }
+
+  }
+
+  return uploaded;
+
+}
+
+
+// ============================================================
+// REMOVE IMAGE FROM CURRENT VEHICLE
+// ============================================================
+
+function removeImage(index) {
 
   if (
     index < 0 ||
@@ -981,453 +552,776 @@ function removeExistingImage(index) {
     return;
   }
 
-  const removed =
-    currentImages[index];
-
-  const confirmed =
-    confirm(
-      "Remove this vehicle image?\n\n" +
-      "The image will be removed from this vehicle when you save the changes."
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
   currentImages.splice(index, 1);
 
-  renderPhotoPreview();
+  renderCurrentImages();
 
-  toast("Image marked for removal.");
 }
 
 
-/* =========================================================
-   REMOVE NEW IMAGE
-========================================================= */
+// ============================================================
+// IMAGE PREVIEW
+// ============================================================
 
-function removeNewImage(index) {
+function renderCurrentImages() {
 
-  if (
-    index < 0 ||
-    index >= selectedFiles.length
-  ) {
+  const containers = [
+    "#imagePreview",
+    "#imagePreviews",
+    "#vehicleImagePreview",
+    ".image-preview"
+  ];
+
+  let container = null;
+
+  for (const selector of containers) {
+
+    const found =
+      document.querySelector(selector);
+
+    if (found) {
+      container = found;
+      break;
+    }
+
+  }
+
+  if (!container) {
     return;
   }
 
-  const file =
-    selectedFiles[index];
+  container.innerHTML = "";
 
-  if (file.__previewUrl) {
-    URL.revokeObjectURL(
-      file.__previewUrl
-    );
-  }
+  currentImages.forEach(
+    (image, index) => {
 
-  selectedFiles.splice(index, 1);
+      const wrapper =
+        document.createElement("div");
 
-  renderPhotoPreview();
+      wrapper.className =
+        "admin-image-preview-item";
 
-  /*
-    Reset the file input so the same file
-    can be selected again if necessary.
-  */
+      wrapper.innerHTML = `
+        <img
+          src="${escapeAttribute(image)}"
+          alt="Vehicle image ${index + 1}"
+        >
 
-  const input =
-    $("photos");
+        <button
+          type="button"
+          class="remove-image-btn"
+          data-remove-image="${index}"
+          title="Remove image"
+        >
+          ×
+        </button>
+      `;
 
-  if (input) {
-    input.value = "";
-  }
+      container.appendChild(wrapper);
 
-  toast("Selected image removed.");
+    }
+  );
+
 }
 
 
-/* =========================================================
-   PHOTO FILE INPUT
-========================================================= */
+// ============================================================
+// ESCAPE HTML
+// ============================================================
 
-$("photos").addEventListener(
-  "change",
-  event => {
+function escapeHTML(value) {
 
-    const files =
-      [...event.target.files];
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
-    if (!files.length) {
+}
+
+
+function escapeAttribute(value) {
+
+  return escapeHTML(value);
+
+}
+
+
+// ============================================================
+// GET FORM VALUE
+// ============================================================
+
+function getValue(selectors) {
+
+  for (const selector of selectors) {
+
+    const element =
+      document.querySelector(selector);
+
+    if (element) {
+      return element.value.trim();
+    }
+
+  }
+
+  return "";
+
+}
+
+
+// ============================================================
+// SET FORM VALUE
+// ============================================================
+
+function setValue(selectors, value) {
+
+  for (const selector of selectors) {
+
+    const element =
+      document.querySelector(selector);
+
+    if (element) {
+
+      element.value =
+        value ?? "";
+
       return;
+
     }
 
-    /*
-      Validate files before adding.
-    */
-
-    const validFiles = [];
-
-    for (const file of files) {
-
-      if (!file.type.startsWith("image/")) {
-
-        toast(
-          `${file.name} is not an image.`,
-          true
-        );
-
-        continue;
-      }
-
-      if (file.size > 10 * 1024 * 1024) {
-
-        toast(
-          `${file.name} is larger than 10 MB.`,
-          true
-        );
-
-        continue;
-      }
-
-      validFiles.push(file);
-    }
-
-
-    /*
-      Add instead of replacing existing
-      selected files.
-    */
-
-    selectedFiles.push(
-      ...validFiles
-    );
-
-    renderPhotoPreview();
-
-    /*
-      Clear input so selecting the same
-      file again works.
-    */
-
-    event.target.value = "";
-  }
-);
-
-
-/* =========================================================
-   CLOUDINARY UPLOAD
-========================================================= */
-
-async function uploadPhotos(
-  ref,
-  files
-) {
-
-  const urls = [];
-
-  for (const file of files) {
-
-    if (!file.type.startsWith("image/")) {
-
-      throw new Error(
-        `${file.name} is not an image file.`
-      );
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-
-      throw new Error(
-        `${file.name} is larger than 10 MB.`
-      );
-    }
-
-
-    const form =
-      new FormData();
-
-    form.append(
-      "file",
-      file
-    );
-
-    form.append(
-      "upload_preset",
-      CLOUDINARY_UPLOAD_PRESET
-    );
-
-    form.append(
-      "folder",
-      `hve/vehicles/${ref}`
-    );
-
-
-    const response =
-      await fetch(
-        CLOUDINARY_UPLOAD_URL,
-        {
-          method: "POST",
-          body: form
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    if (
-      !response.ok ||
-      !result.secure_url
-    ) {
-
-      throw new Error(
-        result.error?.message ||
-        `Cloudinary upload failed for ${file.name}.`
-      );
-    }
-
-
-    urls.push(
-      result.secure_url
-    );
   }
 
-  return urls;
 }
 
 
-/* =========================================================
-   SAVE VEHICLE
-========================================================= */
+// ============================================================
+// VEHICLE DATA FROM FORM
+// ============================================================
 
-async function saveVehicle(event) {
+function getVehicleFromForm() {
 
-  event.preventDefault();
+  const make =
+    getValue([
+      "#make",
+      "#brand",
+      "#vehicleMake",
+      "[name='make']",
+      "[name='brand']"
+    ]);
 
-  const btn =
-    event.submitter ||
-    $("vehicleForm").querySelector(
-      'button[type="submit"]'
-    );
+  const model =
+    getValue([
+      "#model",
+      "#vehicleModel",
+      "[name='model']"
+    ]);
 
-  if (btn) {
-    btn.disabled = true;
+  const year =
+    getValue([
+      "#year",
+      "#vehicleYear",
+      "[name='year']"
+    ]);
+
+  const mileage =
+    getValue([
+      "#mileage",
+      "#vehicleMileage",
+      "[name='mileage']"
+    ]);
+
+  const engine =
+    getValue([
+      "#engine",
+      "#engineSize",
+      "[name='engine']"
+    ]);
+
+  const fuel =
+    getValue([
+      "#fuel",
+      "[name='fuel']"
+    ]);
+
+  const transmission =
+    getValue([
+      "#transmission",
+      "[name='transmission']"
+    ]);
+
+  const drive =
+    getValue([
+      "#drive",
+      "[name='drive']"
+    ]);
+
+  const region =
+    getValue([
+      "#region",
+      "#market",
+      "[name='region']",
+      "[name='market']"
+    ]);
+
+  const country =
+    getValue([
+      "#country",
+      "#destinationCountry",
+      "[name='country']",
+      "[name='destinationCountry']"
+    ]);
+
+  const status =
+    getValue([
+      "#status",
+      "[name='status']"
+    ]) || "Available";
+
+  const description =
+    getValue([
+      "#description",
+      "#vehicleDescription",
+      "[name='description']"
+    ]);
+
+  const features =
+    getValue([
+      "#features",
+      "#keyFeatures",
+      "[name='features']",
+      "[name='keyFeatures']"
+    ]);
+
+  const chassis =
+    getValue([
+      "#chassis",
+      "#chassisNo",
+      "[name='chassis']",
+      "[name='chassisNo']"
+    ]);
+
+  const modelCode =
+    getValue([
+      "#modelCode",
+      "[name='modelCode']"
+    ]);
+
+  const version =
+    getValue([
+      "#version",
+      "#versionClass",
+      "[name='version']",
+      "[name='versionClass']"
+    ]);
+
+  const steering =
+    getValue([
+      "#steering",
+      "[name='steering']"
+    ]);
+
+  const exteriorColor =
+    getValue([
+      "#exteriorColor",
+      "#extColor",
+      "[name='exteriorColor']",
+      "[name='extColor']"
+    ]);
+
+  const seats =
+    getValue([
+      "#seats",
+      "[name='seats']"
+    ]);
+
+  const doors =
+    getValue([
+      "#doors",
+      "[name='doors']"
+    ]);
+
+  const location =
+    getValue([
+      "#location",
+      "[name='location']"
+    ]);
+
+  const registration =
+    getValue([
+      "#registration",
+      "#registrationYear",
+      "[name='registration']"
+    ]);
+
+  const manufacture =
+    getValue([
+      "#manufacture",
+      "#manufactureYear",
+      "[name='manufacture']"
+    ]);
+
+  const dimension =
+    getValue([
+      "#dimension",
+      "[name='dimension']"
+    ]);
+
+  const weight =
+    getValue([
+      "#weight",
+      "[name='weight']"
+    ]);
+
+  const maxCapacity =
+    getValue([
+      "#maxCapacity",
+      "#maxCap",
+      "[name='maxCapacity']"
+    ]);
+
+  const m3 =
+    getValue([
+      "#m3",
+      "[name='m3']"
+    ]);
+
+  const subRefNo =
+    getValue([
+      "#subRefNo",
+      "#subReference",
+      "[name='subRefNo']"
+    ]);
+
+  return {
+
+    make,
+    brand: make,
+
+    model,
+
+    year,
+
+    mileage,
+
+    engine,
+
+    fuel,
+
+    transmission,
+
+    drive,
+
+    region,
+
+    market: region,
+
+    country,
+
+    destinationCountry: country,
+
+    status,
+
+    description,
+
+    features,
+
+    keyFeatures: features,
+
+    chassis,
+
+    chassisNo: chassis,
+
+    modelCode,
+
+    version,
+
+    versionClass: version,
+
+    steering,
+
+    exteriorColor,
+
+    extColor: exteriorColor,
+
+    seats,
+
+    doors,
+
+    location,
+
+    registration,
+
+    manufacture,
+
+    dimension,
+
+    weight,
+
+    maxCapacity,
+
+    m3,
+
+    subRefNo
+
+  };
+
+}
+
+
+// ============================================================
+// SAVE VEHICLE
+// ============================================================
+
+async function saveVehicle() {
+
+  if (!currentUser) {
+
+    alert("Please login first.");
+
+    return;
+
   }
 
-  $("formMessage").textContent =
-    "Saving...";
+  if (!isAuthorizedAdmin(currentUser)) {
 
+    alert(
+      "Your account is not authorized."
+    );
+
+    return;
+
+  }
+
+  const vehicle =
+    getVehicleFromForm();
+
+  if (!vehicle.make) {
+
+    alert("Please enter vehicle make.");
+
+    return;
+
+  }
+
+  if (!vehicle.model) {
+
+    alert("Please enter vehicle model.");
+
+    return;
+
+  }
+
+  // ----------------------------------------------------------
+  // OPTIONAL DESTINATION
+  // ----------------------------------------------------------
+  //
+  // Destination country is NOT required when publishing.
+  // It can be added later when a customer buys/inquires.
+  //
+  // ----------------------------------------------------------
 
   try {
 
-    const editId =
-      $("editId").value;
+    let reference;
 
-    const ref =
-      $("ref").value ||
-      await nextReference();
+    if (editingVehicleId) {
 
-
-    /*
-      Upload only newly selected files.
-    */
-
-    let newImages = [];
-
-    if (selectedFiles.length) {
-
-      $("formMessage").textContent =
-        "Uploading photos...";
-
-      newImages =
-        await uploadPhotos(
-          ref,
-          selectedFiles
+      const existing =
+        vehicles.find(
+          item =>
+            item.id === editingVehicleId
         );
+
+      reference =
+        existing?.ref ||
+        existing?.referenceNumber ||
+        existing?.reference ||
+        getNextReference();
+
+    } else {
+
+      reference =
+        getNextReference();
+
     }
 
+    vehicle.ref =
+      reference;
 
-    /*
-      Existing images are represented
-      by currentImages.
+    vehicle.referenceNumber =
+      reference;
 
-      Any image removed from the preview
-      is therefore excluded here.
-    */
+    vehicle.images =
+      [...currentImages];
 
-    const finalImages = [
-      ...currentImages,
-      ...newImages
-    ];
+    vehicle.updatedAt =
+      serverTimestamp();
 
+    if (!editingVehicleId) {
 
-    const data = {
+      vehicle.createdAt =
+        serverTimestamp();
 
-      ref,
+      await addDoc(
+        vehiclesCollection,
+        vehicle
+      );
 
-      status:
-        $("status").value,
+      alert(
+        `${reference} added successfully.`
+      );
 
-      make:
-        $("make").value.trim(),
-
-      model:
-        $("model").value.trim(),
-
-      year:
-        Number($("year").value),
-
-      mileage:
-        $("mileage").value.trim(),
-
-      engine:
-        $("engine").value.trim(),
-
-      fuel:
-        $("fuel").value,
-
-      transmission:
-        $("transmission").value,
-
-      drive:
-        $("drive").value.trim(),
-
-      region:
-        $("region").value || "",
-
-      country:
-        $("country").value || "",
-
-      beforwardRef:
-        $("beforwardRef").value.trim(),
-
-      description:
-        $("description").value.trim(),
-
-      features:
-        $("features")
-          .value
-          .split(",")
-          .map(x => x.trim())
-          .filter(Boolean),
-
-      images:
-        finalImages,
-
-      tracking: {
-
-        status:
-          $("trackingStatus").value,
-
-        location:
-          $("trackingLocation")
-            .value
-            .trim(),
-
-        updatedAt:
-          serverTimestamp()
-      },
-
-      updatedAt:
-        serverTimestamp()
-    };
-
-
-    if (editId) {
-
-      /*
-        UPDATE EXISTING VEHICLE
-      */
+    } else {
 
       await updateDoc(
         doc(
           db,
           "vehicles",
-          editId
+          editingVehicleId
         ),
-        data
+        vehicle
       );
 
-      toast(
-        `${ref} updated.`
+      alert(
+        `${reference} updated successfully.`
       );
 
-    } else {
-
-      /*
-        CREATE NEW VEHICLE
-      */
-
-      data.createdAt =
-        serverTimestamp();
-
-      await addDoc(
-        collection(
-          db,
-          "vehicles"
-        ),
-        data
-      );
-
-      toast(
-        `${ref} added.`
-      );
     }
 
-
-    /*
-      Clear the form and reload data.
-    */
-
-    resetForm();
+    resetVehicleForm();
 
     await loadVehicles();
 
-    showView("vehicles");
+    updateDashboardCounts();
 
+  } catch (error) {
 
-  } catch (err) {
-
-    console.error(err);
-
-    $("formMessage").textContent =
-      err.message;
-
-    toast(
-      "Could not save vehicle.",
-      true
+    console.error(
+      "Save vehicle error:",
+      error
     );
 
-  } finally {
+    alert(
+      `Could not save vehicle: ${error.message}`
+    );
 
-    if (btn) {
-      btn.disabled = false;
-    }
   }
+
 }
 
 
-/* =========================================================
-   DELETE VEHICLE
-========================================================= */
+// ============================================================
+// EDIT VEHICLE
+// ============================================================
 
-async function removeVehicle(id) {
+function editVehicle(id) {
 
-  const v =
+  const vehicle =
     vehicles.find(
-      x => x.id === id
+      item => item.id === id
     );
 
-  if (!v) return;
+  if (!vehicle) {
+    return;
+  }
 
+  editingVehicleId =
+    vehicle.id;
+
+  currentImages =
+    getVehicleImages(vehicle);
+
+  setValue(
+    ["#make", "#brand", "#vehicleMake", "[name='make']", "[name='brand']"],
+    vehicle.make || vehicle.brand || ""
+  );
+
+  setValue(
+    ["#model", "#vehicleModel", "[name='model']"],
+    vehicle.model || ""
+  );
+
+  setValue(
+    ["#year", "#vehicleYear", "[name='year']"],
+    vehicle.year || ""
+  );
+
+  setValue(
+    ["#mileage", "#vehicleMileage", "[name='mileage']"],
+    vehicle.mileage || ""
+  );
+
+  setValue(
+    ["#engine", "#engineSize", "[name='engine']"],
+    vehicle.engine || ""
+  );
+
+  setValue(
+    ["#fuel", "[name='fuel']"],
+    vehicle.fuel || ""
+  );
+
+  setValue(
+    ["#transmission", "[name='transmission']"],
+    vehicle.transmission || ""
+  );
+
+  setValue(
+    ["#drive", "[name='drive']"],
+    vehicle.drive || ""
+  );
+
+  setValue(
+    ["#region", "#market", "[name='region']", "[name='market']"],
+    vehicle.region || vehicle.market || ""
+  );
+
+  setValue(
+    ["#country", "#destinationCountry", "[name='country']", "[name='destinationCountry']"],
+    vehicle.country ||
+    vehicle.destinationCountry ||
+    ""
+  );
+
+  setValue(
+    ["#status", "[name='status']"],
+    vehicle.status || "Available"
+  );
+
+  setValue(
+    ["#description", "#vehicleDescription", "[name='description']"],
+    vehicle.description || ""
+  );
+
+  setValue(
+    ["#features", "#keyFeatures", "[name='features']", "[name='keyFeatures']"],
+    Array.isArray(vehicle.features)
+      ? vehicle.features.join("\n")
+      : vehicle.features ||
+        vehicle.keyFeatures ||
+        ""
+  );
+
+  setValue(
+    ["#chassis", "#chassisNo", "[name='chassis']", "[name='chassisNo']"],
+    vehicle.chassis ||
+    vehicle.chassisNo ||
+    ""
+  );
+
+  setValue(
+    ["#modelCode", "[name='modelCode']"],
+    vehicle.modelCode || ""
+  );
+
+  setValue(
+    ["#version", "#versionClass", "[name='version']", "[name='versionClass']"],
+    vehicle.version ||
+    vehicle.versionClass ||
+    ""
+  );
+
+  setValue(
+    ["#steering", "[name='steering']"],
+    vehicle.steering || ""
+  );
+
+  setValue(
+    ["#exteriorColor", "#extColor", "[name='exteriorColor']", "[name='extColor']"],
+    vehicle.exteriorColor ||
+    vehicle.extColor ||
+    ""
+  );
+
+  setValue(
+    ["#seats", "[name='seats']"],
+    vehicle.seats || ""
+  );
+
+  setValue(
+    ["#doors", "[name='doors']"],
+    vehicle.doors || ""
+  );
+
+  setValue(
+    ["#location", "[name='location']"],
+    vehicle.location || ""
+  );
+
+  setValue(
+    ["#registration", "#registrationYear", "[name='registration']"],
+    vehicle.registration || ""
+  );
+
+  setValue(
+    ["#manufacture", "#manufactureYear", "[name='manufacture']"],
+    vehicle.manufacture || ""
+  );
+
+  setValue(
+    ["#dimension", "[name='dimension']"],
+    vehicle.dimension || ""
+  );
+
+  setValue(
+    ["#weight", "[name='weight']"],
+    vehicle.weight || ""
+  );
+
+  setValue(
+    ["#maxCapacity", "#maxCap", "[name='maxCapacity']"],
+    vehicle.maxCapacity || ""
+  );
+
+  setValue(
+    ["#m3", "[name='m3']"],
+    vehicle.m3 || ""
+  );
+
+  setValue(
+    ["#subRefNo", "#subReference", "[name='subRefNo']"],
+    vehicle.subRefNo || ""
+  );
+
+  renderCurrentImages();
+
+  updateFormTitle();
+
+  scrollToVehicleForm();
+
+}
+
+
+// ============================================================
+// DELETE VEHICLE
+// ============================================================
+
+async function deleteVehicle(id) {
+
+  const vehicle =
+    vehicles.find(
+      item => item.id === id
+    );
+
+  if (!vehicle) {
+    return;
+  }
+
+  const ref =
+    vehicle.ref ||
+    vehicle.referenceNumber ||
+    vehicle.reference ||
+    id;
 
   const confirmed =
     confirm(
-      `Delete ${v.ref} — ${v.make} ${v.model}?`
+      `Delete ${ref} permanently?\n\nThis removes the vehicle from Firestore.`
     );
 
   if (!confirmed) {
     return;
   }
-
 
   try {
 
@@ -1439,367 +1333,964 @@ async function removeVehicle(id) {
       )
     );
 
-    toast(
-      `${v.ref} deleted.`
+    alert(
+      `${ref} deleted successfully.`
     );
+
+    if (
+      editingVehicleId === id
+    ) {
+      resetVehicleForm();
+    }
 
     await loadVehicles();
 
-  } catch (err) {
+    updateDashboardCounts();
 
-    console.error(err);
+  } catch (error) {
 
-    toast(
-      "Could not delete vehicle.",
-      true
+    console.error(
+      "Delete vehicle error:",
+      error
     );
+
+    alert(
+      `Could not delete vehicle: ${error.message}`
+    );
+
   }
+
 }
 
 
-/* =========================================================
-   IMPORT JSON
-========================================================= */
+// ============================================================
+// RENDER VEHICLES
+// ============================================================
 
-async function importJson() {
+function renderVehicles(list = vehicles) {
 
-  const file =
-    $("jsonFile").files[0];
+  const containers = [
+    "#vehicleList",
+    "#vehiclesList",
+    "#inventoryList",
+    "#recentVehicles",
+    ".vehicle-list"
+  ];
 
-  if (!file) {
+  let container = null;
 
-    toast(
-      "Choose a JSON file first.",
-      true
-    );
+  for (const selector of containers) {
 
+    const element =
+      document.querySelector(selector);
+
+    if (element) {
+
+      container = element;
+
+      break;
+
+    }
+
+  }
+
+  if (!container) {
     return;
   }
 
+  if (!list.length) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+        No vehicles found.
+      </div>
+    `;
+
+    return;
+
+  }
+
+  container.innerHTML =
+    list.map(vehicle => {
+
+      const ref =
+        vehicle.ref ||
+        vehicle.referenceNumber ||
+        vehicle.reference ||
+        "—";
+
+      const make =
+        vehicle.make ||
+        vehicle.brand ||
+        "";
+
+      const model =
+        vehicle.model ||
+        "";
+
+      const title =
+        `${make} ${model}`.trim() ||
+        "Vehicle";
+
+      const year =
+        vehicle.year ||
+        "—";
+
+      const country =
+        vehicle.country ||
+        vehicle.destinationCountry ||
+        "Not assigned";
+
+      const status =
+        vehicle.status ||
+        "Available";
+
+      const images =
+        getVehicleImages(vehicle);
+
+      const image =
+        images[0] ||
+        "";
+
+      return `
+
+        <div
+          class="admin-vehicle-row"
+          data-vehicle-id="${escapeAttribute(vehicle.id)}"
+        >
+
+          <div class="admin-vehicle-image">
+
+            ${
+              image
+              ?
+              `<img
+                src="${escapeAttribute(image)}"
+                alt="${escapeAttribute(title)}"
+              >`
+              :
+              `<div class="no-vehicle-image">
+                HVE
+              </div>`
+            }
+
+          </div>
+
+          <div class="admin-vehicle-info">
+
+            <strong>
+              ${escapeHTML(title)}
+            </strong>
+
+            <span>
+              ${escapeHTML(ref)}
+            </span>
+
+          </div>
+
+          <div>
+            ${escapeHTML(year)}
+          </div>
+
+          <div>
+            ${escapeHTML(country)}
+          </div>
+
+          <div>
+
+            <span class="status-badge">
+              ${escapeHTML(status)}
+            </span>
+
+          </div>
+
+          <div class="admin-vehicle-actions">
+
+            <button
+              type="button"
+              data-edit-vehicle="${escapeAttribute(vehicle.id)}"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              data-delete-vehicle="${escapeAttribute(vehicle.id)}"
+            >
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// ============================================================
+// SEARCH VEHICLES
+// ============================================================
+
+function searchVehicles(value) {
+
+  const search =
+    String(value || "")
+      .trim()
+      .toLowerCase();
+
+  if (!search) {
+
+    renderVehicles();
+
+    return;
+
+  }
+
+  const filtered =
+    vehicles.filter(vehicle => {
+
+      const text = [
+
+        vehicle.ref,
+
+        vehicle.referenceNumber,
+
+        vehicle.reference,
+
+        vehicle.make,
+
+        vehicle.brand,
+
+        vehicle.model,
+
+        vehicle.year,
+
+        vehicle.country,
+
+        vehicle.destinationCountry,
+
+        vehicle.status,
+
+        vehicle.region,
+
+        vehicle.chassis,
+
+        vehicle.chassisNo
+
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+
+    });
+
+  renderVehicles(filtered);
+
+}
+
+
+// ============================================================
+// FILTER VEHICLES
+// ============================================================
+
+function filterVehicles(status) {
+
+  if (!status || status === "All") {
+
+    renderVehicles();
+
+    return;
+
+  }
+
+  const filtered =
+    vehicles.filter(
+      vehicle =>
+        String(
+          vehicle.status || ""
+        ).toLowerCase() ===
+        String(status).toLowerCase()
+    );
+
+  renderVehicles(filtered);
+
+}
+
+
+// ============================================================
+// DASHBOARD COUNTS
+// ============================================================
+
+function updateDashboardCounts() {
+
+  const total =
+    vehicles.length;
+
+  const available =
+    vehicles.filter(
+      v =>
+        String(v.status || "")
+          .toLowerCase() ===
+        "available"
+    ).length;
+
+  const sold =
+    vehicles.filter(
+      v =>
+        String(v.status || "")
+          .toLowerCase() ===
+        "sold"
+    ).length;
+
+  const inTransit =
+    vehicles.filter(
+      v =>
+        String(v.status || "")
+          .toLowerCase()
+          .includes("transit")
+    ).length;
+
+  setCounter(
+    ["#totalVehicles", "#totalCount", "[data-count='total']"],
+    total
+  );
+
+  setCounter(
+    ["#availableVehicles", "#availableCount", "[data-count='available']"],
+    available
+  );
+
+  setCounter(
+    ["#soldVehicles", "#soldCount", "[data-count='sold']"],
+    sold
+  );
+
+  setCounter(
+    ["#inTransitVehicles", "#transitCount", "[data-count='transit']"],
+    inTransit
+  );
+
+}
+
+
+function setCounter(selectors, value) {
+
+  for (const selector of selectors) {
+
+    const element =
+      document.querySelector(selector);
+
+    if (element) {
+
+      element.textContent =
+        value;
+
+      return;
+
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// RESET FORM
+// ============================================================
+
+function resetVehicleForm() {
+
+  editingVehicleId = null;
+
+  currentImages = [];
+
+  const form =
+    document.querySelector("#vehicleForm") ||
+    document.querySelector("#addVehicleForm") ||
+    document.querySelector("form[data-vehicle-form]");
+
+  if (form) {
+    form.reset();
+  }
+
+  setValue(
+    ["#status", "[name='status']"],
+    "Available"
+  );
+
+  renderCurrentImages();
+
+  updateFormTitle();
+
+}
+
+
+// ============================================================
+// FORM TITLE
+// ============================================================
+
+function updateFormTitle() {
+
+  const titleSelectors = [
+    "#vehicleFormTitle",
+    "#formTitle",
+    ".vehicle-form-title"
+  ];
+
+  for (const selector of titleSelectors) {
+
+    const element =
+      document.querySelector(selector);
+
+    if (element) {
+
+      element.textContent =
+        editingVehicleId
+          ? "Edit Vehicle"
+          : "Add Vehicle";
+
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// SCROLL TO FORM
+// ============================================================
+
+function scrollToVehicleForm() {
+
+  const form =
+    document.querySelector("#vehicleForm") ||
+    document.querySelector("#addVehicleForm") ||
+    document.querySelector("form[data-vehicle-form]");
+
+  if (form) {
+
+    form.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  }
+
+}
+
+
+// ============================================================
+// IMPORT JSON
+// ============================================================
+
+async function importVehiclesFromJSON(file) {
+
+  if (!file) {
+    return;
+  }
 
   try {
 
-    const data =
-      JSON.parse(
-        await file.text()
-      );
+    const text =
+      await file.text();
 
+    const data =
+      JSON.parse(text);
 
     const list =
       Array.isArray(data)
         ? data
-        : (
-            Array.isArray(data.vehicles)
-              ? data.vehicles
-              : []
-          );
-
+        : Array.isArray(data.vehicles)
+          ? data.vehicles
+          : [];
 
     if (!list.length) {
 
-      throw new Error(
-        "No vehicle records found in the JSON file."
-      );
-    }
-
-
-    const batch =
-      writeBatch(db);
-
-    let count = 0;
-
-
-    for (const raw of list) {
-
-      const v =
-        normalizeVehicle(raw);
-
-      const ref =
-        v.ref ||
-        await nextReference();
-
-      const docId =
-        v.id ||
-        slugify(ref);
-
-
-      batch.set(
-        doc(
-          db,
-          "vehicles",
-          docId
-        ),
-        {
-          ...v,
-          ref,
-
-          createdAt:
-            serverTimestamp(),
-
-          updatedAt:
-            serverTimestamp()
-        },
-        {
-          merge: true
-        }
+      alert(
+        "No vehicles were found in the JSON file."
       );
 
-      count++;
+      return;
+
     }
 
+    let imported = 0;
 
-    await batch.commit();
+    for (const item of list) {
 
+      const vehicle = {
+        ...item
+      };
 
-    $("importResult").textContent =
-      `Imported/updated ${count} vehicle(s).`;
+      const reference =
+        vehicle.ref ||
+        vehicle.referenceNumber ||
+        vehicle.reference ||
+        getNextReference();
 
-    toast(
-      `Imported ${count} vehicles.`
+      vehicle.ref =
+        reference;
+
+      vehicle.referenceNumber =
+        reference;
+
+      if (!Array.isArray(vehicle.images)) {
+
+        vehicle.images =
+          getVehicleImages(vehicle);
+
+      }
+
+      vehicle.createdAt =
+        serverTimestamp();
+
+      vehicle.updatedAt =
+        serverTimestamp();
+
+      await addDoc(
+        vehiclesCollection,
+        vehicle
+      );
+
+      imported++;
+
+    }
+
+    alert(
+      `${imported} vehicle(s) imported successfully.`
     );
 
     await loadVehicles();
 
+    updateDashboardCounts();
 
-  } catch (err) {
+  } catch (error) {
 
-    console.error(err);
-
-    $("importResult").textContent =
-      err.message;
-
-    toast(
-      "Import failed.",
-      true
+    console.error(
+      "JSON import error:",
+      error
     );
+
+    alert(
+      `JSON import failed: ${error.message}`
+    );
+
   }
+
 }
 
 
-/* =========================================================
-   PAGE VIEWS
-========================================================= */
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
 
-function showView(name) {
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-  qsa(".page-view")
-    .forEach(view =>
-      view.classList.add("hidden")
-    );
+    // --------------------------------------------------------
+    // LOGIN FORM
+    // --------------------------------------------------------
 
+    const loginForm =
+      document.querySelector("#loginForm") ||
+      document.querySelector("form[data-login-form]");
 
-  const target =
-    $(`view-${name}`);
+    if (loginForm) {
 
-  if (target) {
-    target.classList.remove("hidden");
-  }
+      loginForm.addEventListener(
+        "submit",
+        event => {
 
+          event.preventDefault();
 
-  qsa(".nav-item")
-    .forEach(button =>
-      button.classList.toggle(
-        "active",
-        button.dataset.view === name
-      )
-    );
+          const emailInput =
+            loginForm.querySelector(
+              "input[type='email']"
+            ) ||
+            document.querySelector("#email") ||
+            document.querySelector("#loginEmail");
 
+          const passwordInput =
+            loginForm.querySelector(
+              "input[type='password']"
+            ) ||
+            document.querySelector("#password") ||
+            document.querySelector("#loginPassword");
 
-  const titles = {
-
-    overview:
-      "Dashboard",
-
-    vehicles:
-      "Vehicles",
-
-    add:
-      "Add Vehicle",
-
-    tracking:
-      "Tracking",
-
-    import:
-      "Import JSON"
-  };
-
-
-  $("pageTitle").textContent =
-    titles[name] ||
-    "Dashboard";
-}
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-$("loginForm").addEventListener(
-  "submit",
-  async event => {
-
-    event.preventDefault();
-
-    $("loginError").textContent = "";
-
-
-    try {
-
-      await signInWithEmailAndPassword(
-        auth,
-        $("loginEmail").value,
-        $("loginPassword").value
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-      $("loginError").textContent =
-        err.message
-          .replace(
-            "Firebase: Error (auth/",
-            ""
-          )
-          .replace(
-            ").",
-            ""
+          loginUser(
+            emailInput?.value || "",
+            passwordInput?.value || ""
           );
+
+        }
+      );
+
     }
-  }
-);
 
 
-/* =========================================================
-   BUTTON EVENTS
-========================================================= */
+    // --------------------------------------------------------
+    // LOGOUT BUTTONS
+    // --------------------------------------------------------
 
-$("logoutBtn").onclick =
-  () =>
-    signOut(auth);
+    document.addEventListener(
+      "click",
+      event => {
 
+        const logoutButton =
+          event.target.closest(
+            "#logoutBtn, #signOutBtn, [data-logout]"
+          );
 
-$("refreshBtn").onclick =
-  () =>
-    loadVehicles()
-      .then(() =>
-        toast("Refreshed.")
-      );
+        if (logoutButton) {
 
+          event.preventDefault();
 
-$("vehicleSearch")
-  .addEventListener(
-    "input",
-    renderVehicleTable
-  );
+          logoutUser();
 
+        }
 
-$("statusFilter")
-  .addEventListener(
-    "change",
-    renderVehicleTable
-  );
-
-
-$("vehicleForm")
-  .addEventListener(
-    "submit",
-    saveVehicle
-  );
-
-
-$("clearFormBtn").onclick =
-  resetForm;
-
-
-$("cancelEditBtn").onclick =
-  resetForm;
-
-
-$("importBtn").onclick =
-  importJson;
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-qsa(".nav-item")
-  .forEach(button => {
-
-    button.onclick = () =>
-      showView(
-        button.dataset.view
-      );
-
-  });
-
-
-qsa("[data-go]")
-  .forEach(button => {
-
-    button.onclick = () =>
-      showView(
-        button.dataset.go
-      );
-
-  });
-
-
-/* =========================================================
-   AUTH STATE
-========================================================= */
-
-onAuthStateChanged(
-  auth,
-  async user => {
-
-    if (user) {
-
-      /*
-        Only the configured admin email
-        is allowed into the dashboard.
-      */
-
-      if (
-        user.email?.toLowerCase() !==
-        ADMIN_EMAIL.toLowerCase()
-      ) {
-
-        await signOut(auth);
-
-        $("loginError").textContent =
-          "This account is not authorized for the HVE dashboard.";
-
-        return;
       }
+    );
 
 
-      $("loginView")
-        .classList.add("hidden");
+    // --------------------------------------------------------
+    // VEHICLE FORM
+    // --------------------------------------------------------
 
-      $("appView")
-        .classList.remove("hidden");
+    const vehicleForm =
+      document.querySelector("#vehicleForm") ||
+      document.querySelector("#addVehicleForm") ||
+      document.querySelector("form[data-vehicle-form]");
 
-      $("signedInAs").textContent =
-        user.email;
+    if (vehicleForm) {
+
+      vehicleForm.addEventListener(
+        "submit",
+        async event => {
+
+          event.preventDefault();
+
+          const submitButton =
+            vehicleForm.querySelector(
+              "button[type='submit']"
+            );
+
+          if (submitButton) {
+            submitButton.disabled = true;
+          }
+
+          await saveVehicle();
+
+          if (submitButton) {
+            submitButton.disabled = false;
+          }
+
+        }
+      );
+
+    }
 
 
-      await loadCountries();
+    // --------------------------------------------------------
+    // IMAGE FILE INPUT
+    // --------------------------------------------------------
 
-      resetForm();
+    const imageInput =
+      document.querySelector("#images") ||
+      document.querySelector("#vehicleImages") ||
+      document.querySelector("#imageUpload") ||
+      document.querySelector(
+        "input[type='file'][multiple]"
+      );
 
-      await loadVehicles();
+    if (imageInput) {
+
+      imageInput.addEventListener(
+        "change",
+        async event => {
+
+          const files =
+            Array.from(
+              event.target.files || []
+            );
+
+          if (!files.length) {
+            return;
+          }
+
+          const uploadButton =
+            document.querySelector(
+              "#uploadImagesBtn"
+            );
+
+          if (uploadButton) {
+
+            uploadButton.disabled =
+              true;
+
+            uploadButton.textContent =
+              "Uploading...";
+
+          }
+
+          const uploaded =
+            await uploadImages(files);
+
+          currentImages.push(
+            ...uploaded
+          );
+
+          renderCurrentImages();
+
+          event.target.value = "";
+
+          if (uploadButton) {
+
+            uploadButton.disabled =
+              false;
+
+            uploadButton.textContent =
+              "Upload Images";
+
+          }
+
+        }
+      );
+
+    }
 
 
-    } else {
+    // --------------------------------------------------------
+    // BUTTON EVENTS
+    // --------------------------------------------------------
 
-      $("loginView")
-        .classList.remove("hidden");
+    document.addEventListener(
+      "click",
+      event => {
 
-      $("appView")
-        .classList.add("hidden");
+        // Edit vehicle
+        const editButton =
+          event.target.closest(
+            "[data-edit-vehicle]"
+          );
+
+        if (editButton) {
+
+          editVehicle(
+            editButton.dataset.editVehicle
+          );
+
+          return;
+
+        }
+
+
+        // Delete vehicle
+        const deleteButton =
+          event.target.closest(
+            "[data-delete-vehicle]"
+          );
+
+        if (deleteButton) {
+
+          deleteVehicle(
+            deleteButton.dataset.deleteVehicle
+          );
+
+          return;
+
+        }
+
+
+        // Remove image from listing
+        const removeImageButton =
+          event.target.closest(
+            "[data-remove-image]"
+          );
+
+        if (removeImageButton) {
+
+          const index =
+            parseInt(
+              removeImageButton.dataset.removeImage,
+              10
+            );
+
+          removeImage(index);
+
+          return;
+
+        }
+
+
+        // Reset form
+        const resetButton =
+          event.target.closest(
+            "#resetVehicleBtn, #cancelEditBtn, [data-reset-form]"
+          );
+
+        if (resetButton) {
+
+          resetVehicleForm();
+
+          return;
+
+        }
+
+
+        // Add vehicle button
+        const addButton =
+          event.target.closest(
+            "#addVehicleBtn, [data-add-vehicle]"
+          );
+
+        if (addButton) {
+
+          resetVehicleForm();
+
+          scrollToVehicleForm();
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    // --------------------------------------------------------
+    // SEARCH
+    // --------------------------------------------------------
+
+    const searchInput =
+      document.querySelector("#vehicleSearch") ||
+      document.querySelector("#searchVehicles") ||
+      document.querySelector(
+        "input[data-vehicle-search]"
+      );
+
+    if (searchInput) {
+
+      searchInput.addEventListener(
+        "input",
+        event => {
+
+          searchVehicles(
+            event.target.value
+          );
+
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // STATUS FILTER
+    // --------------------------------------------------------
+
+    const statusFilter =
+      document.querySelector("#statusFilter") ||
+      document.querySelector("#vehicleStatusFilter");
+
+    if (statusFilter) {
+
+      statusFilter.addEventListener(
+        "change",
+        event => {
+
+          filterVehicles(
+            event.target.value
+          );
+
+        }
+      );
+
+    }
+
+
+    // --------------------------------------------------------
+    // JSON IMPORT
+    // --------------------------------------------------------
+
+    const jsonInput =
+      document.querySelector("#jsonFile") ||
+      document.querySelector("#importJSON") ||
+      document.querySelector(
+        "input[type='file'][accept*='json']"
+      );
+
+    if (jsonInput) {
+
+      jsonInput.addEventListener(
+        "change",
+        event => {
+
+          const file =
+            event.target.files?.[0];
+
+          if (file) {
+
+            importVehiclesFromJSON(
+              file
+            );
+
+          }
+
+          event.target.value = "";
+
+        }
+      );
+
     }
 
   }
 );
+
+
+// ============================================================
+// GLOBAL FUNCTIONS
+// ============================================================
+//
+// Makes these available to existing HTML onclick handlers.
+// ============================================================
+
+window.loginUser =
+  loginUser;
+
+window.logoutUser =
+  logoutUser;
+
+window.loadVehicles =
+  loadVehicles;
+
+window.editVehicle =
+  editVehicle;
+
+window.deleteVehicle =
+  deleteVehicle;
+
+window.removeImage =
+  removeImage;
+
+window.saveVehicle =
+  saveVehicle;
+
+window.resetVehicleForm =
+  resetVehicleForm;
+
+window.searchVehicles =
+  searchVehicles;
+
+window.filterVehicles =
+  filterVehicles;
+
+window.importVehiclesFromJSON =
+  importVehiclesFromJSON;
