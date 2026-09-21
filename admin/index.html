@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard | Hasnain Vehicle Exporter</title>
+  <meta name="description" content="Private vehicle inventory management dashboard for Hasnain Vehicle Exporter.">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div id="loginView" class="auth-shell">
+    <div class="auth-card">
+      <div class="brand-lockup">
+        <div class="brand-mark">HVE</div>
+        <div>
+          <strong>HASNAIN</strong>
+          <span>VEHICLE EXPORTER</span>
+        </div>
+      </div>
+      <p class="eyebrow">PRIVATE ADMIN AREA</p>
+      <h1>Vehicle Management</h1>
+      <p class="muted">Sign in to manage vehicles, photos, availability and shipping status.</p>
+
+      <form id="loginForm" class="form-grid">
+        <label>Email
+          <input id="loginEmail" type="email" autocomplete="username" required>
+        </label>
+        <label>Password
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn btn-gold full" type="submit">Sign In</button>
+        <p id="loginError" class="form-error"></p>
+      </form>
+
+      <p class="tiny">Firebase Authentication protects this area. Only your authorized admin account should be used.</p>
+    </div>
+  </div>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">HVE</div>
+        <div><strong>HASNAIN</strong><span>VEHICLE EXPORTER</span></div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="overview">▦ <span>Dashboard</span></button>
+        <button class="nav-item" data-view="vehicles">🚗 <span>Vehicles</span></button>
+        <button class="nav-item" data-view="add">＋ <span>Add Vehicle</span></button>
+        <button class="nav-item" data-view="tracking">🚢 <span>Tracking</span></button>
+        <button class="nav-item" data-view="import">⇩ <span>Import JSON</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div id="signedInAs" class="signed-in"></div>
+        <button id="logoutBtn" class="btn btn-outline full">Sign Out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">HASNAIN VEHICLE EXPORTER</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="topbar-actions">
+          <button id="refreshBtn" class="icon-btn" title="Refresh">↻</button>
+          <a href="../vehicles.html" target="_blank" rel="noopener" class="btn btn-outline">View Website</a>
+        </div>
+      </header>
+
+      <section id="view-overview" class="page-view">
+        <div class="stat-grid">
+          <article class="stat-card"><span>Total Vehicles</span><strong id="statTotal">0</strong></article>
+          <article class="stat-card"><span>Available</span><strong id="statAvailable">0</strong></article>
+          <article class="stat-card"><span>Sold</span><strong id="statSold">0</strong></article>
+          <article class="stat-card"><span>In Transit</span><strong id="statTransit">0</strong></article>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">INVENTORY</p><h3>Recent Vehicles</h3></div><button class="btn btn-gold" data-go="add">+ Add Vehicle</button></div>
+          <div id="recentTable" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="view-vehicles" class="page-view hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">INVENTORY</p><h3>Manage Vehicles</h3></div>
+            <button class="btn btn-gold" data-go="add">+ Add Vehicle</button>
+          </div>
+          <div class="toolbar">
+            <input id="vehicleSearch" type="search" placeholder="Search reference, make, model or country...">
+            <select id="statusFilter"><option value="">All Statuses</option><option>Available</option><option>Sold</option><option>In Transit</option><option>Purchased</option><option>Port Arrival</option><option>Delivered</option></select>
+          </div>
+          <div id="vehicleTable" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="view-add" class="page-view hidden">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">INVENTORY</p><h3 id="formTitle">Add Vehicle</h3></div><button id="cancelEditBtn" class="btn btn-outline hidden">Cancel Edit</button></div>
+          <form id="vehicleForm" class="form-grid vehicle-form">
+            <input id="editId" type="hidden">
+            <div class="form-section"><h4>Basic Information</h4>
+              <div class="two-col">
+                <label>Reference Number <input id="ref" type="text" placeholder="Automatic" readonly></label>
+                <label>Status <select id="status" required><option>Available</option><option>Purchased</option><option>In Transit</option><option>Port Arrival</option><option>Delivered</option><option>Sold</option></select></label>
+              </div>
+              <div class="three-col">
+                <label>Make <input id="make" required placeholder="Toyota"></label>
+                <label>Model <input id="model" required placeholder="Land Cruiser Prado"></label>
+                <label>Year <input id="year" type="number" min="1950" max="2100" required></label>
+              </div>
+              <div class="three-col">
+                <label>Mileage <input id="mileage" placeholder="78,000 km"></label>
+                <label>Engine <input id="engine" placeholder="2.7L"></label>
+                <label>Fuel <select id="fuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Electric</option></select></label>
+              </div>
+              <div class="three-col">
+                <label>Transmission <select id="transmission"><option>Automatic</option><option>Manual</option></select></label>
+                <label>Drive <input id="drive" placeholder="4WD"></label>
+                <label>BE FORWARD Reference <input id="beforwardRef" placeholder="Optional"></label>
+              </div>
+            </div>
+
+            <div class="form-section"><h4>Customer Destination & Content</h4>
+              <p class="muted">Destination is optional when publishing a vehicle. Enter the customer's destination later when the vehicle is sold or ordered.</p>
+              <div class="two-col">
+                <label>Region <select id="region"><option value="">Not selected</option><option value="Africa">Africa</option><option value="Caribbean">Caribbean</option></select></label>
+                <label>Country <select id="country"><option value="">Not selected</option></select></label>
+              </div>
+              <label>Description <textarea id="description" rows="4" placeholder="Describe the vehicle condition, specification and export notes..."></textarea></label>
+              <label>Features <textarea id="features" rows="3" placeholder="4WD, Air Conditioning, Power Windows, Alloy Wheels"></textarea><small>Separate features with commas.</small></label>
+            </div>
+
+            <div class="form-section"><h4>Photos</h4>
+              <input id="photos" type="file" accept="image/*" multiple>
+              <small>Upload multiple vehicle photos. Images are stored in Cloudinary and their secure links are saved with the vehicle in Firestore. Maximum 10 MB per image.</small>
+              <div id="photoPreview" class="photo-preview"></div>
+            </div>
+
+            <div class="form-section"><h4>Tracking</h4>
+              <div class="two-col">
+                <label>Current Tracking Status <select id="trackingStatus"><option>Available in Japan</option><option>Vehicle Purchased</option><option>Port Departure</option><option>In Transit</option><option>Port Arrival</option><option>Delivered</option></select></label>
+                <label>Current Location <input id="trackingLocation" placeholder="Japan"></label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-gold" type="submit">Save Vehicle</button>
+              <button id="clearFormBtn" class="btn btn-outline" type="button">Clear</button>
+              <span id="formMessage" class="form-message"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="view-tracking" class="page-view hidden">
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">SHIPMENT CONTROL</p><h3>Vehicle Tracking</h3></div></div>
+          <div id="trackingTable" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="view-import" class="page-view hidden">
+        <div class="panel narrow">
+          <div class="panel-head"><div><p class="eyebrow">MIGRATION</p><h3>Import Existing vehicles.json</h3></div></div>
+          <p class="muted">Choose your existing <code>vehicles.json</code>. Each record will be added to Firestore. Existing documents with the same reference are updated.</p>
+          <input id="jsonFile" type="file" accept=".json,application/json">
+          <button id="importBtn" class="btn btn-gold" type="button">Import Vehicles</button>
+          <pre id="importResult" class="code-output"></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

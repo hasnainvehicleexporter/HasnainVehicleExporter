@@ -1,0 +1,31 @@
+[
+  {
+    "id": "HVE-0001",
+    "make": "Toyota",
+    "model": "Land Cruiser Prado",
+    "year": 2020,
+    "mileage": 78000,
+    "engine": "2.7L",
+    "fuel": "Petrol",
+    "transmission": "Automatic",
+    "drive": "4WD",
+    "region": "Africa",
+    "countries": [
+      "Kenya",
+      "Tanzania"
+    ],
+    "status": "available",
+    "description": "Enter vehicle description here.",
+    "features": [
+      "4WD",
+      "Automatic",
+      "Air Conditioning",
+      "Alloy Wheels"
+    ],
+    "images": [
+      "https://example.com/01.jpg",
+      "https://example.com/02.jpg",
+      "https://example.com/03.jpg"
+    ]
+  }
+]

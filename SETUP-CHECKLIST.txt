@@ -1,0 +1,23 @@
+HASNAIN VEHICLE EXPORTER — SETUP CHECKLIST
+
+DONE
+[ ] Firebase project created: hasnainvehicleexporter9048
+[ ] Firebase Web App registered
+[ ] Authentication Email/Password enabled
+[ ] Admin user created: hasnaianvehicleexporter@gmail.com
+[ ] Firestore database created
+[ ] Cloudinary account created
+[ ] Cloudinary upload preset created: hve_vehicle_images
+
+IN THIS PACKAGE
+[ ] Firebase config is connected
+[ ] Cloudinary config is connected
+[ ] Admin dashboard uploads images to Cloudinary
+[ ] Vehicle records save to Firestore
+
+NEXT
+[ ] Deploy dashboard
+[ ] Apply firestore.rules in Firebase Console
+[ ] Test add/edit/delete vehicle
+[ ] Connect public Browse Vehicles page to Firestore
+[ ] Add public vehicle details + country quote flow

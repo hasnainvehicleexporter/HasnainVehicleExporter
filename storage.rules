@@ -1,0 +1,3 @@
+# Firebase Storage is not used by this version of the dashboard.
+# Vehicle images are stored in Cloudinary using an unsigned upload preset.
+# Keep this file only as a reference; do not enable Firebase Storage just for this project.
