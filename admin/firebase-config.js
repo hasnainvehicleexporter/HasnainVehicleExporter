@@ -12,7 +12,10 @@ export const firebaseConfig = {
   measurementId: "G-78SPE8THNW"
 };
 
-export const ADMIN_EMAIL = "hasnainvehicleexporter@gmail.com";
+export const ADMIN_EMAILS = [
+  "hasnainvehicleexporter@gmail.com",
+  "rh531790@gmail.com"
+];
 
 // Cloudinary unsigned browser upload settings.
 export const CLOUDINARY_CLOUD_NAME = "xa9mgdhb";
