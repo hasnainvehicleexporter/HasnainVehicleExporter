@@ -1,27 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Vehicle Details | Hasnain Vehicle Exporter</title>
+    <title>
+        Vehicle Details | Hasnain Vehicle Exporter
+    </title>
 
     <meta
         name="description"
-        content="View Japanese vehicle specifications, photos and request a country-specific quotation from Hasnain Vehicle Exporter."
+        content="View detailed Japanese vehicle specifications, photos and country-specific quotation options from Hasnain Vehicle Exporter."
     >
 
-    <link rel="stylesheet" href="css/vehicle-details.css">
+    <link
+        rel="stylesheet"
+        href="css/vehicle-details.css"
+    >
+
 </head>
+
 
 <body>
 
-<header class="details-header">
 
-    <div class="details-container header-inner">
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-        <a href="index.html" class="details-brand">
+<header class="site-header">
+
+    <div class="header-inner">
+
+
+        <a
+            href="index.html"
+            class="brand"
+        >
 
             <img
                 src="images/logo.png"
@@ -30,26 +51,62 @@
 
         </a>
 
-        <nav class="details-nav">
+
+        <div class="brand-message">
+
+            <strong>
+                Japanese Vehicles &amp; Auto Parts
+            </strong>
+
+            <div class="brand-route">
+
+                <span>
+                    🇯🇵
+                </span>
+
+                <span>
+                    To Africa
+                </span>
+
+                <span class="route-arrow">
+                    →
+                </span>
+
+                <span>
+                    🌍
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav
+            class="main-nav"
+            id="mainNav"
+        >
 
             <a href="index.html">
                 Home
             </a>
 
-            <a href="vehicles.html">
+            <a href="index.html#about">
+                About Us
+            </a>
+
+            <a
+                href="vehicles.html"
+                class="active"
+            >
                 Browse Vehicles
             </a>
 
-            <a href="index.html#about">
-                About
+            <a href="index.html#services">
+                Services
             </a>
 
-            <a href="index.html#how-it-works">
-                How It Works
-            </a>
-
-            <a href="index.html#faq">
-                FAQ
+            <a href="index.html#why-us">
+                Why Us
             </a>
 
             <a href="index.html#contact">
@@ -58,21 +115,43 @@
 
         </nav>
 
+
         <a
-            class="details-whatsapp-top"
+            class="header-whatsapp"
             href="https://wa.me/923392207418"
             target="_blank"
             rel="noopener"
         >
-            WhatsApp Us
+
+            <span class="header-wa-icon">
+                ☎
+            </span>
+
+            <span>
+
+                <strong>
+                    WhatsApp Us
+                </strong>
+
+                <small>
+                    +92 339 2207418
+                </small>
+
+            </span>
+
         </a>
 
+
         <button
-            class="details-menu"
-            id="detailsMenu"
-            type="button"
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Open navigation"
         >
-            ☰
+
+            <span></span>
+            <span></span>
+            <span></span>
+
         </button>
 
     </div>
@@ -80,559 +159,1059 @@
 </header>
 
 
+
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
 <main>
 
-<!-- =====================================================
-     BREADCRUMB
-     ===================================================== -->
 
-<section class="details-top">
+    <!-- =================================================
+         BREADCRUMB
+         ================================================= -->
 
-    <div class="details-container">
+    <section class="breadcrumb-section">
 
-        <div class="details-breadcrumb">
+        <div class="page-container">
 
-            <a href="index.html">
-                Home
-            </a>
-
-            <span>›</span>
-
-            <a href="vehicles.html">
-                Browse Vehicles
-            </a>
-
-            <span>›</span>
-
-            <span>
-                Vehicle Details
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     VEHICLE DETAILS
-     ===================================================== -->
-
-<section class="vehicle-details-section">
-
-    <div class="details-container">
-
-        <!-- LOADING -->
-
-        <div
-            id="detailsLoading"
-            class="details-loading"
-        >
-
-            <div class="details-spinner"></div>
-
-            <p>
-                Loading vehicle details...
-            </p>
-
-        </div>
-
-
-        <!-- ERROR -->
-
-        <div
-            id="detailsError"
-            class="details-error"
-            style="display:none;"
-        >
-
-            <div class="error-icon">
-                !
-            </div>
-
-            <h2>
-                Vehicle Not Found
-            </h2>
-
-            <p id="errorMessage">
-                This vehicle could not be found.
-            </p>
-
-            <a
-                href="vehicles.html"
-                class="details-gold-button"
-            >
-                Browse Vehicles
-            </a>
-
-        </div>
-
-
-        <!-- ACTUAL VEHICLE -->
-
-        <div
-            id="vehicleDetails"
-            style="display:none;"
-        >
-
-
-            <!-- =========================================
-                 BACK LINK
-                 ========================================= -->
-
-            <a
-                href="vehicles.html"
-                class="back-to-vehicles"
-            >
-                ← Back to Vehicles
-            </a>
-
-
-            <!-- =========================================
-                 MAIN VEHICLE GRID
-                 ========================================= -->
-
-            <div class="vehicle-main-grid">
-
-
-                <!-- =====================================
-                     IMAGE GALLERY
-                     ===================================== -->
-
-                <div class="vehicle-gallery">
-
-
-                    <div class="main-image-wrapper">
-
-                        <img
-                            id="mainVehicleImage"
-                            src=""
-                            alt="Vehicle"
-                        >
-
-                        <div
-                            id="detailStatus"
-                            class="detail-status"
-                        >
-                            AVAILABLE
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="thumbnailGallery"
-                        class="thumbnail-gallery"
-                    >
-                    </div>
-
-                </div>
-
-
-                <!-- =====================================
-                     VEHICLE INFORMATION
-                     ===================================== -->
-
-                <div class="vehicle-information">
-
-
-                    <div class="vehicle-reference">
-
-                        REF:
-                        <strong id="vehicleReference">
-                            HVE-0000
-                        </strong>
-
-                    </div>
-
-
-                    <h1 id="vehicleTitle">
-                        Vehicle
-                    </h1>
-
-
-                    <div
-                        id="vehicleSubtitle"
-                        class="vehicle-subtitle"
-                    >
-                    </div>
-
-
-                    <div class="detail-price-box">
-
-                        <span>
-                            PRICE
-                        </span>
-
-                        <strong>
-                            Request Country-Specific Quote
-                        </strong>
-
-                        <p>
-                            Final pricing depends on destination
-                            country and current shipping costs.
-                        </p>
-
-                    </div>
-
-
-                    <!-- SPECS -->
-
-                    <div class="detail-spec-grid">
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                YEAR
-                            </span>
-
-                            <strong id="specYear">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                MILEAGE
-                            </span>
-
-                            <strong id="specMileage">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                ENGINE
-                            </span>
-
-                            <strong id="specEngine">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                FUEL
-                            </span>
-
-                            <strong id="specFuel">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                TRANSMISSION
-                            </span>
-
-                            <strong id="specTransmission">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="detail-spec-box">
-
-                            <span>
-                                DRIVE
-                            </span>
-
-                            <strong id="specDrive">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- COUNTRY QUOTE -->
-
-                    <div class="quote-box">
-
-                        <div class="quote-heading">
-
-                            <span class="quote-icon">
-                                ✓
-                            </span>
-
-                            <div>
-
-                                <h3>
-                                    Get Country-Specific Quote
-                                </h3>
-
-                                <p>
-                                    Select your destination country
-                                    to request pricing and shipping
-                                    information.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <label for="quoteCountry">
-                            Destination Country
-                        </label>
-
-
-                        <select id="quoteCountry">
-
-                            <option value="">
-                                Select your country
-                            </option>
-
-                        </select>
-
-
-                        <button
-                            id="whatsappQuote"
-                            class="details-gold-button quote-button"
-                            type="button"
-                        >
-                            Get Quote on WhatsApp
-                        </button>
-
-
-                        <p
-                            id="quoteMessage"
-                            class="quote-message"
-                        >
-                            Please select your destination country.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================
-                 DESCRIPTION
-                 ========================================= -->
-
-            <section class="detail-content-section">
-
-                <div class="detail-content-grid">
-
-
-                    <div class="detail-description">
-
-                        <div class="content-label">
-                            VEHICLE INFORMATION
-                        </div>
-
-                        <h2>
-                            Vehicle <span>Details</span>
-                        </h2>
-
-                        <div
-                            id="vehicleDescription"
-                            class="description-text"
-                        >
-                            Vehicle description will appear here.
-                        </div>
-
-                    </div>
-
-
-                    <div class="detail-features">
-
-                        <div class="content-label">
-                            KEY FEATURES
-                        </div>
-
-                        <h2>
-                            Key <span>Features</span>
-                        </h2>
-
-                        <ul id="vehicleFeatures">
-                        </ul>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- =========================================
-                 SHIPPING INFORMATION
-                 ========================================= -->
-
-            <section class="shipping-banner">
-
-                <div class="shipping-overlay"></div>
-
-                <div class="shipping-content">
-
-                    <div class="content-label">
-                        JAPAN → AFRICA / CARIBBEAN
-                    </div>
-
-                    <h2>
-                        Japanese Vehicle
-                        <span>Export Support</span>
-                    </h2>
-
-                    <p>
-                        From vehicle sourcing to shipping and
-                        documentation, get direct assistance
-                        throughout the export process.
-                    </p>
-
-                    <a
-                        href="https://wa.me/923392207418"
-                        target="_blank"
-                        rel="noopener"
-                        class="details-light-button"
-                    >
-                        Contact on WhatsApp
-                    </a>
-
-                </div>
-
-            </section>
-
-
-            <!-- =========================================
-                 SIMILAR VEHICLES
-                 ========================================= -->
-
-            <section class="similar-section">
-
-                <div class="similar-heading">
-
-                    <div>
-
-                        <div class="content-label">
-                            MORE FROM JAPAN
-                        </div>
-
-                        <h2>
-                            Similar <span>Vehicles</span>
-                        </h2>
-
-                    </div>
-
-                    <a href="vehicles.html">
-                        View All Vehicles →
-                    </a>
-
-                </div>
-
-
-                <div
-                    id="similarVehicles"
-                    class="similar-grid"
-                >
-                </div>
-
-            </section>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-</main>
-
-
-<!-- =====================================================
-     FOOTER
-     ===================================================== -->
-
-<footer class="details-footer">
-
-    <div class="details-container">
-
-        <div class="footer-inner">
-
-            <div>
-
-                <img
-                    src="images/logo.png"
-                    alt="Hasnain Vehicle Exporter"
-                    class="footer-logo"
-                >
-
-                <p>
-                    Japanese vehicles and auto parts sourced
-                    from Japan for customers across Africa
-                    and the Caribbean.
-                </p>
-
-            </div>
-
-
-            <div class="footer-links">
+            <div class="breadcrumb">
 
                 <a href="index.html">
-                    Home
+                    ⌂ &nbsp;Home
                 </a>
+
+                <span>
+                    ›
+                </span>
 
                 <a href="vehicles.html">
                     Browse Vehicles
                 </a>
 
-                <a href="index.html#about">
-                    About
-                </a>
+                <span>
+                    ›
+                </span>
 
-                <a href="index.html#contact">
-                    Contact
-                </a>
+                <strong id="breadcrumbVehicle">
+                    Vehicle Details
+                </strong>
 
             </div>
 
         </div>
 
+    </section>
 
-        <div class="footer-bottom">
 
-            <span>
-                © <span id="footerYear"></span>
-                Hasnain Vehicle Exporter.
-                All rights reserved.
-            </span>
 
-            <span>
-                Japanese Vehicles & Auto Parts
-            </span>
+    <!-- =================================================
+         TOP VEHICLE AREA
+         ================================================= -->
+
+    <section class="vehicle-top-section">
+
+        <div class="page-container vehicle-top-grid">
+
+
+            <!-- =========================================
+                 LEFT GALLERY
+                 ========================================= -->
+
+            <div class="vehicle-gallery">
+
+
+                <div class="main-photo">
+
+                    <img
+                        id="mainVehicleImage"
+                        src=""
+                        alt="Vehicle"
+                    >
+
+
+                    <div class="japan-badge">
+
+                        <span>
+                            🇯🇵
+                        </span>
+
+                        JAPAN
+
+                    </div>
+
+
+                    <button
+                        class="gallery-arrow gallery-prev"
+                        id="galleryPrev"
+                        aria-label="Previous image"
+                    >
+                        ‹
+                    </button>
+
+
+                    <button
+                        class="gallery-arrow gallery-next"
+                        id="galleryNext"
+                        aria-label="Next image"
+                    >
+                        ›
+                    </button>
+
+
+                    <button
+                        class="favorite-button"
+                        id="favoriteButton"
+                        aria-label="Save vehicle"
+                    >
+                        ♡
+                    </button>
+
+
+                    <div class="image-counter">
+
+                        <span>
+                            ▣
+                        </span>
+
+                        <span id="imageCounter">
+                            1 / 1
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- THUMBNAILS -->
+
+                <div
+                    class="thumbnail-row"
+                    id="thumbnailRow"
+                ></div>
+
+
+            </div>
+
+
+
+            <!-- =========================================
+                 VEHICLE INFORMATION
+                 ========================================= -->
+
+            <div class="vehicle-summary">
+
+
+                <div class="summary-card">
+
+
+                    <div class="vehicle-heading">
+
+                        <h1 id="vehicleTitle">
+                            Loading Vehicle...
+                        </h1>
+
+
+                        <div class="vehicle-reference">
+
+                            REF:
+                            <span id="vehicleReference">
+                                HVE
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="vehicle-tags">
+
+                        <span class="vehicle-tag">
+                            Japanese Vehicle
+                        </span>
+
+                        <span class="vehicle-tag">
+                            🇯🇵 Japan
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="quote-price">
+
+                        <span class="quote-label">
+                            PRICE
+                        </span>
+
+                        <strong>
+                            Request Quote
+                        </strong>
+
+                        <small>
+                            Country-Specific Pricing
+                        </small>
+
+                    </div>
+
+
+
+                    <!-- SPECIFICATIONS -->
+
+                    <div class="summary-specs">
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ▣
+                            </span>
+
+                            <span>
+                                <small>
+                                    Year
+                                </small>
+
+                                <strong id="vehicleYear">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ◉
+                            </span>
+
+                            <span>
+                                <small>
+                                    Mileage
+                                </small>
+
+                                <strong id="vehicleMileage">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ⚙
+                            </span>
+
+                            <span>
+                                <small>
+                                    Engine
+                                </small>
+
+                                <strong id="vehicleEngine">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ⇄
+                            </span>
+
+                            <span>
+                                <small>
+                                    Transmission
+                                </small>
+
+                                <strong id="vehicleTransmission">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ◌
+                            </span>
+
+                            <span>
+                                <small>
+                                    Fuel Type
+                                </small>
+
+                                <strong id="vehicleFuel">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                        <div class="summary-spec">
+
+                            <span class="summary-spec-icon">
+                                ✥
+                            </span>
+
+                            <span>
+                                <small>
+                                    Drive
+                                </small>
+
+                                <strong id="vehicleDrive">
+                                    —
+                                </strong>
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- TRUST BOX -->
+
+                    <div class="vehicle-trust-box">
+
+                        <div class="trust-box-icon">
+                            ◈
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Quality Japanese Vehicle
+                            </strong>
+
+                            <small>
+                                Sourced through BE FORWARD Japan
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================================
+                 CONTACT CARD
+                 ========================================= -->
+
+            <aside class="contact-card">
+
+
+                <h2>
+                    Interested in this Vehicle?
+                </h2>
+
+
+                <p>
+                    Get in touch for more details,
+                    availability and shipping information.
+                </p>
+
+
+                <button
+                    class="contact-whatsapp"
+                    id="mainWhatsAppButton"
+                >
+
+                    <span>
+                        ☎
+                    </span>
+
+                    <span>
+
+                        <strong>
+                            Contact via WhatsApp
+                        </strong>
+
+                        <small>
+                            +92 339 2207418
+                        </small>
+
+                    </span>
+
+                </button>
+
+
+
+                <div class="contact-benefits">
+
+
+                    <div>
+                        <span>
+                            ◉
+                        </span>
+
+                        Quick Response
+                    </div>
+
+
+                    <div>
+                        <span>
+                            ♙
+                        </span>
+
+                        Personal Support
+                    </div>
+
+
+                    <div>
+                        <span>
+                            ◈
+                        </span>
+
+                        Safe &amp; Secure Process
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="contact-divider"></div>
+
+
+
+                <h3>
+                    Or send us a message
+                </h3>
+
+
+                <form id="vehicleContactForm">
+
+
+                    <input
+                        type="text"
+                        id="customerName"
+                        placeholder="Your Name"
+                        required
+                    >
+
+
+                    <input
+                        type="email"
+                        id="customerEmail"
+                        placeholder="Your Email (Optional)"
+                    >
+
+
+                    <!-- COUNTRY -->
+
+                    <select
+                        id="destinationCountry"
+                        required
+                    >
+
+                        <option value="">
+                            Select Destination Country
+                        </option>
+
+                        <optgroup label="Africa">
+
+                            <option>Algeria</option>
+                            <option>Angola</option>
+                            <option>Benin</option>
+                            <option>Botswana</option>
+                            <option>Burkina Faso</option>
+                            <option>Burundi</option>
+                            <option>Cabo Verde</option>
+                            <option>Cameroon</option>
+                            <option>Central African Republic</option>
+                            <option>Chad</option>
+                            <option>Comoros</option>
+                            <option>Democratic Republic of the Congo</option>
+                            <option>Republic of the Congo</option>
+                            <option>Côte d'Ivoire</option>
+                            <option>Djibouti</option>
+                            <option>Egypt</option>
+                            <option>Equatorial Guinea</option>
+                            <option>Eritrea</option>
+                            <option>Eswatini</option>
+                            <option>Ethiopia</option>
+                            <option>Gabon</option>
+                            <option>Gambia</option>
+                            <option>Ghana</option>
+                            <option>Guinea</option>
+                            <option>Guinea-Bissau</option>
+                            <option>Kenya</option>
+                            <option>Lesotho</option>
+                            <option>Liberia</option>
+                            <option>Libya</option>
+                            <option>Madagascar</option>
+                            <option>Malawi</option>
+                            <option>Mali</option>
+                            <option>Mauritania</option>
+                            <option>Mauritius</option>
+                            <option>Morocco</option>
+                            <option>Mozambique</option>
+                            <option>Namibia</option>
+                            <option>Niger</option>
+                            <option>Nigeria</option>
+                            <option>Rwanda</option>
+                            <option>São Tomé and Príncipe</option>
+                            <option>Senegal</option>
+                            <option>Seychelles</option>
+                            <option>Sierra Leone</option>
+                            <option>Somalia</option>
+                            <option>South Africa</option>
+                            <option>South Sudan</option>
+                            <option>Sudan</option>
+                            <option>Tanzania</option>
+                            <option>Togo</option>
+                            <option>Tunisia</option>
+                            <option>Uganda</option>
+                            <option>Zambia</option>
+                            <option>Zimbabwe</option>
+
+                        </optgroup>
+
+
+                        <optgroup label="Caribbean">
+
+                            <option>Antigua and Barbuda</option>
+                            <option>Bahamas</option>
+                            <option>Barbados</option>
+                            <option>Belize</option>
+                            <option>Cuba</option>
+                            <option>Dominica</option>
+                            <option>Dominican Republic</option>
+                            <option>Grenada</option>
+                            <option>Guyana</option>
+                            <option>Haiti</option>
+                            <option>Jamaica</option>
+                            <option>Saint Kitts and Nevis</option>
+                            <option>Saint Lucia</option>
+                            <option>Saint Vincent and the Grenadines</option>
+                            <option>Suriname</option>
+                            <option>Trinidad and Tobago</option>
+
+                        </optgroup>
+
+                    </select>
+
+
+                    <textarea
+                        id="customerMessage"
+                        placeholder="Message (Optional)"
+                    ></textarea>
+
+
+                    <button
+                        type="submit"
+                        class="send-message"
+                    >
+
+                        <span>
+                            ➤
+                        </span>
+
+                        Send Message
+
+                    </button>
+
+                </form>
+
+
+            </aside>
+
 
         </div>
 
-    </div>
-
-</footer>
+    </section>
 
 
-<!-- FLOATING WHATSAPP -->
+
+    <!-- =================================================
+         INFORMATION AREA
+         ================================================= -->
+
+    <section class="vehicle-information">
+
+        <div class="page-container information-grid">
+
+
+            <!-- MAIN INFORMATION -->
+
+            <div class="information-main">
+
+
+                <!-- TABS -->
+
+                <div class="information-tabs">
+
+
+                    <button
+                        class="information-tab active"
+                        data-tab="overview"
+                    >
+                        ◉
+                        Overview
+                    </button>
+
+
+                    <button
+                        class="information-tab"
+                        data-tab="specifications"
+                    >
+                        ☷
+                        Specifications
+                    </button>
+
+
+                    <button
+                        class="information-tab"
+                        data-tab="features"
+                    >
+                        ◈
+                        Features
+                    </button>
+
+
+                    <button
+                        class="information-tab"
+                        data-tab="gallery"
+                    >
+                        ▧
+                        Gallery
+                    </button>
+
+
+                    <button
+                        class="information-tab"
+                        data-tab="shipping"
+                    >
+                        ♢
+                        Shipping &amp; Delivery
+                    </button>
+
+
+                </div>
+
+
+
+                <!-- OVERVIEW -->
+
+                <div
+                    class="tab-panel active"
+                    id="tab-overview"
+                >
+
+                    <div class="overview-grid">
+
+
+                        <div>
+
+                            <h2>
+                                Vehicle Overview
+                            </h2>
+
+                            <p id="vehicleDescription">
+                                Loading vehicle description...
+                            </p>
+
+                        </div>
+
+
+                        <div class="key-features-box">
+
+                            <h3>
+                                <span>
+                                    ◈
+                                </span>
+
+                                Key Features
+                            </h3>
+
+                            <ul id="keyFeaturesList">
+
+                                <li>
+                                    Loading features...
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SPECIFICATIONS -->
+
+                <div
+                    class="tab-panel"
+                    id="tab-specifications"
+                >
+
+                    <h2>
+                        Vehicle Specifications
+                    </h2>
+
+                    <div
+                        class="full-spec-grid"
+                        id="fullSpecifications"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- FEATURES -->
+
+                <div
+                    class="tab-panel"
+                    id="tab-features"
+                >
+
+                    <h2>
+                        Key Features
+                    </h2>
+
+                    <div
+                        class="features-grid"
+                        id="featuresGrid"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- GALLERY -->
+
+                <div
+                    class="tab-panel"
+                    id="tab-gallery"
+                >
+
+                    <h2>
+                        Vehicle Gallery
+                    </h2>
+
+                    <div
+                        class="large-gallery"
+                        id="largeGallery"
+                    ></div>
+
+                </div>
+
+
+
+                <!-- SHIPPING -->
+
+                <div
+                    class="tab-panel"
+                    id="tab-shipping"
+                >
+
+                    <h2>
+                        Shipping &amp; Delivery
+                    </h2>
+
+
+                    <div class="shipping-content">
+
+                        <p>
+                            We help customers arrange vehicle
+                            export and shipping from Japan to
+                            their destination country.
+                        </p>
+
+
+                        <div class="shipping-steps">
+
+
+                            <div>
+
+                                <strong>
+                                    01
+                                </strong>
+
+                                Vehicle Selection
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    02
+                                </strong>
+
+                                Country-Specific Quote
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    03
+                                </strong>
+
+                                Purchase &amp; Documentation
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    04
+                                </strong>
+
+                                Shipping From Japan
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    05
+                                </strong>
+
+                                Tracking &amp; Arrival
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 SIDEBAR
+                 ================================================= -->
+
+            <aside class="information-sidebar">
+
+
+                <!-- SIMILAR VEHICLES -->
+
+                <div class="similar-card">
+
+
+                    <div class="similar-heading">
+
+                        <h2>
+                            Similar Vehicles
+                        </h2>
+
+                        <a href="vehicles.html">
+                            View All
+                        </a>
+
+                    </div>
+
+
+                    <div
+                        id="similarVehicles"
+                        class="similar-list"
+                    >
+
+                        <div class="similar-loading">
+                            Loading...
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         MORE PHOTOS
+         ================================================= -->
+
+    <section class="more-photos-section">
+
+        <div class="page-container">
+
+
+            <div class="more-photos-card">
+
+
+                <h2>
+                    <span>
+                        ▣
+                    </span>
+
+                    More Photos
+                </h2>
+
+
+                <div
+                    id="morePhotos"
+                    class="more-photos-grid"
+                ></div>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         BOTTOM TRUST BAR
+         ================================================= -->
+
+    <section class="trust-bar">
+
+        <div class="trust-bar-inner">
+
+
+            <div class="bottom-trust-item">
+
+                <div class="bottom-icon">
+                    ✈
+                </div>
+
+                <div>
+
+                    <strong>
+                        From Japan to Africa
+                    </strong>
+
+                    <span>
+                        Safe&nbsp; • &nbsp;Reliable&nbsp; • &nbsp;On Time
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="trust-divider"></div>
+
+
+            <div class="bottom-trust-item">
+
+                <div class="bottom-icon">
+                    ◈
+                </div>
+
+                <div>
+
+                    <strong>
+                        Trusted Partner
+                    </strong>
+
+                    <span>
+                        BE FORWARD Japan
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="trust-divider"></div>
+
+
+            <div class="bottom-trust-item">
+
+                <div class="bottom-icon">
+                    ♧
+                </div>
+
+                <div>
+
+                    <strong>
+                        Personal Support
+                    </strong>
+
+                    <span>
+                        from Selection to Arrival
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="https://wa.me/923392207418"
+                class="bottom-whatsapp"
+                target="_blank"
+                rel="noopener"
+            >
+
+                <span class="bottom-whatsapp-icon">
+                    ☎
+                </span>
+
+                <span>
+
+                    <strong>
+                        Contact Us on WhatsApp
+                    </strong>
+
+                    <small>
+                        +92 339 2207418
+                    </small>
+
+                </span>
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     FLOATING WHATSAPP
+     ===================================================== -->
 
 <a
     href="https://wa.me/923392207418"
-    class="details-floating-whatsapp"
+    class="floating-whatsapp"
     target="_blank"
     rel="noopener"
     aria-label="WhatsApp"
@@ -641,59 +1220,17 @@
 </a>
 
 
-<script type="module" src="js/vehicle-details.js"></script>
 
+<!-- =====================================================
+     MOBILE MENU
+     ===================================================== -->
 
-<script>
+<script
+    type="module"
+    src="js/vehicle-details.js"
+></script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const menu =
-            document.getElementById("detailsMenu");
-
-        const nav =
-            document.querySelector(".details-nav");
-
-
-        if (menu && nav) {
-
-            menu.addEventListener(
-                "click",
-                function () {
-
-                    nav.classList.toggle(
-                        "mobile-open"
-                    );
-
-                    menu.textContent =
-                        nav.classList.contains(
-                            "mobile-open"
-                        )
-                            ? "✕"
-                            : "☰";
-
-                }
-            );
-
-        }
-
-
-        const year =
-            document.getElementById("footerYear");
-
-        if (year) {
-
-            year.textContent =
-                new Date().getFullYear();
-
-        }
-
-    }
-);
-
-</script>
 
 </body>
+
 </html>
