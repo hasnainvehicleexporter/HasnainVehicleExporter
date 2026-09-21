@@ -1,2212 +1,2349 @@
-/* =========================================================
+/* =====================================================
    HASNAIN VEHICLE EXPORTER
    VEHICLE DETAILS PAGE
-   ========================================================= */
-
-:root {
-
-    --black:
-        #050505;
-
-    --black-2:
-        #090909;
-
-    --black-3:
-        #101010;
-
-    --gold:
-        #d4af37;
-
-    --gold-light:
-        #f0ce55;
-
-    --white:
-        #ffffff;
-
-    --text:
-        #eeeeee;
-
-    --muted:
-        #a3a3a3;
-
-    --border:
-        rgba(255,255,255,.10);
-
-    --gold-border:
-        rgba(212,175,55,.35);
-
-    --container:
-        1240px;
-
-}
+   ===================================================== */
 
 
 * {
-
-    box-sizing:
-        border-box;
-
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 
 html {
-
-    scroll-behavior:
-        smooth;
-
+    scroll-behavior: smooth;
 }
 
 
 body {
 
-    margin:
-        0;
+    margin: 0;
 
     background:
-        var(--black);
+        linear-gradient(
+            180deg,
+            #060b0f 0%,
+            #071016 100%
+        );
 
-    color:
-        var(--text);
+    color: #ffffff;
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    line-height:
-        1.6;
-
-}
-
-
-img {
-
-    max-width:
-        100%;
-
-}
-
-
-a {
-
-    color:
-        inherit;
-
-    text-decoration:
-        none;
+    line-height: 1.5;
 
 }
 
 
 button,
-select {
-
-    font-family:
-        inherit;
-
+input,
+select,
+textarea {
+    font: inherit;
 }
 
 
-/* =========================================================
-   CONTAINER
-   ========================================================= */
+button {
+    cursor: pointer;
+}
 
-.details-container {
+
+a {
+    text-decoration: none;
+}
+
+
+img {
+    max-width: 100%;
+}
+
+
+.page-container {
 
     width:
-        min(
-            calc(100% - 80px),
-            var(--container)
-        );
+        min(1165px, calc(100% - 50px));
 
-    margin:
-        0 auto;
+    margin: 0 auto;
 
 }
 
 
-/* =========================================================
+.hidden {
+    display: none !important;
+}
+
+
+
+/* =====================================================
    HEADER
-   ========================================================= */
+   ===================================================== */
 
-.details-header {
+.site-header {
 
-    position:
-        sticky;
+    height: 80px;
 
-    top:
-        0;
-
-    z-index:
-        1000;
-
-    height:
-        78px;
-
-    background:
-        rgba(5,5,5,.97);
+    background: #050809;
 
     border-bottom:
-        1px solid
-        rgba(212,175,55,.20);
+        1px solid rgba(255,255,255,.12);
+
+    position: relative;
+
+    z-index: 1000;
 
 }
 
 
 .header-inner {
 
-    height:
-        100%;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    gap:
-        25px;
-
-}
-
-
-.details-brand {
-
     width:
-        155px;
+        min(1165px, calc(100% - 50px));
 
-    height:
-        70px;
+    height: 100%;
 
-    display:
-        flex;
+    margin: 0 auto;
 
-    align-items:
-        center;
+    display: flex;
 
-}
+    align-items: center;
 
-
-.details-brand img {
-
-    width:
-        145px;
-
-    height:
-        64px;
-
-    object-fit:
-        contain;
+    gap: 20px;
 
 }
 
 
-.details-nav {
+.brand {
 
-    display:
-        flex;
+    width: 180px;
 
-    align-items:
-        center;
+    height: 70px;
 
-    gap:
-        31px;
+    flex: 0 0 180px;
 
-    margin-left:
-        auto;
+    display: flex;
+
+    align-items: center;
 
 }
 
 
-.details-nav a {
+.brand img {
 
-    position:
-        relative;
+    width: 175px;
 
-    font-size:
-        14px;
+    height: 64px;
 
-    font-weight:
-        700;
-
-    color:
-        #d4d4d4;
-
-    padding:
-        29px 0;
-
-    transition:
-        .25s ease;
+    object-fit: contain;
 
 }
 
 
-.details-nav a:hover {
+.brand-message {
 
-    color:
-        var(--gold-light);
+    height: 57px;
 
-}
+    padding-left: 17px;
 
+    border-left:
+        1px solid rgba(255,255,255,.3);
 
-.details-whatsapp-top {
+    display: flex;
 
-    display:
-        flex;
+    flex-direction: column;
 
-    align-items:
-        center;
+    justify-content: center;
 
-    justify-content:
-        center;
-
-    min-width:
-        120px;
-
-    height:
-        42px;
-
-    background:
-        var(--gold);
-
-    color:
-        #080808;
-
-    border-radius:
-        5px;
-
-    font-size:
-        13px;
-
-    font-weight:
-        800;
-
-    transition:
-        .25s ease;
+    min-width: 190px;
 
 }
 
 
-.details-whatsapp-top:hover {
+.brand-message strong {
 
-    background:
-        var(--gold-light);
+    color: #ffffff;
 
-    transform:
-        translateY(-2px);
+    font-size: 12px;
 
 }
 
 
-.details-menu {
+.brand-route {
 
-    display:
-        none;
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.route-arrow {
+
+    color: #d4af37;
+
+    font-size: 18px;
+
+}
+
+
+.main-nav {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 25px;
+
+}
+
+
+.main-nav a {
+
+    position: relative;
+
+    padding: 31px 0 26px;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+.main-nav a::after {
+
+    content: "";
+
+    position: absolute;
+
+    bottom: 17px;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 2px;
+
+    background: #d4af37;
+
+    transform: scaleX(0);
+
+    transition: .25s ease;
+
+}
+
+
+.main-nav a:hover::after,
+.main-nav a.active::after {
+
+    transform: scaleX(1);
+
+}
+
+
+.main-nav a.active {
+
+    color: #d4af37;
+
+}
+
+
+.header-whatsapp {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #ffffff;
+
+}
+
+
+.header-wa-icon {
+
+    width: 31px;
+
+    height: 31px;
 
     border:
-        0;
+        2px solid #59d978;
 
-    background:
-        transparent;
+    border-radius: 50%;
 
-    color:
-        var(--gold);
+    display: flex;
 
-    font-size:
-        28px;
+    align-items: center;
 
-    cursor:
-        pointer;
+    justify-content: center;
+
+    color: #59d978;
 
 }
 
 
-/* =========================================================
-   TOP
-   ========================================================= */
+.header-whatsapp strong {
 
-.details-top {
+    display: block;
 
-    background:
-        linear-gradient(
-            180deg,
-            #090909,
-            #050505
-        );
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.04);
+    font-size: 10px;
 
 }
 
 
-.details-breadcrumb {
+.header-whatsapp small {
+
+    display: block;
+
+    color: #d4af37;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+}
+
+
+.menu-toggle {
+
+    display: none;
+
+    background: transparent;
+
+    border: 1px solid #333;
+
+    width: 40px;
+
+    height: 40px;
+
+}
+
+
+.menu-toggle span {
+
+    display: block;
+
+    width: 21px;
+
+    height: 2px;
+
+    margin: 4px auto;
+
+    background: #fff;
+
+}
+
+
+
+/* =====================================================
+   BREADCRUMB
+   ===================================================== */
+
+.breadcrumb-section {
 
     padding:
-        30px 0 18px;
-
-    display:
-        flex;
-
-    gap:
-        10px;
-
-    align-items:
-        center;
-
-    font-size:
-        12px;
-
-    color:
-        #666;
+        14px 0 10px;
 
 }
 
 
-.details-breadcrumb a {
+.breadcrumb {
 
-    color:
-        var(--gold);
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    color: #9ca5aa;
+
+    font-size: 11px;
 
 }
 
 
-.details-breadcrumb span {
+.breadcrumb a {
 
-    color:
-        #666;
+    color: #ffffff;
 
 }
 
 
-/* =========================================================
-   MAIN
-   ========================================================= */
+.breadcrumb strong {
 
-.vehicle-details-section {
+    color: #9ca5aa;
+
+    font-weight: 400;
+
+}
+
+
+
+/* =====================================================
+   TOP VEHICLE AREA
+   ===================================================== */
+
+.vehicle-top-section {
 
     padding:
-        20px 0 90px;
-
-    background:
-        radial-gradient(
-            circle at 80% 10%,
-            rgba(212,175,55,.055),
-            transparent 35%
-        );
+        0 0 18px;
 
 }
 
 
-.back-to-vehicles {
+.vehicle-top-grid {
 
-    display:
-        inline-flex;
-
-    margin:
-        0 0 28px;
-
-    color:
-        #999;
-
-    font-size:
-        13px;
-
-    transition:
-        .25s;
-
-}
-
-
-.back-to-vehicles:hover {
-
-    color:
-        var(--gold);
-
-}
-
-
-/* =========================================================
-   MAIN VEHICLE GRID
-   ========================================================= */
-
-.vehicle-main-grid {
-
-    display:
-        grid;
+    display: grid;
 
     grid-template-columns:
-        minmax(0, 1.18fr)
-        minmax(400px, .82fr);
+        1.75fr
+        .95fr
+        .88fr;
 
-    gap:
-        50px;
+    gap: 17px;
 
-    align-items:
-        start;
+    align-items: start;
 
 }
 
 
-/* =========================================================
+
+/* =====================================================
    GALLERY
-   ========================================================= */
+   ===================================================== */
 
 .vehicle-gallery {
 
-    min-width:
-        0;
+    min-width: 0;
 
 }
 
 
-.main-image-wrapper {
+.main-photo {
 
-    position:
-        relative;
+    position: relative;
 
-    width:
-        100%;
+    height: 350px;
 
-    height:
-        510px;
-
-    background:
-        #0b0b0b;
+    overflow: hidden;
 
     border:
-        1px solid
-        var(--border);
+        1px solid #30383d;
 
-    overflow:
-        hidden;
+    border-radius: 6px;
+
+    background: #10171c;
 
 }
 
 
-.main-image-wrapper::after {
+.main-photo img {
 
-    content:
-        "";
+    width: 100%;
 
-    position:
-        absolute;
+    height: 100%;
 
-    inset:
-        0;
+    object-fit: cover;
+
+    display: block;
+
+}
+
+
+.japan-badge {
+
+    position: absolute;
+
+    left: 12px;
+
+    top: 13px;
+
+    padding:
+        5px 11px;
+
+    border-radius: 5px;
+
+    background:
+        rgba(226,235,238,.95);
+
+    color: #182126;
+
+    font-size: 11px;
+
+    font-weight: 900;
+
+}
+
+
+.japan-badge span {
+
+    margin-right: 5px;
+
+}
+
+
+.gallery-arrow {
+
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 31px;
+
+    height: 31px;
+
+    border: 0;
+
+    border-radius: 4px;
+
+    background:
+        rgba(5,8,9,.72);
+
+    color: #ffffff;
+
+    font-size: 28px;
+
+    line-height: 20px;
+
+}
+
+
+.gallery-prev {
+
+    left: 12px;
+
+}
+
+
+.gallery-next {
+
+    right: 12px;
+
+}
+
+
+.favorite-button {
+
+    position: absolute;
+
+    top: 12px;
+
+    right: 12px;
+
+    width: 32px;
+
+    height: 32px;
+
+    border:
+        1px solid rgba(255,255,255,.25);
+
+    border-radius: 5px;
+
+    background:
+        rgba(10,14,17,.8);
+
+    color: #ffffff;
+
+    font-size: 20px;
+
+}
+
+
+.favorite-button.saved {
+
+    color: #d4af37;
+
+}
+
+
+.image-counter {
+
+    position: absolute;
+
+    left: 11px;
+
+    bottom: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        5px 9px;
+
+    border-radius: 4px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+}
+
+
+.thumbnail-row {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, 1fr);
+
+    gap: 6px;
+
+    margin-top: 8px;
+
+}
+
+
+.thumbnail {
+
+    position: relative;
+
+    height: 70px;
+
+    overflow: hidden;
+
+    border:
+        2px solid transparent;
+
+    border-radius: 5px;
+
+    background: #10171c;
+
+    cursor: pointer;
+
+}
+
+
+.thumbnail.active {
+
+    border-color: #d4af37;
+
+}
+
+
+.thumbnail img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+
+
+/* =====================================================
+   SUMMARY CARD
+   ===================================================== */
+
+.summary-card {
+
+    min-height: 424px;
+
+    padding: 14px;
+
+    border:
+        1px solid #30383d;
+
+    border-radius: 6px;
 
     background:
         linear-gradient(
-            180deg,
-            transparent 60%,
-            rgba(0,0,0,.45)
+            145deg,
+            #0b1217,
+            #080e13
         );
 
-    pointer-events:
-        none;
-
 }
 
 
-.main-image-wrapper img {
+.vehicle-heading h1 {
 
-    width:
-        100%;
+    color: #ffffff;
 
-    height:
-        100%;
+    font-size: 22px;
 
-    object-fit:
-        cover;
+    line-height: 1.1;
 
-    display:
-        block;
-
-}
-
-
-.detail-status {
-
-    position:
-        absolute;
-
-    top:
-        20px;
-
-    left:
-        20px;
-
-    z-index:
-        3;
-
-    padding:
-        8px 14px;
-
-    background:
-        var(--gold);
-
-    color:
-        #080808;
-
-    font-size:
-        11px;
-
-    font-weight:
-        900;
-
-    letter-spacing:
-        1px;
-
-}
-
-
-.detail-status.sold {
-
-    background:
-        #c83232;
-
-    color:
-        #fff;
-
-}
-
-
-.thumbnail-gallery {
-
-    display:
-        flex;
-
-    gap:
-        10px;
-
-    margin-top:
-        12px;
-
-    overflow-x:
-        auto;
-
-    padding-bottom:
-        5px;
-
-}
-
-
-.vehicle-thumbnail {
-
-    width:
-        92px;
-
-    height:
-        68px;
-
-    flex:
-        0 0 92px;
-
-    object-fit:
-        cover;
-
-    cursor:
-        pointer;
-
-    border:
-        1px solid
-        var(--border);
-
-    opacity:
-        .55;
-
-    transition:
-        .25s;
-
-}
-
-
-.vehicle-thumbnail:hover,
-.vehicle-thumbnail.active {
-
-    opacity:
-        1;
-
-    border-color:
-        var(--gold);
-
-}
-
-
-/* =========================================================
-   INFORMATION
-   ========================================================= */
-
-.vehicle-information {
-
-    padding:
-        5px 0;
+    font-weight: 800;
 
 }
 
 
 .vehicle-reference {
 
-    color:
-        var(--gold);
+    margin-top: 5px;
 
-    font-size:
-        11px;
+    color: #a6adb0;
 
-    font-weight:
-        800;
-
-    letter-spacing:
-        1.5px;
-
-    text-transform:
-        uppercase;
+    font-size: 9px;
 
 }
 
 
-.vehicle-reference strong {
+.vehicle-reference span {
 
-    color:
-        #fff;
+    color: #d4af37;
 
-}
-
-
-.vehicle-information h1 {
-
-    margin:
-        12px 0 4px;
-
-    color:
-        #fff;
-
-    font-size:
-        clamp(
-            34px,
-            4vw,
-            52px
-        );
-
-    line-height:
-        1.08;
-
-    letter-spacing:
-        -1.5px;
+    font-weight: 800;
 
 }
 
 
-.vehicle-subtitle {
+.vehicle-tags {
 
-    color:
-        #888;
+    display: flex;
 
-    font-size:
-        15px;
+    align-items: center;
 
-    margin-bottom:
-        25px;
+    gap: 7px;
+
+    margin-top: 10px;
 
 }
 
 
-/* =========================================================
-   PRICE
-   ========================================================= */
-
-.detail-price-box {
+.vehicle-tag {
 
     padding:
-        20px;
+        4px 8px;
+
+    border-radius: 3px;
+
+    background: #d4af37;
+
+    color: #111111;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+}
+
+
+.vehicle-tag + .vehicle-tag {
+
+    background:
+        #172027;
+
+    color: #ffffff;
+
+    border:
+        1px solid #344049;
+
+}
+
+
+.quote-price {
+
+    margin:
+        13px 0 13px;
+
+}
+
+
+.quote-label {
+
+    display: block;
+
+    color: #a5aaad;
+
+    font-size: 8px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+}
+
+
+.quote-price strong {
+
+    display: block;
+
+    margin-top: 1px;
+
+    color: #d4af37;
+
+    font-size: 26px;
+
+    line-height: 1.1;
+
+}
+
+
+.quote-price small {
+
+    color: #9ca4a8;
+
+    font-size: 8px;
+
+}
+
+
+
+/* =====================================================
+   SUMMARY SPECS
+   ===================================================== */
+
+.summary-specs {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 13px 12px;
+
+}
+
+
+.summary-spec {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.summary-spec-icon {
+
+    width: 20px;
+
+    color: #ffffff;
+
+    font-size: 17px;
+
+    text-align: center;
+
+}
+
+
+.summary-spec small {
+
+    display: block;
+
+    color: #b3b9bc;
+
+    font-size: 8px;
+
+}
+
+
+.summary-spec strong {
+
+    display: block;
+
+    margin-top: 1px;
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+}
+
+
+
+/* =====================================================
+   TRUST BOX
+   ===================================================== */
+
+.vehicle-trust-box {
+
+    margin-top: 17px;
+
+    padding:
+        10px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border:
+        1px solid #d4af37;
+
+    border-radius: 6px;
+
+}
+
+
+.trust-box-icon {
+
+    color: #d4af37;
+
+    font-size: 25px;
+
+}
+
+
+.vehicle-trust-box strong {
+
+    display: block;
+
+    color: #d4af37;
+
+    font-size: 9px;
+
+}
+
+
+.vehicle-trust-box small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #c2c7c9;
+
+    font-size: 7px;
+
+}
+
+
+
+/* =====================================================
+   CONTACT CARD
+   ===================================================== */
+
+.contact-card {
+
+    min-height: 560px;
+
+    padding: 15px;
+
+    border:
+        1px solid #30383d;
+
+    border-radius: 6px;
 
     background:
         linear-gradient(
-            135deg,
-            rgba(212,175,55,.12),
-            rgba(212,175,55,.035)
+            145deg,
+            #0b1217,
+            #080e13
         );
 
-    border-left:
-        3px solid
-        var(--gold);
+}
 
-    margin-bottom:
-        22px;
+
+.contact-card h2 {
+
+    color: #ffffff;
+
+    font-size: 17px;
+
+    line-height: 1.15;
 
 }
 
 
-.detail-price-box span {
+.contact-card > p {
 
-    display:
-        block;
+    margin-top: 7px;
 
-    color:
-        var(--gold);
+    color: #c0c6c9;
 
-    font-size:
-        10px;
+    font-size: 10px;
 
-    font-weight:
-        900;
-
-    letter-spacing:
-        1.5px;
+    line-height: 1.45;
 
 }
 
 
-.detail-price-box strong {
+.contact-whatsapp {
 
-    display:
-        block;
+    width: 100%;
 
-    margin-top:
-        4px;
+    min-height: 52px;
 
-    color:
-        #fff;
+    margin-top: 12px;
 
-    font-size:
-        19px;
+    border: none;
 
-}
+    border-radius: 6px;
 
+    background: #25c75a;
 
-.detail-price-box p {
+    color: #ffffff;
 
-    margin:
-        6px 0 0;
+    display: flex;
 
-    color:
-        #888;
+    align-items: center;
 
-    font-size:
-        12px;
+    justify-content: center;
+
+    gap: 9px;
 
 }
 
 
-/* =========================================================
-   SPECS
-   ========================================================= */
+.contact-whatsapp > span:first-child {
 
-.detail-spec-grid {
+    font-size: 22px;
 
-    display:
-        grid;
+}
+
+
+.contact-whatsapp strong {
+
+    display: block;
+
+    font-size: 10px;
+
+}
+
+
+.contact-whatsapp small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+}
+
+
+.contact-benefits {
+
+    margin-top: 16px;
+
+    display: grid;
+
+    gap: 11px;
+
+}
+
+
+.contact-benefits div {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+}
+
+
+.contact-benefits span {
+
+    color: #d4af37;
+
+    font-size: 17px;
+
+}
+
+
+.contact-divider {
+
+    height: 1px;
+
+    margin: 16px 0 13px;
+
+    background:
+        #30383d;
+
+}
+
+
+.contact-card h3 {
+
+    margin-bottom: 9px;
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+}
+
+
+#vehicleContactForm {
+
+    display: grid;
+
+    gap: 7px;
+
+}
+
+
+#vehicleContactForm input,
+#vehicleContactForm select,
+#vehicleContactForm textarea {
+
+    width: 100%;
+
+    border:
+        1px solid #38424a;
+
+    border-radius: 5px;
+
+    background:
+        #172027;
+
+    color: #ffffff;
+
+    outline: none;
+
+    font-size: 9px;
+
+}
+
+
+#vehicleContactForm input,
+#vehicleContactForm select {
+
+    height: 34px;
+
+    padding:
+        0 10px;
+
+}
+
+
+#vehicleContactForm textarea {
+
+    min-height: 80px;
+
+    resize: vertical;
+
+    padding:
+        9px 10px;
+
+}
+
+
+#vehicleContactForm input::placeholder,
+#vehicleContactForm textarea::placeholder {
+
+    color: #aab1b5;
+
+}
+
+
+#vehicleContactForm select {
+
+    color: #cdd2d5;
+
+}
+
+
+#vehicleContactForm input:focus,
+#vehicleContactForm select:focus,
+#vehicleContactForm textarea:focus {
+
+    border-color: #d4af37;
+
+}
+
+
+.send-message {
+
+    height: 36px;
+
+    margin-top: 2px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: #e2b83f;
+
+    color: #111111;
+
+    font-size: 9px;
+
+    font-weight: 900;
+
+}
+
+
+
+/* =====================================================
+   INFORMATION AREA
+   ===================================================== */
+
+.vehicle-information {
+
+    padding:
+        0 0 18px;
+
+}
+
+
+.information-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        265px;
+
+    gap: 17px;
+
+}
+
+
+.information-main {
+
+    overflow: hidden;
+
+    border:
+        1px solid #30383d;
+
+    border-radius: 6px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0a1116,
+            #081016
+        );
+
+}
+
+
+.information-tabs {
+
+    display: flex;
+
+    border-bottom:
+        1px solid #30383d;
+
+}
+
+
+.information-tab {
+
+    position: relative;
+
+    flex: 1;
+
+    min-height: 48px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #e3e6e7;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+}
+
+
+.information-tab.active {
+
+    color: #d4af37;
+
+}
+
+
+.information-tab.active::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 18px;
+
+    right: 18px;
+
+    bottom: 0;
+
+    height: 3px;
+
+    background: #d4af37;
+
+}
+
+
+.tab-panel {
+
+    display: none;
+
+    padding: 23px 20px;
+
+}
+
+
+.tab-panel.active {
+
+    display: block;
+
+}
+
+
+.tab-panel h2 {
+
+    margin-bottom: 13px;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+}
+
+
+.overview-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1.1fr 1fr;
+
+    gap: 30px;
+
+}
+
+
+.overview-grid p {
+
+    color: #e0e4e6;
+
+    font-size: 10px;
+
+    line-height: 1.8;
+
+}
+
+
+
+/* =====================================================
+   KEY FEATURES
+   ===================================================== */
+
+.key-features-box {
+
+    padding:
+        13px 15px;
+
+    border:
+        1px solid #8e793d;
+
+    border-radius: 5px;
+
+}
+
+
+.key-features-box h3 {
+
+    margin-bottom: 9px;
+
+    color: #d4af37;
+
+    font-size: 11px;
+
+}
+
+
+.key-features-box ul {
+
+    list-style: none;
+
+}
+
+
+.key-features-box li {
+
+    position: relative;
+
+    padding-left: 20px;
+
+    margin-bottom: 7px;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+}
+
+
+.key-features-box li::before {
+
+    content: "✓";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 14px;
+
+    height: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e0b43d;
+
+    color: #111111;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+}
+
+
+
+/* =====================================================
+   FULL SPECIFICATIONS
+   ===================================================== */
+
+.full-spec-grid {
+
+    display: grid;
 
     grid-template-columns:
         repeat(3, 1fr);
 
-    border-top:
-        1px solid
-        var(--border);
-
-    border-left:
-        1px solid
-        var(--border);
-
-    margin-bottom:
-        25px;
+    gap: 10px;
 
 }
 
 
-.detail-spec-box {
-
-    min-height:
-        83px;
+.full-spec {
 
     padding:
-        15px;
-
-    border-right:
-        1px solid
-        var(--border);
-
-    border-bottom:
-        1px solid
-        var(--border);
-
-}
-
-
-.detail-spec-box span {
-
-    display:
-        block;
-
-    color:
-        #777;
-
-    font-size:
-        9px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        1.2px;
-
-}
-
-
-.detail-spec-box strong {
-
-    display:
-        block;
-
-    margin-top:
-        5px;
-
-    color:
-        #eee;
-
-    font-size:
-        14px;
-
-}
-
-
-/* =========================================================
-   QUOTE BOX
-   ========================================================= */
-
-.quote-box {
-
-    padding:
-        22px;
-
-    background:
-        #0c0c0c;
-
-    border:
-        1px solid
-        var(--gold-border);
-
-}
-
-
-.quote-heading {
-
-    display:
-        flex;
-
-    gap:
-        13px;
-
-    margin-bottom:
-        18px;
-
-}
-
-
-.quote-icon {
-
-    width:
-        34px;
-
-    height:
-        34px;
-
-    flex:
-        0 0 34px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border-radius:
-        50%;
-
-    background:
-        rgba(212,175,55,.13);
-
-    color:
-        var(--gold);
-
-    font-weight:
-        900;
-
-}
-
-
-.quote-heading h3 {
-
-    margin:
-        0;
-
-    color:
-        #fff;
-
-    font-size:
-        16px;
-
-}
-
-
-.quote-heading p {
-
-    margin:
-        3px 0 0;
-
-    color:
-        #777;
-
-    font-size:
-        11px;
-
-}
-
-
-.quote-box label {
-
-    display:
-        block;
-
-    margin-bottom:
-        7px;
-
-    color:
-        #aaa;
-
-    font-size:
-        11px;
-
-    font-weight:
-        700;
-
-}
-
-
-.quote-box select {
-
-    width:
-        100%;
-
-    height:
-        48px;
-
-    padding:
-        0 14px;
-
-    background:
-        #080808;
-
-    color:
-        #eee;
-
-    border:
-        1px solid
-        #333;
-
-    outline:
-        none;
-
-}
-
-
-.quote-box select:focus {
-
-    border-color:
-        var(--gold);
-
-}
-
-
-.details-gold-button {
-
-    display:
-        inline-flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    min-height:
-        48px;
-
-    padding:
-        0 22px;
-
-    background:
-        var(--gold);
-
-    color:
-        #080808;
-
-    border:
-        0;
-
-    border-radius:
-        4px;
-
-    font-size:
-        11px;
-
-    font-weight:
-        900;
-
-    letter-spacing:
-        .7px;
-
-    text-transform:
-        uppercase;
-
-    cursor:
-        pointer;
-
-    transition:
-        .25s;
-
-}
-
-
-.details-gold-button:hover {
-
-    background:
-        var(--gold-light);
-
-    transform:
-        translateY(-2px);
-
-}
-
-
-.quote-button {
-
-    width:
-        100%;
-
-    margin-top:
         12px;
 
-}
+    border:
+        1px solid #30383d;
 
+    border-radius: 5px;
 
-.quote-message {
-
-    margin:
-        9px 0 0;
-
-    text-align:
-        center;
-
-    color:
-        #777;
-
-    font-size:
-        11px;
+    background: #10181e;
 
 }
 
 
-/* =========================================================
-   CONTENT
-   ========================================================= */
+.full-spec span {
 
-.detail-content-section {
+    display: block;
 
-    margin-top:
-        70px;
+    color: #aab1b5;
 
-    padding-top:
-        55px;
-
-    border-top:
-        1px solid
-        var(--border);
+    font-size: 8px;
 
 }
 
 
-.detail-content-grid {
+.full-spec strong {
 
-    display:
-        grid;
+    display: block;
+
+    margin-top: 3px;
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+}
+
+
+
+/* =====================================================
+   FEATURES GRID
+   ===================================================== */
+
+.features-grid {
+
+    display: grid;
 
     grid-template-columns:
-        1.25fr
-        .75fr;
+        repeat(2, 1fr);
 
-    gap:
-        70px;
+    gap: 10px;
 
 }
 
 
-.content-label {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        12px;
-
-    color:
-        var(--gold);
-
-    font-size:
-        10px;
-
-    font-weight:
-        900;
-
-    letter-spacing:
-        1.8px;
-
-    text-transform:
-        uppercase;
-
-}
-
-
-.content-label::before {
-
-    content:
-        "";
-
-    width:
-        32px;
-
-    height:
-        1px;
-
-    background:
-        var(--gold);
-
-}
-
-
-.detail-content-section h2,
-.similar-section h2 {
-
-    margin:
-        10px 0 20px;
-
-    color:
-        #fff;
-
-    font-size:
-        32px;
-
-}
-
-
-.detail-content-section h2 span,
-.similar-section h2 span {
-
-    color:
-        var(--gold);
-
-}
-
-
-.description-text {
-
-    color:
-        #aaa;
-
-    font-size:
-        14px;
-
-    line-height:
-        1.9;
-
-    white-space:
-        pre-line;
-
-}
-
-
-/* =========================================================
-   FEATURES
-   ========================================================= */
-
-.detail-features ul {
-
-    list-style:
-        none;
+.feature-item {
 
     padding:
-        0;
-
-    margin:
-        0;
-
-    display:
-        grid;
-
-    gap:
-        11px;
-
-}
-
-
-.detail-features li {
-
-    position:
-        relative;
-
-    padding:
-        11px 12px 11px 35px;
-
-    background:
-        #0b0b0b;
+        13px;
 
     border:
-        1px solid
-        rgba(255,255,255,.06);
+        1px solid #30383d;
 
-    color:
-        #bbb;
+    border-radius: 5px;
 
-    font-size:
-        13px;
+    color: #ffffff;
 
-}
+    background: #10181e;
 
-
-.detail-features li::before {
-
-    content:
-        "✓";
-
-    position:
-        absolute;
-
-    left:
-        13px;
-
-    color:
-        var(--gold);
-
-    font-weight:
-        900;
+    font-size: 10px;
 
 }
 
 
-/* =========================================================
-   SHIPPING BANNER
-   ========================================================= */
+.feature-item::before {
 
-.shipping-banner {
+    content: "✓";
 
-    position:
-        relative;
+    margin-right: 8px;
 
-    min-height:
-        330px;
+    color: #d4af37;
 
-    margin-top:
-        75px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    overflow:
-        hidden;
-
-    background:
-        url("https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1800&q=80")
-        center / cover no-repeat;
+    font-weight: 900;
 
 }
 
 
-.shipping-overlay {
 
-    position:
-        absolute;
+/* =====================================================
+   LARGE GALLERY
+   ===================================================== */
 
-    inset:
-        0;
+.large-gallery {
 
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0,0,0,.96),
-            rgba(0,0,0,.68),
-            rgba(0,0,0,.82)
-        );
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
 
 }
 
 
-.shipping-content {
+.large-gallery img {
 
-    position:
-        relative;
+    width: 100%;
 
-    z-index:
-        2;
+    height: 145px;
 
-    max-width:
-        650px;
+    object-fit: cover;
 
-    padding:
-        55px;
+    border-radius: 5px;
 
-}
-
-
-.shipping-content h2 {
-
-    margin:
-        10px 0 12px;
-
-    color:
-        #fff;
-
-    font-size:
-        35px;
-
-    line-height:
-        1.15;
+    border:
+        1px solid #30383d;
 
 }
 
 
-.shipping-content h2 span {
 
-    color:
-        var(--gold);
-
-}
-
+/* =====================================================
+   SHIPPING
+   ===================================================== */
 
 .shipping-content p {
 
-    margin:
-        0 0 24px;
+    color: #d4d9db;
 
-    color:
-        #bbb;
+    font-size: 10px;
 
-    font-size:
-        14px;
+    line-height: 1.7;
 
 }
 
 
-.details-light-button {
+.shipping-steps {
 
-    display:
-        inline-flex;
+    margin-top: 18px;
 
-    align-items:
-        center;
+    display: grid;
 
-    justify-content:
-        center;
+    grid-template-columns:
+        repeat(5, 1fr);
 
-    min-height:
-        45px;
+    gap: 8px;
 
-    padding:
-        0 20px;
+}
+
+
+.shipping-steps div {
+
+    min-height: 90px;
+
+    padding: 11px;
 
     border:
-        1px solid
-        var(--gold);
+        1px solid #30383d;
 
-    color:
-        var(--gold);
+    border-radius: 5px;
 
-    font-size:
-        11px;
+    color: #ffffff;
 
-    font-weight:
-        800;
-
-    text-transform:
-        uppercase;
-
-    transition:
-        .25s;
+    font-size: 9px;
 
 }
 
 
-.details-light-button:hover {
+.shipping-steps strong {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #d4af37;
+
+    font-size: 15px;
+
+}
+
+
+
+/* =====================================================
+   SIMILAR VEHICLES
+   ===================================================== */
+
+.similar-card {
+
+    padding:
+        14px;
+
+    border:
+        1px solid #30383d;
+
+    border-radius: 6px;
 
     background:
-        var(--gold);
-
-    color:
-        #080808;
-
-}
-
-
-/* =========================================================
-   SIMILAR
-   ========================================================= */
-
-.similar-section {
-
-    padding-top:
-        70px;
+        linear-gradient(
+            145deg,
+            #0a1116,
+            #081016
+        );
 
 }
 
 
 .similar-heading {
 
-    display:
-        flex;
+    display: flex;
 
-    justify-content:
-        space-between;
+    align-items: center;
 
-    align-items:
-        end;
+    justify-content: space-between;
 
-    margin-bottom:
-        25px;
+    margin-bottom: 11px;
 
 }
 
 
-.similar-heading > a {
+.similar-heading h2 {
 
-    color:
-        var(--gold);
+    color: #ffffff;
 
-    font-size:
-        12px;
-
-    font-weight:
-        800;
+    font-size: 15px;
 
 }
 
 
-.similar-grid {
+.similar-heading a {
 
-    display:
-        grid;
+    color: #d4af37;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+}
+
+
+.similar-list {
+
+    display: grid;
+
+    gap: 9px;
+
+}
+
+
+.similar-item {
+
+    display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        70px 1fr;
 
-    gap:
-        20px;
+    gap: 9px;
 
-}
+    padding-bottom: 9px;
 
-
-.similar-card {
-
-    background:
-        #0b0b0b;
-
-    border:
-        1px solid
-        var(--border);
-
-    overflow:
-        hidden;
-
-    transition:
-        .25s;
+    border-bottom:
+        1px solid #30383d;
 
 }
 
 
-.similar-card:hover {
+.similar-item:last-child {
 
-    border-color:
-        var(--gold-border);
+    border-bottom: 0;
 
-    transform:
-        translateY(-3px);
+    padding-bottom: 0;
 
 }
 
 
-.similar-card-image {
+.similar-image {
 
-    height:
-        200px;
+    width: 70px;
 
-    background:
-        #111;
+    height: 70px;
 
-}
+    overflow: hidden;
 
-
-.similar-card-image img {
-
-    width:
-        100%;
-
-    height:
-        100%;
-
-    object-fit:
-        cover;
+    border-radius: 5px;
 
 }
 
 
-.similar-card-content {
+.similar-image img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+
+.similar-info strong {
+
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    line-height: 1.25;
+
+}
+
+
+.similar-info small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #b7bdc0;
+
+    font-size: 7px;
+
+}
+
+
+.similar-price {
+
+    margin-top: 7px;
+
+    color: #d4af37;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+}
+
+
+
+/* =====================================================
+   MORE PHOTOS
+   ===================================================== */
+
+.more-photos-section {
 
     padding:
-        17px;
+        0 0 25px;
 
 }
 
 
-.similar-ref {
-
-    color:
-        var(--gold);
-
-    font-size:
-        9px;
-
-    font-weight:
-        900;
-
-    letter-spacing:
-        1px;
-
-}
-
-
-.similar-card h3 {
-
-    margin:
-        5px 0;
-
-    color:
-        #fff;
-
-    font-size:
-        17px;
-
-}
-
-
-.similar-card p {
-
-    margin:
-        0;
-
-    color:
-        #777;
-
-    font-size:
-        11px;
-
-}
-
-
-.similar-card a {
-
-    display:
-        inline-flex;
-
-    margin-top:
-        12px;
-
-    color:
-        var(--gold);
-
-    font-size:
-        10px;
-
-    font-weight:
-        900;
-
-    text-transform:
-        uppercase;
-
-}
-
-
-/* =========================================================
-   LOADING
-   ========================================================= */
-
-.details-loading {
-
-    min-height:
-        600px;
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    color:
-        var(--gold);
-
-}
-
-
-.details-spinner {
-
-    width:
-        48px;
-
-    height:
-        48px;
-
-    border:
-        3px solid
-        rgba(212,175,55,.15);
-
-    border-top-color:
-        var(--gold);
-
-    border-radius:
-        50%;
-
-    animation:
-        spin 1s linear infinite;
-
-    margin-bottom:
-        20px;
-
-}
-
-
-@keyframes spin {
-
-    to {
-        transform:
-            rotate(360deg);
-    }
-
-}
-
-
-/* =========================================================
-   ERROR
-   ========================================================= */
-
-.details-error {
-
-    min-height:
-        600px;
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    text-align:
-        center;
-
-}
-
-
-.error-icon {
-
-    width:
-        55px;
-
-    height:
-        55px;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    border:
-        1px solid
-        #8b3030;
-
-    border-radius:
-        50%;
-
-    color:
-        #e15c5c;
-
-    font-size:
-        25px;
-
-}
-
-
-.details-error h2 {
-
-    margin:
-        18px 0 5px;
-
-    color:
-        #fff;
-
-}
-
-
-.details-error p {
-
-    margin:
-        0 0 20px;
-
-    color:
-        #777;
-
-}
-
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.details-footer {
+.more-photos-card {
 
     padding:
-        55px 0 20px;
+        14px;
+
+    border:
+        1px solid #30383d;
+
+    border-radius: 6px;
 
     background:
-        #030303;
+        linear-gradient(
+            145deg,
+            #0a1116,
+            #081016
+        );
+
+}
+
+
+.more-photos-card h2 {
+
+    margin-bottom: 11px;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+}
+
+
+.more-photos-card h2 span {
+
+    color: #d4af37;
+
+}
+
+
+.more-photos-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 7px;
+
+}
+
+
+.more-photo {
+
+    height: 105px;
+
+    overflow: hidden;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+}
+
+
+.more-photo img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    transition: transform .3s ease;
+
+}
+
+
+.more-photo:hover img {
+
+    transform: scale(1.04);
+
+}
+
+
+
+/* =====================================================
+   TRUST BAR
+   ===================================================== */
+
+.trust-bar {
+
+    background: #050809;
 
     border-top:
-        1px solid
-        var(--border);
+        1px solid #30383d;
 
 }
 
 
-.footer-inner {
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    gap:
-        40px;
-
-}
-
-
-.footer-logo {
+.trust-bar-inner {
 
     width:
-        150px;
+        min(1165px, calc(100% - 50px));
 
-    height:
-        65px;
+    min-height: 83px;
 
-    object-fit:
-        contain;
+    margin: 0 auto;
 
-}
+    display: flex;
 
+    align-items: center;
 
-.footer-inner p {
-
-    max-width:
-        450px;
-
-    color:
-        #777;
-
-    font-size:
-        12px;
+    gap: 25px;
 
 }
 
 
-.footer-links {
+.bottom-trust-item {
 
-    display:
-        flex;
+    flex: 1;
 
-    flex-direction:
-        column;
+    display: flex;
 
-    gap:
-        8px;
+    align-items: center;
 
-}
-
-
-.footer-links a {
-
-    color:
-        #999;
-
-    font-size:
-        12px;
+    gap: 11px;
 
 }
 
 
-.footer-links a:hover {
+.bottom-icon {
 
-    color:
-        var(--gold);
+    color: #d4af37;
 
-}
-
-
-.footer-bottom {
-
-    margin-top:
-        40px;
-
-    padding-top:
-        18px;
-
-    border-top:
-        1px solid
-        var(--border);
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    color:
-        #555;
-
-    font-size:
-        10px;
+    font-size: 28px;
 
 }
 
 
-/* =========================================================
+.bottom-trust-item strong {
+
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+}
+
+
+.bottom-trust-item span {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #a8afb2;
+
+    font-size: 8px;
+
+}
+
+
+.trust-divider {
+
+    width: 1px;
+
+    height: 40px;
+
+    background: #3b4246;
+
+}
+
+
+.bottom-whatsapp {
+
+    min-width: 225px;
+
+    height: 51px;
+
+    padding:
+        0 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border:
+        2px solid #d4af37;
+
+    border-radius: 28px;
+
+    color: #ffffff;
+
+}
+
+
+.bottom-whatsapp-icon {
+
+    width: 30px;
+
+    height: 30px;
+
+    border:
+        2px solid #d4af37;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #d4af37;
+
+}
+
+
+.bottom-whatsapp strong {
+
+    display: block;
+
+    font-size: 8px;
+
+}
+
+
+.bottom-whatsapp small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #d4af37;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+}
+
+
+
+/* =====================================================
    FLOATING WHATSAPP
-   ========================================================= */
+   ===================================================== */
 
-.details-floating-whatsapp {
+.floating-whatsapp {
 
-    position:
-        fixed;
+    position: fixed;
 
-    right:
-        20px;
+    right: 19px;
 
-    bottom:
-        20px;
+    bottom: 18px;
 
-    width:
-        56px;
+    width: 53px;
 
-    height:
-        56px;
+    height: 53px;
 
-    border-radius:
-        50%;
+    border-radius: 50%;
 
-    display:
-        flex;
+    background: #25d366;
 
-    align-items:
-        center;
+    color: #ffffff;
 
-    justify-content:
-        center;
+    display: flex;
 
-    background:
-        #20d366;
+    align-items: center;
 
-    color:
-        #fff;
+    justify-content: center;
 
-    font-size:
-        23px;
+    font-size: 24px;
 
     box-shadow:
-        0 10px 30px rgba(0,0,0,.4);
+        0 5px 20px rgba(0,0,0,.4);
 
-    z-index:
-        900;
+    z-index: 9999;
 
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
 
-@media (max-width: 1000px) {
+/* =====================================================
+   TABLET
+   ===================================================== */
 
-    .details-nav {
+@media (max-width: 1100px) {
 
-        gap:
-            17px;
-
+    .brand-message {
+        display: none;
     }
 
-    .vehicle-main-grid {
 
+    .main-nav {
+        gap: 18px;
+    }
+
+
+    .vehicle-top-grid {
         grid-template-columns:
-            1fr;
-
+            1.45fr 1fr;
     }
 
-    .vehicle-information {
 
-        max-width:
-            850px;
+    .contact-card {
+        grid-column:
+            1 / -1;
+    }
 
+
+    .contact-card {
+        min-height: auto;
+    }
+
+
+    .information-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .information-sidebar {
+        order: 2;
     }
 
 }
 
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
 
 @media (max-width: 800px) {
 
-    .details-container {
-
+    .header-inner,
+    .page-container,
+    .trust-bar-inner {
         width:
-            min(
-                calc(100% - 35px),
-                var(--container)
-            );
-
+            calc(100% - 30px);
     }
 
 
-    .details-header {
-
-        height:
-            70px;
-
+    .brand {
+        flex: 1;
     }
 
 
-    .details-nav {
+    .brand img {
+        width: 165px;
+    }
 
-        display:
-            none;
 
-        position:
-            absolute;
+    .header-whatsapp {
+        display: none;
+    }
 
-        top:
-            70px;
 
-        left:
-            0;
+    .menu-toggle {
+        display: block;
+    }
 
-        right:
-            0;
+
+    .main-nav {
+
+        position: absolute;
+
+        top: 80px;
+
+        left: 0;
+
+        width: 100%;
 
         padding:
-            20px;
+            10px 20px;
 
-        background:
-            #080808;
+        display: none;
 
-        border-bottom:
-            1px solid
-            var(--gold-border);
+        flex-direction: column;
 
-        flex-direction:
-            column;
+        align-items: stretch;
 
-        gap:
-            0;
+        gap: 0;
+
+        background: #050809;
 
     }
 
 
-    .details-nav.mobile-open {
-
-        display:
-            flex;
-
+    .main-nav.open {
+        display: flex;
     }
 
 
-    .details-nav a {
-
-        width:
-            100%;
-
-        padding:
-            13px 0;
-
-        border-bottom:
-            1px solid
-            rgba(255,255,255,.06);
-
+    .main-nav a {
+        padding: 13px 0;
     }
 
 
-    .details-whatsapp-top {
-
-        display:
-            none;
-
+    .main-nav a::after {
+        display: none;
     }
 
 
-    .details-menu {
-
-        display:
-            block;
-
+    .vehicle-top-grid {
+        grid-template-columns: 1fr;
     }
 
 
-    .main-image-wrapper {
-
-        height:
-            360px;
-
+    .main-photo {
+        height: 300px;
     }
 
 
-    .detail-spec-grid {
+    .summary-card {
+        min-height: auto;
+    }
 
+
+    .contact-card {
+        grid-column: auto;
+    }
+
+
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .full-spec-grid {
         grid-template-columns:
             repeat(2, 1fr);
-
     }
 
 
-    .detail-content-grid {
-
+    .shipping-steps {
         grid-template-columns:
-            1fr;
-
-        gap:
-            45px;
-
+            repeat(2, 1fr);
     }
 
 
-    .similar-grid {
-
+    .more-photos-grid {
         grid-template-columns:
-            1fr;
-
+            repeat(3, 1fr);
     }
 
 
-    .similar-heading {
-
-        align-items:
-            start;
-
-        flex-direction:
-            column;
-
-        gap:
-            10px;
-
-    }
-
-
-    .shipping-content {
-
+    .trust-bar-inner {
         padding:
-            35px 25px;
+            20px 0;
 
+        flex-direction: column;
+
+        align-items: stretch;
     }
 
 
-    .shipping-content h2 {
-
-        font-size:
-            28px;
-
+    .trust-divider {
+        display: none;
     }
 
 
-    .footer-inner {
-
-        flex-direction:
-            column;
-
-    }
-
-
-    .footer-bottom {
-
-        flex-direction:
-            column;
-
-        gap:
-            8px;
-
+    .bottom-whatsapp {
+        justify-content: center;
     }
 
 }
 
 
-@media (max-width: 500px) {
 
-    .vehicle-information h1 {
+/* =====================================================
+   SMALL MOBILE
+   ===================================================== */
 
-        font-size:
-            34px;
+@media (max-width: 520px) {
 
+    .breadcrumb {
+        font-size: 9px;
     }
 
 
-    .main-image-wrapper {
-
-        height:
-            280px;
-
+    .main-photo {
+        height: 250px;
     }
 
 
-    .detail-price-box {
-
-        padding:
-            16px;
-
+    .thumbnail-row {
+        grid-template-columns:
+            repeat(4, 1fr);
     }
 
 
-    .quote-box {
+    .thumbnail {
+        height: 60px;
+    }
 
-        padding:
-            16px;
 
+    .summary-specs {
+        grid-template-columns: 1fr 1fr;
+    }
+
+
+    .information-tabs {
+        overflow-x: auto;
+    }
+
+
+    .information-tab {
+        min-width: 110px;
+    }
+
+
+    .full-spec-grid,
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .large-gallery {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .large-gallery img {
+        height: 120px;
+    }
+
+
+    .shipping-steps {
+        grid-template-columns: 1fr;
+    }
+
+
+    .more-photos-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .more-photo {
+        height: 120px;
     }
 
 }
