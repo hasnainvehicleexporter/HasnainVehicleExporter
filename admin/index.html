@@ -1,1378 +1,1184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <title>HVE Admin Dashboard | Hasnain Vehicle Exporter</title>
+    <title>HVE Admin | Hasnain Vehicle Exporter</title>
 
-  <link
-    rel="stylesheet"
-    href="./admin.css"
-  >
+    <meta
+        name="description"
+        content="Hasnain Vehicle Exporter administration dashboard."
+    >
+
+    <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-  <!-- =====================================================
-       LOGIN
-  ====================================================== -->
+    <!-- =====================================================
+         LOGIN SCREEN
+    ====================================================== -->
 
-  <section
-    id="loginView"
-    class="login-view"
-  >
+    <div id="loginScreen" class="login-screen">
 
-    <div class="login-card">
+        <div class="login-background"></div>
 
-      <img
-        src="../images/logo.png"
-        alt="Hasnain Vehicle Exporter"
-        class="login-logo"
-      >
+        <div class="login-card">
 
-      <div class="login-brand">
-        ADMINISTRATION PANEL
-      </div>
+            <div class="login-logo-wrap">
+                <img
+                    src="../images/logo.png"
+                    alt="Hasnain Vehicle Exporter"
+                    class="login-logo"
+                    onerror="this.style.display='none';"
+                >
+            </div>
 
-      <h1>Welcome Back</h1>
+            <div class="login-heading">
 
-      <p>
-        Sign in to manage your vehicle inventory.
-      </p>
+                <span class="login-eyebrow">
+                    ADMINISTRATION PANEL
+                </span>
 
-      <form id="loginForm">
+                <h1>
+                    Welcome <span>Back</span>
+                </h1>
 
-        <div class="form-group">
+                <p>
+                    Sign in to manage your vehicle inventory.
+                </p>
 
-          <label for="loginEmail">
-            Email Address
-          </label>
+            </div>
 
-          <input
-            type="email"
-            id="loginEmail"
-            placeholder="Admin email"
-            autocomplete="username"
-            required
-          >
+            <form id="loginForm" class="login-form">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrap">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle"
+                            aria-label="Show password"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="login-button"
+                >
+                    <span id="loginButtonText">
+                        Sign In
+                    </span>
+
+                    <span
+                        id="loginSpinner"
+                        class="button-spinner hidden"
+                    ></span>
+                </button>
+
+                <div
+                    id="loginError"
+                    class="login-error hidden"
+                    role="alert"
+                ></div>
+
+            </form>
+
+            <div class="login-footer">
+                <span>HASNAIN VEHICLE EXPORTER</span>
+                <span>•</span>
+                <span>ADMIN ACCESS</span>
+            </div>
 
         </div>
-
-
-        <div class="form-group">
-
-          <label for="loginPassword">
-            Password
-          </label>
-
-          <input
-            type="password"
-            id="loginPassword"
-            placeholder="Password"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
-
-
-        <button
-          type="submit"
-          class="login-button"
-        >
-          Sign In
-        </button>
-
-        <div id="loginError"></div>
-
-      </form>
-
-      <div class="login-footer">
-        Hasnain Vehicle Exporter
-      </div>
 
     </div>
 
-  </section>
 
+    <!-- =====================================================
+         ADMIN DASHBOARD
+    ====================================================== -->
 
-  <!-- =====================================================
-       APPLICATION
-  ====================================================== -->
+    <div id="dashboard" class="dashboard hidden">
 
-  <section
-    id="appView"
-    class="app-view hidden"
-  >
+        <!-- SIDEBAR -->
 
-    <!-- ===================================================
-         SIDEBAR
-    ==================================================== -->
+        <aside class="sidebar" id="sidebar">
 
-    <aside class="sidebar">
+            <div class="sidebar-brand">
 
-      <div class="sidebar-top">
-
-        <div class="sidebar-logo-wrap">
-
-          <img
-            src="../images/logo.png"
-            alt="Hasnain Vehicle Exporter"
-            class="sidebar-logo"
-          >
-
-        </div>
-
-        <div class="sidebar-label">
-          HVE ADMIN
-        </div>
-
-      </div>
-
-
-      <!-- NAVIGATION -->
-
-      <nav class="sidebar-nav">
-
-        <button
-          type="button"
-          class="nav-item active"
-          data-view="overview"
-        >
-          <span class="nav-icon">▦</span>
-          <span>Dashboard</span>
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-view="vehicles"
-        >
-          <span class="nav-icon">🚗</span>
-          <span>Vehicles</span>
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-view="add"
-        >
-          <span class="nav-icon">＋</span>
-          <span>Add Vehicle</span>
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-view="tracking"
-        >
-          <span class="nav-icon">🚢</span>
-          <span>Tracking</span>
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-view="import"
-        >
-          <span class="nav-icon">⇩</span>
-          <span>Import JSON</span>
-        </button>
-
-      </nav>
-
-
-      <!-- SIDEBAR FOOTER -->
-
-      <div class="sidebar-footer">
-
-        <div class="admin-account">
-
-          <div class="account-icon">
-            H
-          </div>
-
-          <div class="account-details">
-
-            <span class="account-label">
-              ADMINISTRATOR
-            </span>
-
-            <span
-              id="signedInAs"
-              class="account-email"
-            >
-              —
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <button
-          type="button"
-          id="logoutBtn"
-          class="sign-out-button"
-        >
-          Sign Out
-        </button>
-
-      </div>
-
-    </aside>
-
-
-    <!-- ===================================================
-         MAIN CONTENT
-    ==================================================== -->
-
-    <main class="main-content">
-
-      <!-- TOP HEADER -->
-
-      <header class="topbar">
-
-        <div class="topbar-left">
-
-          <div class="topbar-mobile-brand">
-
-            <img
-              src="../images/logo.png"
-              alt="Hasnain Vehicle Exporter"
-            >
-
-          </div>
-
-          <div>
-
-            <div class="topbar-brand">
-              HASNAIN VEHICLE EXPORTER
-            </div>
-
-            <h1 id="pageTitle">
-              Dashboard
-            </h1>
-
-            <p class="topbar-subtitle">
-              Vehicle inventory & export management
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="topbar-actions">
-
-          <button
-            type="button"
-            id="refreshBtn"
-            class="icon-button"
-            title="Refresh"
-          >
-            ↻
-          </button>
-
-
-          <a
-            href="../index.html"
-            target="_blank"
-            rel="noopener"
-            class="website-button"
-          >
-            View Website
-            <span>↗</span>
-          </a>
-
-        </div>
-
-      </header>
-
-
-      <!-- =================================================
-           OVERVIEW
-      ================================================== -->
-
-      <section
-        id="view-overview"
-        class="page-view"
-      >
-
-        <!-- STATISTICS -->
-
-        <div class="stats-grid">
-
-          <div class="stat-card">
-
-            <div class="stat-icon">
-              ▣
-            </div>
-
-            <div class="stat-content">
-
-              <span class="stat-label">
-                Total Vehicles
-              </span>
-
-              <strong
-                id="statTotal"
-                class="stat-value"
-              >
-                0
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card available">
-
-            <div class="stat-icon">
-              ✓
-            </div>
-
-            <div class="stat-content">
-
-              <span class="stat-label">
-                Available
-              </span>
-
-              <strong
-                id="statAvailable"
-                class="stat-value"
-              >
-                0
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card sold">
-
-            <div class="stat-icon">
-              $
-            </div>
-
-            <div class="stat-content">
-
-              <span class="stat-label">
-                Sold
-              </span>
-
-              <strong
-                id="statSold"
-                class="stat-value"
-              >
-                0
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="stat-card transit">
-
-            <div class="stat-icon">
-              →
-            </div>
-
-            <div class="stat-content">
-
-              <span class="stat-label">
-                In Transit
-              </span>
-
-              <strong
-                id="statTransit"
-                class="stat-value"
-              >
-                0
-              </strong>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- QUICK ACTIONS -->
-
-        <div class="quick-actions">
-
-          <button
-            type="button"
-            class="quick-action"
-            data-go="add"
-          >
-
-            <span class="quick-action-icon">
-              ＋
-            </span>
-
-            <span>
-              <strong>Add Vehicle</strong>
-              <small>Create a new inventory listing</small>
-            </span>
-
-          </button>
-
-
-          <button
-            type="button"
-            class="quick-action"
-            data-go="vehicles"
-          >
-
-            <span class="quick-action-icon">
-              🚗
-            </span>
-
-            <span>
-              <strong>Manage Vehicles</strong>
-              <small>Edit, remove and view inventory</small>
-            </span>
-
-          </button>
-
-
-          <button
-            type="button"
-            class="quick-action"
-            data-go="tracking"
-          >
-
-            <span class="quick-action-icon">
-              🚢
-            </span>
-
-            <span>
-              <strong>Vehicle Tracking</strong>
-              <small>Update shipment progress</small>
-            </span>
-
-          </button>
-
-        </div>
-
-
-        <!-- RECENT VEHICLES -->
-
-        <div class="panel">
-
-          <div class="panel-header">
-
-            <div>
-
-              <span class="panel-eyebrow">
-                INVENTORY
-              </span>
-
-              <h2>
-                Recent Vehicles
-              </h2>
-
-              <p>
-                Your latest vehicle listings.
-              </p>
-
-            </div>
-
-
-            <button
-              type="button"
-              class="gold-button"
-              data-go="add"
-            >
-              + Add Vehicle
-            </button>
-
-          </div>
-
-
-          <div
-            id="recentTable"
-            class="table-wrap"
-          >
-            <div class="loading">
-              Loading vehicles...
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           VEHICLES
-      ================================================== -->
-
-      <section
-        id="view-vehicles"
-        class="page-view hidden"
-      >
-
-        <div class="panel">
-
-          <div class="panel-header">
-
-            <div>
-
-              <span class="panel-eyebrow">
-                INVENTORY MANAGEMENT
-              </span>
-
-              <h2>
-                Vehicles
-              </h2>
-
-              <p>
-                Manage your Japanese vehicle inventory.
-              </p>
-
-            </div>
-
-
-            <button
-              type="button"
-              class="gold-button"
-              data-go="add"
-            >
-              + Add Vehicle
-            </button>
-
-          </div>
-
-
-          <!-- SEARCH -->
-
-          <div class="toolbar">
-
-            <div class="toolbar-search">
-
-              <span class="search-icon">
-                ⌕
-              </span>
-
-              <input
-                type="search"
-                id="vehicleSearch"
-                placeholder="Search reference, make, model, country..."
-              >
-
-            </div>
-
-
-            <select id="statusFilter">
-
-              <option value="">
-                All Statuses
-              </option>
-
-              <option value="Available">
-                Available
-              </option>
-
-              <option value="Purchased">
-                Purchased
-              </option>
-
-              <option value="In Transit">
-                In Transit
-              </option>
-
-              <option value="Port Arrival">
-                Port Arrival
-              </option>
-
-              <option value="Delivered">
-                Delivered
-              </option>
-
-              <option value="Sold">
-                Sold
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div
-            id="vehicleTable"
-            class="table-wrap"
-          >
-            <div class="loading">
-              Loading vehicles...
-            </div>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           ADD / EDIT VEHICLE
-      ================================================== -->
-
-      <section
-        id="view-add"
-        class="page-view hidden"
-      >
-
-        <div class="panel">
-
-          <div class="panel-header">
-
-            <div>
-
-              <span class="panel-eyebrow">
-                VEHICLE INVENTORY
-              </span>
-
-              <h2 id="formTitle">
-                Add Vehicle
-              </h2>
-
-              <p>
-                Add a Japanese vehicle to your inventory.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <form id="vehicleForm">
-
-            <input
-              type="hidden"
-              id="editId"
-            >
-
-
-            <!-- BASIC INFORMATION -->
-
-            <div class="form-section">
-
-              <div class="form-section-title">
-                <span>01</span>
-                Vehicle Information
-              </div>
-
-
-              <div class="form-grid">
-
-                <div class="form-group">
-
-                  <label for="ref">
-                    HVE Reference
-                  </label>
-
-                  <input
-                    type="text"
-                    id="ref"
-                    readonly
-                  >
-
-                  <small>
-                    Automatically generated.
-                  </small>
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="status">
-                    Listing Status
-                  </label>
-
-                  <select id="status">
-
-                    <option value="Available">
-                      Available
-                    </option>
-
-                    <option value="Purchased">
-                      Purchased
-                    </option>
-
-                    <option value="In Transit">
-                      In Transit
-                    </option>
-
-                    <option value="Port Arrival">
-                      Port Arrival
-                    </option>
-
-                    <option value="Delivered">
-                      Delivered
-                    </option>
-
-                    <option value="Sold">
-                      Sold
-                    </option>
-
-                  </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="make">
-                    Make *
-                  </label>
-
-                  <input
-                    type="text"
-                    id="make"
-                    placeholder="Toyota"
-                    required
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="model">
-                    Model *
-                  </label>
-
-                  <input
-                    type="text"
-                    id="model"
-                    placeholder="Land Cruiser Prado"
-                    required
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="year">
-                    Year *
-                  </label>
-
-                  <input
-                    type="number"
-                    id="year"
-                    placeholder="2020"
-                    min="1900"
-                    max="2100"
-                    required
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="mileage">
-                    Mileage
-                  </label>
-
-                  <input
-                    type="text"
-                    id="mileage"
-                    placeholder="78,000 km"
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="engine">
-                    Engine
-                  </label>
-
-                  <input
-                    type="text"
-                    id="engine"
-                    placeholder="2.7L"
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="fuel">
-                    Fuel
-                  </label>
-
-                  <select id="fuel">
-
-                    <option value="Petrol">
-                      Petrol
-                    </option>
-
-                    <option value="Diesel">
-                      Diesel
-                    </option>
-
-                    <option value="Hybrid">
-                      Hybrid
-                    </option>
-
-                    <option value="Electric">
-                      Electric
-                    </option>
-
-                    <option value="Other">
-                      Other
-                    </option>
-
-                  </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="transmission">
-                    Transmission
-                  </label>
-
-                  <select id="transmission">
-
-                    <option value="Automatic">
-                      Automatic
-                    </option>
-
-                    <option value="Manual">
-                      Manual
-                    </option>
-
-                    <option value="CVT">
-                      CVT
-                    </option>
-
-                    <option value="Other">
-                      Other
-                    </option>
-
-                  </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="drive">
-                    Drive
-                  </label>
-
-                  <input
-                    type="text"
-                    id="drive"
-                    placeholder="4WD"
-                  >
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="beforwardRef">
-                    BE FORWARD Reference
-                  </label>
-
-                  <input
-                    type="text"
-                    id="beforwardRef"
-                    placeholder="Optional"
-                  >
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <!-- DESTINATION -->
-
-            <div class="form-section">
-
-              <div class="form-section-title">
-                <span>02</span>
-                Market & Destination
-              </div>
-
-
-              <div class="notice-box">
-
-                <strong>
-                  Destination is optional.
-                </strong>
-
-                <p>
-                  Publish vehicles without selecting a customer country.
-                  Enter the destination later when a customer buys or
-                  requests the vehicle.
-                </p>
-
-              </div>
-
-
-              <div class="form-grid">
-
-                <div class="form-group">
-
-                  <label for="region">
-                    Region
-                  </label>
-
-                  <select id="region">
-
-                    <option value="">
-                      Not selected
-                    </option>
-
-                    <option value="Africa">
-                      Africa
-                    </option>
-
-                    <option value="Caribbean">
-                      Caribbean
-                    </option>
-
-                  </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label for="country">
-                    Destination Country
-                  </label>
-
-                  <select id="country">
-
-                    <option value="">
-                      Not selected
-                    </option>
-
-                  </select>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <!-- DESCRIPTION -->
-
-            <div class="form-section">
-
-              <div class="form-section-title">
-                <span>03</span>
-                Vehicle Description
-              </div>
-
-
-              <div class="form-group">
-
-                <label for="description">
-                  Description
-                </label>
-
-                <textarea
-                  id="description"
-                  placeholder="Describe the vehicle, condition, specification, history, location and other important details..."
-                ></textarea>
-
-              </div>
-
-
-              <div class="form-group">
-
-                <label for="features">
-                  Key Features
-                </label>
-
-                <input
-                  type="text"
-                  id="features"
-                  placeholder="Leather seats, Sunroof, 4WD, Navigation"
+                <img
+                    src="../images/logo.png"
+                    alt="Hasnain Vehicle Exporter"
+                    class="sidebar-logo"
+                    onerror="this.style.display='none';"
                 >
 
-                <small>
-                  Separate features using commas.
-                </small>
-
-              </div>
+                <div class="sidebar-brand-text">
+                    <strong>HVE</strong>
+                    <span>ADMIN PANEL</span>
+                </div>
 
             </div>
 
 
-            <!-- PHOTOS -->
+            <nav class="sidebar-nav">
 
-            <div class="form-section">
-
-              <div class="form-section-title">
-                <span>04</span>
-                Vehicle Photos
-              </div>
-
-
-              <div class="photo-upload-box">
-
-                <div class="photo-upload-header">
-
-                  <div>
-
-                    <strong>
-                      Vehicle Gallery
-                    </strong>
-
-                    <p>
-                      Upload multiple high-quality vehicle photos.
-                    </p>
-
-                  </div>
-
-                </div>
-
-
-                <label
-                  for="photos"
-                  class="upload-label"
+                <button
+                    class="nav-item active"
+                    data-section="overview"
+                    type="button"
                 >
+                    <span class="nav-icon">⌂</span>
+                    <span>Overview</span>
+                </button>
 
-                  <span class="upload-icon">
-                    ＋
-                  </span>
-
-                  <span>
-                    Choose Vehicle Photos
-                  </span>
-
-                  <small>
-                    JPG, PNG or WEBP · Maximum 10 MB each
-                  </small>
-
-                </label>
-
-
-                <input
-                  type="file"
-                  id="photos"
-                  accept="image/*"
-                  multiple
-                  class="photo-file-input"
+                <button
+                    class="nav-item"
+                    data-section="vehicles"
+                    type="button"
                 >
+                    <span class="nav-icon">🚘</span>
+                    <span>Vehicles</span>
+                </button>
 
-
-                <div
-                  id="photoPreview"
-                  class="photo-preview"
+                <button
+                    class="nav-item"
+                    data-section="addVehicle"
+                    type="button"
                 >
+                    <span class="nav-icon">＋</span>
+                    <span>Add Vehicle</span>
+                </button>
 
-                  <div class="photo-empty">
-                    <span class="photo-empty-icon">
-                      ▧
+                <button
+                    class="nav-item"
+                    data-section="tracking"
+                    type="button"
+                >
+                    <span class="nav-icon">◈</span>
+                    <span>Tracking</span>
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <a
+                    href="../vehicles.html"
+                    target="_blank"
+                    class="sidebar-link"
+                >
+                    <span>↗</span>
+                    View Public Catalog
+                </a>
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    <span>⇥</span>
+                    Sign Out
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN AREA -->
+
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+
+            <header class="topbar">
+
+                <button
+                    type="button"
+                    id="mobileMenuButton"
+                    class="mobile-menu-button"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+                <div class="topbar-title">
+
+                    <span class="topbar-label">
+                        HASNAIN VEHICLE EXPORTER
                     </span>
 
-                    <strong>
-                      No vehicle photos
-                    </strong>
-
-                    <small>
-                      Add photos using the button above.
-                    </small>
-                  </div>
+                    <h2 id="pageTitle">
+                        Dashboard
+                    </h2>
 
                 </div>
 
-              </div>
+                <div class="admin-user">
 
-            </div>
+                    <div class="admin-avatar">
+                        HVE
+                    </div>
 
+                    <div class="admin-user-info">
 
-            <!-- TRACKING -->
+                        <strong id="adminEmail">
+                            Administrator
+                        </strong>
 
-            <div class="form-section">
+                        <span>
+                            Authorized Admin
+                        </span>
 
-              <div class="form-section-title">
-                <span>05</span>
-                Tracking
-              </div>
-
-
-              <div class="form-grid">
-
-                <div class="form-group">
-
-                  <label for="trackingStatus">
-                    Tracking Status
-                  </label>
-
-                  <select id="trackingStatus">
-
-                    <option value="Available in Japan">
-                      Available in Japan
-                    </option>
-
-                    <option value="Vehicle Purchased">
-                      Vehicle Purchased
-                    </option>
-
-                    <option value="Port Departure">
-                      Port Departure
-                    </option>
-
-                    <option value="In Transit">
-                      In Transit
-                    </option>
-
-                    <option value="Port Arrival">
-                      Port Arrival
-                    </option>
-
-                    <option value="Delivered">
-                      Delivered
-                    </option>
-
-                  </select>
+                    </div>
 
                 </div>
 
-
-                <div class="form-group">
-
-                  <label for="trackingLocation">
-                    Current Location
-                  </label>
-
-                  <input
-                    type="text"
-                    id="trackingLocation"
-                    placeholder="Japan"
-                  >
-
-                </div>
-
-              </div>
-
-            </div>
+            </header>
 
 
-            <!-- FORM ACTIONS -->
+            <!-- =================================================
+                 OVERVIEW
+            ================================================== -->
 
-            <div class="form-actions">
-
-              <button
-                type="submit"
-                class="gold-button large"
-              >
-                Save Vehicle
-              </button>
-
-
-              <button
-                type="button"
-                id="clearFormBtn"
-                class="dark-button"
-              >
-                Clear Form
-              </button>
-
-
-              <button
-                type="button"
-                id="cancelEditBtn"
-                class="dark-button hidden"
-              >
-                Cancel Edit
-              </button>
-
-            </div>
-
-
-            <div
-              id="formMessage"
-              class="form-message"
-            ></div>
-
-          </form>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           TRACKING
-      ================================================== -->
-
-      <section
-        id="view-tracking"
-        class="page-view hidden"
-      >
-
-        <div class="panel">
-
-          <div class="panel-header">
-
-            <div>
-
-              <span class="panel-eyebrow">
-                SHIPMENT MANAGEMENT
-              </span>
-
-              <h2>
-                Vehicle Tracking
-              </h2>
-
-              <p>
-                Update the shipment status and current location.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div
-            id="trackingTable"
-            class="table-wrap"
-          >
-
-            <div class="loading">
-              Loading tracking information...
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           IMPORT JSON
-      ================================================== -->
-
-      <section
-        id="view-import"
-        class="page-view hidden"
-      >
-
-        <div class="panel import-panel">
-
-          <div class="panel-header">
-
-            <div>
-
-              <span class="panel-eyebrow">
-                DATA MANAGEMENT
-              </span>
-
-              <h2>
-                Import Vehicle Data
-              </h2>
-
-              <p>
-                Import vehicle records from a JSON file.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div class="import-box">
-
-            <div class="import-info">
-
-              <strong>
-                JSON Import
-              </strong>
-
-              <p>
-                Use this feature to import or update multiple
-                vehicle records. Existing records with matching
-                document IDs can be updated.
-              </p>
-
-            </div>
-
-
-            <div class="form-group">
-
-              <label for="jsonFile">
-                Select JSON File
-              </label>
-
-              <input
-                type="file"
-                id="jsonFile"
-                accept=".json,application/json"
-              >
-
-            </div>
-
-
-            <button
-              type="button"
-              id="importBtn"
-              class="gold-button"
+            <section
+                id="section-overview"
+                class="dashboard-section active-section"
             >
-              Import Vehicles
-            </button>
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-eyebrow">
+                            CONTROL CENTER
+                        </span>
+
+                        <h1>
+                            Vehicle <span>Inventory</span>
+                        </h1>
+
+                        <p>
+                            Manage your Japanese vehicle inventory,
+                            availability and shipment status.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="gold-button"
+                        data-open-section="addVehicle"
+                    >
+                        + Add Vehicle
+                    </button>
+
+                </div>
 
 
-            <div id="importResult"></div>
+                <div class="stats-grid">
 
-          </div>
+                    <div class="stat-card">
 
-        </div>
+                        <div class="stat-icon">
+                            🚘
+                        </div>
 
-      </section>
+                        <div>
+                            <span>Total Vehicles</span>
+                            <strong id="statTotal">0</strong>
+                        </div>
 
-    </main>
-
-  </section>
-
-
-  <!-- TOAST -->
-
-  <div
-    id="toast"
-    class="toast"
-  ></div>
+                    </div>
 
 
-  <!-- JAVASCRIPT -->
+                    <div class="stat-card">
 
-  <script
-    type="module"
-    src="./admin.js"
-  ></script>
+                        <div class="stat-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <span>Available</span>
+                            <strong id="statAvailable">0</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ◉
+                        </div>
+
+                        <div>
+                            <span>In Transit</span>
+                            <strong id="statTransit">0</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ◆
+                        </div>
+
+                        <div>
+                            <span>Delivered</span>
+                            <strong id="statDelivered">0</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="card-eyebrow">
+                                INVENTORY
+                            </span>
+
+                            <h3>
+                                Recent Vehicles
+                            </h3>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="text-button"
+                            data-open-section="vehicles"
+                        >
+                            View All →
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="recentVehicles"
+                        class="recent-vehicles"
+                    >
+
+                        <div class="empty-state">
+                            <div class="empty-icon">🚘</div>
+                            <h3>No vehicles yet</h3>
+                            <p>
+                                Add your first vehicle to your inventory.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 VEHICLES
+            ================================================== -->
+
+            <section
+                id="section-vehicles"
+                class="dashboard-section"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-eyebrow">
+                            INVENTORY MANAGEMENT
+                        </span>
+
+                        <h1>
+                            All <span>Vehicles</span>
+                        </h1>
+
+                        <p>
+                            Search, edit and manage your vehicle listings.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="gold-button"
+                        data-open-section="addVehicle"
+                    >
+                        + Add Vehicle
+                    </button>
+
+                </div>
+
+
+                <div class="toolbar">
+
+                    <div class="search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            type="search"
+                            id="vehicleSearch"
+                            placeholder="Search vehicle, reference or model..."
+                        >
+
+                    </div>
+
+
+                    <select id="statusFilter">
+
+                        <option value="all">
+                            All Status
+                        </option>
+
+                        <option value="Available">
+                            Available
+                        </option>
+
+                        <option value="Purchased">
+                            Purchased
+                        </option>
+
+                        <option value="In Transit">
+                            In Transit
+                        </option>
+
+                        <option value="Port Arrival">
+                            Port Arrival
+                        </option>
+
+                        <option value="Delivered">
+                            Delivered
+                        </option>
+
+                        <option value="Sold">
+                            Sold
+                        </option>
+
+                    </select>
+
+
+                    <select id="regionFilter">
+
+                        <option value="all">
+                            All Regions
+                        </option>
+
+                        <option value="Africa">
+                            Africa
+                        </option>
+
+                        <option value="Caribbean">
+                            Caribbean
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div
+                        id="vehicleList"
+                        class="vehicle-admin-list"
+                    >
+
+                        <div class="loading-state">
+                            Loading vehicles...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ADD / EDIT VEHICLE
+            ================================================== -->
+
+            <section
+                id="section-addVehicle"
+                class="dashboard-section"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            INVENTORY
+                        </span>
+
+                        <h1 id="vehicleFormTitle">
+                            Add <span>Vehicle</span>
+                        </h1>
+
+                        <p id="vehicleFormSubtitle">
+                            Publish a vehicle to your public catalog.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="vehicleForm"
+                    class="vehicle-form"
+                >
+
+                    <input
+                        type="hidden"
+                        id="editingVehicleId"
+                    >
+
+
+                    <!-- BASIC INFORMATION -->
+
+                    <div class="form-card">
+
+                        <div class="form-card-header">
+
+                            <div>
+                                <span class="card-eyebrow">
+                                    01
+                                </span>
+
+                                <h3>
+                                    Vehicle Information
+                                </h3>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label for="make">
+                                    Make *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="make"
+                                    placeholder="Toyota"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="model">
+                                    Model *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="model"
+                                    placeholder="Land Cruiser Prado"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="year">
+                                    Year *
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="year"
+                                    min="1950"
+                                    max="2100"
+                                    placeholder="2020"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="mileage">
+                                    Mileage
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="mileage"
+                                    placeholder="78,000 km"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="engine">
+                                    Engine
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="engine"
+                                    placeholder="2.7L"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="fuel">
+                                    Fuel
+                                </label>
+
+                                <select id="fuel">
+
+                                    <option value="">
+                                        Select Fuel
+                                    </option>
+
+                                    <option value="Petrol">
+                                        Petrol
+                                    </option>
+
+                                    <option value="Diesel">
+                                        Diesel
+                                    </option>
+
+                                    <option value="Hybrid">
+                                        Hybrid
+                                    </option>
+
+                                    <option value="Electric">
+                                        Electric
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="transmission">
+                                    Transmission
+                                </label>
+
+                                <select id="transmission">
+
+                                    <option value="">
+                                        Select Transmission
+                                    </option>
+
+                                    <option value="Automatic">
+                                        Automatic
+                                    </option>
+
+                                    <option value="Manual">
+                                        Manual
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="drive">
+                                    Drive
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="drive"
+                                    placeholder="4WD"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REFERENCE / STATUS -->
+
+                    <div class="form-card">
+
+                        <div class="form-card-header">
+
+                            <div>
+                                <span class="card-eyebrow">
+                                    02
+                                </span>
+
+                                <h3>
+                                    Listing Details
+                                </h3>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>
+                                    HVE Reference
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="reference"
+                                    placeholder="Automatic"
+                                    readonly
+                                >
+
+                                <small>
+                                    Generated automatically.
+                                </small>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="status">
+                                    Status *
+                                </label>
+
+                                <select id="status" required>
+
+                                    <option value="Available">
+                                        Available
+                                    </option>
+
+                                    <option value="Purchased">
+                                        Purchased
+                                    </option>
+
+                                    <option value="In Transit">
+                                        In Transit
+                                    </option>
+
+                                    <option value="Port Arrival">
+                                        Port Arrival
+                                    </option>
+
+                                    <option value="Delivered">
+                                        Delivered
+                                    </option>
+
+                                    <option value="Sold">
+                                        Sold
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="region">
+                                    Region
+                                </label>
+
+                                <select id="region">
+
+                                    <option value="">
+                                        Select Region
+                                    </option>
+
+                                    <option value="Africa">
+                                        Africa
+                                    </option>
+
+                                    <option value="Caribbean">
+                                        Caribbean
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="country">
+                                    Destination Country
+                                </label>
+
+                                <select id="country">
+
+                                    <option value="">
+                                        No Destination Yet
+                                    </option>
+
+                                </select>
+
+                                <small>
+                                    Optional when publishing an available vehicle.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-card">
+
+                        <div class="form-card-header">
+
+                            <div>
+                                <span class="card-eyebrow">
+                                    03
+                                </span>
+
+                                <h3>
+                                    Description & Features
+                                </h3>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="description">
+                                Vehicle Description
+                            </label>
+
+                            <textarea
+                                id="description"
+                                rows="6"
+                                placeholder="Write a detailed description of the vehicle..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="features">
+                                Key Features
+                            </label>
+
+                            <textarea
+                                id="features"
+                                rows="5"
+                                placeholder="Example: 4WD, Leather Interior, Sunroof, Reverse Camera..."
+                            ></textarea>
+
+                            <small>
+                                Separate features with commas.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PHOTOS -->
+
+                    <div class="form-card">
+
+                        <div class="form-card-header">
+
+                            <div>
+                                <span class="card-eyebrow">
+                                    04
+                                </span>
+
+                                <h3>
+                                    Vehicle Photos
+                                </h3>
+
+                                <p>
+                                    Upload multiple vehicle photos.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="upload-area">
+
+                            <input
+                                type="file"
+                                id="vehicleImages"
+                                accept="image/*"
+                                multiple
+                            >
+
+                            <label
+                                for="vehicleImages"
+                                class="upload-label"
+                            >
+
+                                <span class="upload-icon">
+                                    ↑
+                                </span>
+
+                                <strong>
+                                    Choose Vehicle Photos
+                                </strong>
+
+                                <span>
+                                    JPG, PNG or WebP
+                                </span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div
+                            id="imagePreview"
+                            class="image-preview"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- FORM ACTIONS -->
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            id="cancelVehicleButton"
+                            class="secondary-button"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            id="saveVehicleButton"
+                            class="gold-button"
+                        >
+                            Save Vehicle
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="vehicleFormMessage"
+                        class="form-message hidden"
+                    ></div>
+
+                </form>
+
+            </section>
+
+
+            <!-- =================================================
+                 TRACKING
+            ================================================== -->
+
+            <section
+                id="section-tracking"
+                class="dashboard-section"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            SHIPMENT MANAGEMENT
+                        </span>
+
+                        <h1>
+                            Vehicle <span>Tracking</span>
+                        </h1>
+
+                        <p>
+                            Monitor vehicle shipment progress.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="tracking-flow">
+
+                    <div class="tracking-step">
+                        <span>01</span>
+                        <strong>Purchased</strong>
+                        <small>Vehicle purchased in Japan</small>
+                    </div>
+
+                    <div class="tracking-line"></div>
+
+                    <div class="tracking-step">
+                        <span>02</span>
+                        <strong>Port Departure</strong>
+                        <small>Shipment leaves Japan</small>
+                    </div>
+
+                    <div class="tracking-line"></div>
+
+                    <div class="tracking-step">
+                        <span>03</span>
+                        <strong>In Transit</strong>
+                        <small>Vehicle is on the way</small>
+                    </div>
+
+                    <div class="tracking-line"></div>
+
+                    <div class="tracking-step">
+                        <span>04</span>
+                        <strong>Port Arrival</strong>
+                        <small>Vehicle reaches destination port</small>
+                    </div>
+
+                    <div class="tracking-line"></div>
+
+                    <div class="tracking-step">
+                        <span>05</span>
+                        <strong>Delivered</strong>
+                        <small>Vehicle delivered</small>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <span class="card-eyebrow">
+                                ACTIVE SHIPMENTS
+                            </span>
+
+                            <h3>
+                                Current Tracking
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div id="trackingList">
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">
+                                ◈
+                            </div>
+
+                            <h3>
+                                No active shipments
+                            </h3>
+
+                            <p>
+                                Purchased and in-transit vehicles will appear here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast hidden"
+        role="status"
+    >
+        <span id="toastMessage"></span>
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script type="module" src="admin.js"></script>
 
 </body>
 </html>
