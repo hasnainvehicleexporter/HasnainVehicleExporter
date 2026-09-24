@@ -181,14 +181,14 @@ document.addEventListener("DOMContentLoaded", function () {
                  * WhatsApp number
                  *
                  * International format:
-                 * +92 339 2207418
+                 * +92 319 8148346
                  *
                  * WhatsApp URL:
-                 * 923392207418
+                 * 923198148346
                  */
 
                 const whatsappURL =
-                    "https://wa.me/923392207418?text=" +
+                    "https://wa.me/923198148346?text=" +
                     encodedMessage;
 
 
