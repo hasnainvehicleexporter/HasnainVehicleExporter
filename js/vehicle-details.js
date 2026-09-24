@@ -1154,7 +1154,7 @@ function createWhatsAppURL(
 
 
     return (
-        "https://wa.me/923392207418?text=" +
+        "https://wa.me/923198148346?text=" +
         encodeURIComponent(
             message
         )
@@ -1278,7 +1278,7 @@ document
 
 
             window.open(
-                "https://wa.me/923392207418?text=" +
+                "https://wa.me/923198148346?text=" +
                 whatsappMessage,
                 "_blank"
             );
