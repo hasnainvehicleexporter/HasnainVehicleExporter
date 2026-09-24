@@ -927,7 +927,7 @@ function createCard(vehicle) {
 
 
     const whatsappURL =
-        `https://wa.me/923392207418?text=${encodeURIComponent(whatsappMessage)}`;
+        `https://wa.me/923198148346?text=${encodeURIComponent(whatsappMessage)}`;
 
 
     card.innerHTML = `
